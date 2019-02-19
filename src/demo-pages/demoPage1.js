@@ -13,7 +13,7 @@ import withRoot from '../main/withRoot';
 const styles = theme => ({
   root: {
     textAlign: 'center',
-    paddingTop: theme.spacing.unit * 25,
+    paddingTop: theme.spacing.unit * 20,
   },
 });
 
