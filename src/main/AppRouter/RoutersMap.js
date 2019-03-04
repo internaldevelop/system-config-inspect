@@ -1,5 +1,5 @@
-import Login from '../../login/LogIn';
-import Signup from '../../login/SignUp';
+import Login from '../../pages/login/LogIn';
+import Signup from '../../pages/login/SignUp';
 import DashBoard from '../../navigator/DashBoard';
 import DemoPage1 from '../../demo-pages/demoPage1';
 import TaskPage from '../../pages/SysConfigInspectMain'

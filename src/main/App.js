@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import './App.css';
 import { BrowserRouter, HashRouter, Route, Redirect, Switch } from 'react-router-dom'
-import Login from '../login/LogIn';
-import Signup from '../login/SignUp';
+import Login from '../pages/login/LogIn';
+import Signup from '../pages/login/SignUp';
 import DashBoard from '../navigator/DashBoard';
 import DemoPage1 from '../demo-pages/demoPage1';
 import TaskPage from '../pages/SysConfigInspectMain'
 import AppRouter from './AppRouter'
 import PrivateRoute from './AppRouter/PrivateRoute'
 import PrivateRoute2 from './AppRouter/PrivateRoute2'
-import LoginPage from '../login/LoginPage'
+import LoginPage from '../pages/login/LoginPage'
+import SystemEntry from './SystemEntry'
 
 // class App extends Component {
 //   render() {
@@ -46,7 +47,7 @@ class App extends Component {
           <Switch>
             <Route exact path="/login" component={LoginPage} />
             {/* <Route exact path="/" component={Login} /> */}
-            {/* <PrivateRoute path='/' component={TaskPage} /> */}
+            <PrivateRoute path='/' component={SystemEntry} />
             <PrivateRoute path='/tasks' component={TaskPage} />
             <Route path="/signup" component={Signup} />
             {/* <Route path="/tasks" component={TaskPage} /> */}

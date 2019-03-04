@@ -1,10 +1,10 @@
 import React from 'react';
 import {toastr} from "react-redux-toastr";
 import {Route, withRouter} from 'react-router-dom';
-import Login from '../../login/LogIn';
-import LoginPage from '../../login/LoginPage';
-import Signup from '../../login/SignUp';
-import { IsUserLogin } from '../../login/UserState';
+import Login from '../../pages/login/LogIn';
+import LoginPage from '../../pages/login/LoginPage';
+import Signup from '../../pages/login/SignUp';
+import { IsUserLogin } from '../../pages/login/UserState';
 
 // import LoginUser from 'service/login-service/LoginUser';
 
