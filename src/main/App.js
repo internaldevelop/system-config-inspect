@@ -1,25 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter, HashRouter, Route, Redirect, Switch } from 'react-router-dom'
-import Login from '../pages/login/LogIn';
-import Signup from '../pages/login/SignUp';
-import DashBoard from '../navigator/DashBoard';
-import DemoPage1 from '../demo-pages/demoPage1';
-import TaskPage from '../pages/SysConfigInspectMain'
-import AppRouter from './AppRouter'
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
 import PrivateRoute from './AppRouter/PrivateRoute'
-import PrivateRoute2 from './AppRouter/PrivateRoute2'
-import LoginPage from '../pages/login/LoginPage'
+import LoginPage from '../components/login/LoginPage'
+import Signup from '../components/login/SignUp';
 import SystemEntry from './SystemEntry'
-
-// class App extends Component {
-//   render() {
-//     return (
-//       <AppRouter />
-//     );
-
-//   }
-// }
 
 class App extends Component {
   constructor(props) {
@@ -27,33 +12,18 @@ class App extends Component {
     // this.state = {
     // };
   }
-  render1() {
-    return (
-      <BrowserRouter>
-        <div>
-      <Switch>
-        <Route path='/login' component={Login}/>
-        <PrivateRoute2 path='/' component={TaskPage}/>
-      </Switch>
-      </div>
-      </BrowserRouter>
-    )
-  }
 
   render() {
     return (
       <BrowserRouter>
         <div>
           <Switch>
+            <Route exact path="/" component={LoginPage} />
             <Route exact path="/login" component={LoginPage} />
-            {/* <Route exact path="/" component={Login} /> */}
-            <PrivateRoute path='/' component={SystemEntry} />
-            <PrivateRoute path='/tasks' component={TaskPage} />
-            <Route path="/signup" component={Signup} />
-            {/* <Route path="/tasks" component={TaskPage} /> */}
-            <Route path="/dp1" component={DemoPage1} />
-            <Route path="/DashBoard" component={DashBoard} />
-            {/* <Route  {...this.props}  component={Login} /> */}
+            <PrivateRoute path='/home' component={SystemEntry} />
+            {/* <PrivateRoute path='/tasks' component={TaskPage} /> */}
+            <Route exact path="/signup" component={Signup} />
+            {/* <Redirect exact from='/' to='/home'/> */}
           </Switch>
         </div>
       </BrowserRouter>

@@ -28,7 +28,7 @@ import NavigatorListItems from './NavigatorListItems';
 import TaskTable from './task-manage/TaskTable';
 import ConfigTable from './security-manage/ConfigTable';
 import NewTaskDialog from './task-manage/NewTaskDialog';
-import InspectResults from './inspect-result/InspectResuls'
+import InspectResults from './inspect-result/InspectResults'
 
 const drawerWidth = 240;
 

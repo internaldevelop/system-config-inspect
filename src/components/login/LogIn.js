@@ -104,7 +104,7 @@ class LogIn extends React.Component {
         let history = this.context.router.history;
         if (password === "123456") {
             UserLogin(userName, password, 0);
-            history.push('/tasks');
+            history.push('/home');
         } else {
             alert("密码错误")
         }

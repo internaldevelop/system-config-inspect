@@ -3,6 +3,8 @@ import { Layout } from 'antd'
 import Navigator from './Navigator'
 import ContentMain from './ContentMain'
 import HeaderBar from './HeaderBar'
+import CssBaseline from '@material-ui/core/CssBaseline';
+
 
 const { Sider, Header, Content, Footer } = Layout
 
@@ -22,6 +24,7 @@ class SystemEntry extends React.Component {
         // 设置Sider的minHeight可以使左右自适应对齐
         return (
             <div id='page'>
+                <CssBaseline />
                 <Layout>
                     <Sider collapsible
                         trigger={null}

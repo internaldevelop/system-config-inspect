@@ -1,21 +1,7 @@
 {
     "presets": [
-        [
-            "env",
-            {
-                "targets": {
-                    "browsers": [
-                        "last 2 versions",
-                        "safari >= 7"
-                    ]
-                },
-                "include": [
-                    "transform-es2015-arrow-functions",
-                    "es6.map"
-                ]
-            }
-        ]
-    ],
+        "react-app"
+      ],
     "plugins": [
         [
             "@babel/plugin-proposal-decorators",

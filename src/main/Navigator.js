@@ -9,43 +9,43 @@ const menus = [
     {
         title: '任务管理',
         icon: 'home',
-        key: '/TaskPage'
+        key: '/home'
     },
     {
         title: '安全配置管理',
-        icon: 'home',
-        key: '/home'
+        icon: 'laptop',
+        key: '/home/sec-config'
     },
     {
         title: '检测结果',
-        icon: 'home',
-        key: '/home'
+        icon: 'laptop',
+        key: '/home/inspect-result'
     },
-    {
-        title: '风险预警',
-        icon: 'home',
-        key: '/home'
-    },
-    {
-        title: '账号信息',
-        icon: 'home',
-        key: '/home'
-    },
-    {
-        title: '注册管理',
-        icon: 'home',
-        key: '/home'
-    },
-    {
-        title: '退出账号',
-        icon: 'home',
-        key: '/home'
-    },
-    {
-        title: '首页',
-        icon: 'home',
-        key: '/home'
-    },
+    // {
+    //     title: '风险预警',
+    //     icon: 'home',
+    //     key: '/home'
+    // },
+    // {
+    //     title: '账号信息',
+    //     icon: 'home',
+    //     key: '/home'
+    // },
+    // {
+    //     title: '注册管理',
+    //     icon: 'home',
+    //     key: '/home'
+    // },
+    // {
+    //     title: '退出账号',
+    //     icon: 'home',
+    //     key: '/home'
+    // },
+    // {
+    //     title: '首页',
+    //     icon: 'home',
+    //     key: '/home'
+    // },
     {
         title: '基本组件',
         icon: 'laptop',
