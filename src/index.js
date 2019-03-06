@@ -5,13 +5,18 @@ import App from './main/App';
 import * as serviceWorker from './modules/auxliary/serviceWorker';
 import { Provider } from 'mobx-react'
 import Store from './main/store'
+import { LocaleProvider } from 'antd'
+import zh_CN from 'antd/lib/locale-provider/zh_CN'
 
 
 ReactDOM.render(
-    <Provider {...Store}>
-        <App />
-    </Provider>,
-    document.getElementById('root'));
+    <LocaleProvider locale={zh_CN}>
+        <Provider {...Store}>
+            <App />
+        </Provider>
+    </LocaleProvider>,
+    document.getElementById('root')
+);
 
 
 

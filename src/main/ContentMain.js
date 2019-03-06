@@ -1,7 +1,11 @@
 import React from 'react'
 import { withRouter, Switch, Redirect } from 'react-router-dom'
-import LoadableComponent from '../utils/LoadableComponent'
+// import LoadableComponent from '../utils/LoadableComponent'
 import PrivateRoute from './AppRouter/PrivateRoute'
+
+import TaskManageView from '../views/TaskManageView'
+
+
 // import TEST1 from '../pages/SysConfigInspectMain1'
 import InspectResults from '../pages/inspect-result/InspectResults'
 import Home2 from '../pages/task-manage/TaskTable'
@@ -21,9 +25,9 @@ class ContentMain extends React.Component {
     return (
       <div style={{padding: 16, position: 'relative'}}>
         <Switch>
-          <PrivateRoute exact path='/home' component={InspectResults}/>
+          <PrivateRoute exact path='/home' component={TaskManageView}/>
           <PrivateRoute exact path='/home/sec-config' component={Home2}/>
-          <PrivateRoute exact path='/home/inspect-result' component={TEST2}/>
+          <PrivateRoute exact path='/home/inspect-result' component={InspectResults}/>
 
           <Redirect exact from='/' to='/home'/>
         </Switch>

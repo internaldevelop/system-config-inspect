@@ -23,7 +23,7 @@ const actionsStyles = theme => ({
         marginLeft: theme.spacing.unit * 2.5,
     },
     tableContainer: {
-        height: 320,
+        height: 20,
     },
 });
 
@@ -151,7 +151,7 @@ class InspectResultTable1 extends React.Component {
                     sorting: false,
                     rowStyle: {
                         maxHeight: 20,
-                        height: 20,
+                        height: '20px',
                     },
                     // toolbar: false,
                     // selection: true,

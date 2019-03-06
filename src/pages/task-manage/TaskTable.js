@@ -166,6 +166,7 @@ class TaskTable extends React.Component {
                     // doubleHorizontalScroll: true,
                     columnsButton: true,
                     sorting: false,
+                    rowStyle: {height: 50},
                     // toolbar: false,
                     // selection: true,
                 }}
