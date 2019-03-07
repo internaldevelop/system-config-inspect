@@ -34,6 +34,7 @@ const styles = theme => ({
 class LoginPage extends React.Component {
     constructor(props) {
         super(props);
+        // const userStore = this.props.userStore;
     }
 
     render() {

@@ -13,8 +13,12 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Link from '@material-ui/core/Link';
-import { UserLogin, LoadUserLoginInfo, IsUserLogin, UserLogout } from './UserState';
+// import { UserLogin, LoadUserLoginInfo, IsUserLogin, UserLogout } from './UserState';
 import LoginBGImage from '../../resources/image/login_bg.jpg'
+// import userStore from '../../main/store/UserStore'
+import { observer, inject } from 'mobx-react'
+import UserStore from '../../main/store/UserStore';
+import { withRouter } from 'react-router-dom'
 
 const styles = theme => ({
     main: {
@@ -83,11 +87,16 @@ const styles = theme => ({
     },
 });
 
+@withRouter
+@observer
+@inject('userStore')
 class LogIn extends React.Component {
+
     constructor(props) {
-        const {user, password} = LoadUserLoginInfo();
         super(props);
-        UserLogout();
+        const userStore = this.props.userStore;
+        userStore.initLogin();
+        const { user, password, isLogin } = userStore.loginInfo;
         this.state = {
             userName: user,
             password: password
@@ -97,13 +106,14 @@ class LogIn extends React.Component {
     }
 
     handleSubmit = event => {
+        const userStore = this.props.userStore;
         event.preventDefault();
         let userName = this.state.userName;
         let password = this.state.password;
         console.log("用户名：" + userName + "\t密码：" + password);
-        let history = this.context.router.history;
+        let history = this.props.history;
         if (password === "123456") {
-            UserLogin(userName, password, 0);
+            userStore.saveUser(userName, password, 10);
             history.push('/home');
         } else {
             alert("密码错误")

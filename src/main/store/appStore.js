@@ -1,5 +1,7 @@
-import {observable, action} from 'mobx'
+import {observable, action, configure} from 'mobx'
 // import {isAuthenticated,authenticateSuccess,logout} from '../utils/Session'
+
+configure({enforceActions: 'observed'})
 
 class AppStore {
   // @observable isLogin = !!isAuthenticated()  //利用cookie来判断用户是否登录，避免刷新页面后登录状态丢失

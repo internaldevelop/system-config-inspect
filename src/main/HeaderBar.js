@@ -55,7 +55,7 @@ const styles = theme => ({
 });
 
 //withRouter一定要写在前面，不然路由变化不会反映到props中去
-@withRouter @inject('appStore') @observer
+@withRouter @observer @inject('appStore') 
 class HeaderBar extends React.Component {
   state = {
     title: '',

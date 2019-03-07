@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -41,7 +42,7 @@ const styles = theme => ({
 });
 
 
-class NewTaskDialog extends React.Component {
+class TaskConfig extends React.Component {
   state = {
     activeStep: 0,
     taskName: '新建任务-1',
@@ -230,7 +231,7 @@ class NewTaskDialog extends React.Component {
             );
           })}
         </Stepper> */}
-        <Stepper activeStep={activeStep} orientation='horizontal'>
+        <Stepper activeStep={activeStep} orientation='vertical'>
           {steps.map((label, index) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -278,8 +279,8 @@ class NewTaskDialog extends React.Component {
   }
 }
 
-NewTaskDialog.propTypes = {
+TaskConfig.propTypes = {
   classes: PropTypes.object,
 };
 
-export default withStyles(styles)(NewTaskDialog);
+export default withStyles(styles)(TaskConfig);
