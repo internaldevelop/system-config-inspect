@@ -55,7 +55,7 @@ const styles = theme => ({
 });
 
 //withRouter一定要写在前面，不然路由变化不会反映到props中去
-@withRouter @observer @inject('appStore') 
+@withRouter @observer @inject('userStore')
 class HeaderBar extends React.Component {
   state = {
     title: '',
@@ -128,18 +128,20 @@ class HeaderBar extends React.Component {
         </IconButton>
         <div style={{ lineHeight: '64px', float: 'right' }}>
           <table border="0">
-            <tr>
-              <th>
-                <IconButton className={classes.greenAvatar} aria-label="Full Screen" onClick={this.screenfullToggle}>
-                  <FullScreenIcon />
-                </IconButton>
-              </th>
-              <th>
-                <IconButton className={classes.pinkAvatar} aria-label="Logout" onClick={this.logout.bind(this)}>
-                  <LogoutIcon />
-                </IconButton>
-              </th>
-            </tr>
+            <tbody>
+              <tr>
+                <th>
+                  <IconButton className={classes.greenAvatar} aria-label="Full Screen" onClick={this.screenfullToggle}>
+                    <FullScreenIcon />
+                  </IconButton>
+                </th>
+                <th>
+                  <IconButton className={classes.pinkAvatar} aria-label="Logout" onClick={this.logout.bind(this)}>
+                    <LogoutIcon />
+                  </IconButton>
+                </th>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>

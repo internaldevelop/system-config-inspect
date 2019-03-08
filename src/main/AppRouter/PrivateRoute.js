@@ -1,10 +1,7 @@
 import React from 'react';
 import {Route, withRouter} from 'react-router-dom';
 import LoginPage from '../../components/login/LoginPage';
-// import { IsUserLogin } from '../../components/login/UserState';
-// import { IsUserLogin } from '../store/UserStore'
 
-import userStore from '../../main/store/UserStore'
 import { observer, inject } from 'mobx-react'
 
 // import LoginUser from 'service/login-service/LoginUser';

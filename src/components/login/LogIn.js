@@ -13,9 +13,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Link from '@material-ui/core/Link';
-// import { UserLogin, LoadUserLoginInfo, IsUserLogin, UserLogout } from './UserState';
 import LoginBGImage from '../../resources/image/login_bg.jpg'
-// import userStore from '../../main/store/UserStore'
 import { observer, inject } from 'mobx-react'
 import UserStore from '../../main/store/UserStore';
 import { withRouter } from 'react-router-dom'
@@ -90,11 +88,19 @@ const styles = theme => ({
 @withRouter
 @observer
 @inject('userStore')
+// @inject('taskStore')
 class LogIn extends React.Component {
 
     constructor(props) {
         super(props);
         const userStore = this.props.userStore;
+        // const taskStore = this.props.taskStore;
+        // taskStore.setTaskParams({
+        //     taskName: '任务2',
+        //     configItem: {
+        //         patch: true,
+        //     },
+        // });
         userStore.initLogin();
         const { user, password, isLogin } = userStore.loginInfo;
         this.state = {

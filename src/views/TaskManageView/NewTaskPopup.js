@@ -4,7 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Modal, Button } from 'antd';
 
-import TaskConfig from './TaskConfig'
+// import TaskConfig from './TaskParamsConfig'
+import TaskParamsConfig from './TaskParamsConfig'
+
+import { observer, inject } from 'mobx-react'
+
 
 const styles = theme => ({
     root: {
@@ -13,6 +17,8 @@ const styles = theme => ({
 
 });
 
+@inject('taskStore')
+@observer
 class NewTaskPopup extends React.Component {
     constructor(props) {
         const { visible } = props;
@@ -23,27 +29,24 @@ class NewTaskPopup extends React.Component {
     }
 
     handleOk = (e) => {
-        this.setState({
-            visible: false,
-        });
+        this.props.taskStore.switchShow(false);
     }
 
     handleCancel = (e) => {
-        this.setState({
-            visible: false,
-        });
+        this.props.taskStore.switchShow(false);
     }
 
     render() {
         const { visible } = this.props;
         return (
             <Modal
-                title="新建任务"
-                visible={visible}
+                title={this.props.taskStore.taskProcName}
+                visible={this.props.taskStore.taskPopupShow}
+                style={{ top: 20 }}
                 onOk={this.handleOk}
                 onCancel={this.handleCancel}
             >
-                <TaskConfig />
+                <TaskParamsConfig />
             </Modal>
         )
     }

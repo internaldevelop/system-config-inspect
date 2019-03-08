@@ -6,16 +6,9 @@ import LoginPage from '../components/login/LoginPage'
 import Signup from '../components/login/SignUp';
 import SystemEntry from './SystemEntry'
 
-// import { observer, inject } from 'mobx-react'
-
-// @observer
-// @inject('userStore')
 class App extends Component {
   constructor(props) {
     super(props);
-    // const userStore = this.props.userStore;
-    // this.state = {
-    // };
   }
 
   render() {
