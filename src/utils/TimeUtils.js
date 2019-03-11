@@ -8,3 +8,8 @@ export function GetExpireTimeStr(expireDays) {
     exp.setTime(exp.getTime() + expireDays*24*60*60*1000);
     return exp.toGMTString();
 }
+
+export function GetCurrentTimeStr() {
+    var now = new Date();
+    return now.toGMTString();
+}

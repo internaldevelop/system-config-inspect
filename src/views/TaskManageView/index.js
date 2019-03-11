@@ -12,6 +12,7 @@ import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
 
 import NewTaskPopup from './NewTaskPopup'
 import TaskParamsConfig from './TaskParamsConfig'
+import { GetCurrentTimeStr } from '../../utils/TimeUtils'
 
 import { observer, inject } from 'mobx-react'
 
@@ -42,17 +43,38 @@ class TaskManageView extends React.Component {
     handleDel = (event) => {
         // dataIndex为表中数据的行索引，配置columns时已指定属性dataIndex的数据来源
         let rowIndex = event.target.getAttribute('dataindex')
-        const DelDataSource = this.state.taskRecordData;
+        const delDataSource = this.state.taskRecordData;
         // rowIndex为行索引，后面的1为一次去除几行
-        DelDataSource.splice(rowIndex, 1);
+        delDataSource.splice(rowIndex, 1);
         this.setState({
-            dataSource: DelDataSource,
+            dataSource: delDataSource,
         });
     }
     handleEdit = (event) => {
         let rowIndex = event.target.getAttribute('dataindex')
-        const DelDataSource = this.state.taskRecordData;
+        const editDataSource = this.state.taskRecordData[rowIndex];
+        this.setState({ recordChangeID: rowIndex });
 
+        const taskStore = this.props.taskStore;
+        taskStore.setTaskAction(2);
+        taskStore.setTaskProcName('编辑任务参数');
+        let configItem = {
+            // rowId: rowIndex,
+            index: editDataSource.index,
+            taskName: editDataSource['task_name'],
+            hostName: editDataSource['host_name'],
+            hostIP: editDataSource['host_ip'],
+            hostPort: editDataSource['host_port'],
+            osType: editDataSource['os_type'],
+            osVer: editDataSource['os_ver'],
+        };
+        taskStore.initTaskParams(configItem);
+
+        // const editConfigItem = Object.assign({}, taskStore.configItem);
+        // var editTaskParamsDlg = document.getElementById('TaskParamsConfig');
+        // editTaskParamsDlg.setState({configItem: editConfigItem});
+
+        this.props.taskStore.switchShow(true);
     }
     handleRun = (event) => {
         let rowIndex = event.target.getAttribute('dataindex')
@@ -60,7 +82,25 @@ class TaskManageView extends React.Component {
 
     }
     handleNewTask = (event) => {
-        this.props.taskStore.setTaskProcName('新建任务');
+        const taskStore = this.props.taskStore;
+        taskStore.setTaskAction(1);
+        taskStore.setTaskProcName('新建任务');
+        let configItem = {
+            // rowId: rowIndex,
+            taskName: '新建任务',
+            taskDesc: '',
+            hostName: '本机',
+            hostIP: '127.0.0.1',
+            hostPort: '8192',
+            loginUser: 'root',
+            loginPwd: '',
+            osType: 'Ubuntu',
+            osVer: 'V16.0',
+        };
+        taskStore.initTaskParams(configItem);
+        // this.setState({ isNewRecord: true });
+        // this.props.taskStore.setTaskAction(1);
+        // this.props.taskStore.setTaskProcName('新建任务');
         this.props.taskStore.switchShow(true);
     }
 
@@ -72,12 +112,15 @@ class TaskManageView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            isNewRecord: false,
+            recordChangeID: -1,
             columns: Column,
             taskRecordData: TaskData,
         }
         const { columns, } = this.state;
         const { classes } = this.props;
-        columns[4].render = (text, record, index) => (
+        // columns[8].render = (text, record, index) => (
+        columns[1].render = (text, record, index) => (
             <div>
                 <Button className={classes.actionButton} type="danger" size="small" dataindex={index} onClick={this.handleDel.bind(this)}>删除</Button>
                 <Button className={classes.actionButton} size="small" type="primary" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
@@ -89,22 +132,48 @@ class TaskManageView extends React.Component {
 
     addTaskData = () => {
         const { taskRecordData } = this.state;
+        const configItem = this.props.taskStore.configItem;
+        let id = (taskRecordData.length + 1).toString();
         taskRecordData.unshift({
-            key: taskRecordData.size + 1,
-            index: '2',
-            task_name: this.props.taskStore.configItem.taskName,
+            key: taskRecordData.length + 1,
+            index: (taskRecordData.length + 1).toString(),
+            task_name: configItem.taskName,
             run_status: '已完成',
-            change_time: '2018-2-12',
+            host_name: configItem.hostName,
+            host_ip: configItem.hostIP,
+            host_port: configItem.hostPort,
+            os_type: configItem.osType,
+            os_ver: configItem.osVer,
+            change_time: GetCurrentTimeStr(),
         });
-        this.props.taskStore.clearTaskParams();
+        this.props.taskStore.clearStatus();
+    }
+
+    editTaskParams = () => {
+        const { taskRecordData, recordChangeID } = this.state;
+        const configItem = this.props.taskStore.configItem;
+
+        let record = taskRecordData[recordChangeID];
+        record.task_name = configItem.taskName;
+        record.host_name = configItem.hostName;
+        record.host_ip = configItem.hostIP;
+        record.host_port = configItem.hostPort;
+        record.os_type = configItem.osType;
+        record.os_ver = configItem.osVer;
+        record.change_time = GetCurrentTimeStr();
+        this.props.taskStore.clearStatus();
     }
 
     render() {
         const { columns, taskRecordData } = this.state;
-        let isNeedToAdd = this.props.taskStore.configItem.isNeedToAdd;
-        if (isNeedToAdd)
+        let isAdded = this.props.taskStore.status.isAdded;
+        if (isAdded)
             this.addTaskData();
-        
+        let isChanged = this.props.taskStore.status.isChanged;
+        if (isChanged)
+            this.editTaskParams();
+
+        // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
                 <Row>
@@ -115,7 +184,7 @@ class TaskManageView extends React.Component {
                     columns={columns}
                     dataSource={taskRecordData}
                     bordered={true}
-                    scroll={{ x: 1300, y: 400 }}
+                    scroll={{ x: 1600, y: 700 }}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
                         pageSizeOptions: ['10', '20', '30', '40'],
@@ -124,7 +193,8 @@ class TaskManageView extends React.Component {
                         showSizeChanger: true,
                     }}
                 />
-                <TaskParamsConfig />
+                {/* {taskParamsConfig} */}
+                <TaskParamsConfig id="TaskParamsConfig"/>
             </div>
         )
     }

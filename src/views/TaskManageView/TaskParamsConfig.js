@@ -34,20 +34,28 @@ class TaskParamsConfig extends React.Component {
 
   constructor(props) {
     super(props);
-    const configItem = Object.assign({}, this.props.taskStore.configItem);
+    // const configItem = this.props.taskStore.configItem;
     this.state = {
       current: 0,
-      configItem: configItem,
+      // configItem: configItem,
     };
   }
 
   handleOk = (e) => {
-    const { configItem } = this.state;
-    this.props.taskStore.setTaskParams(configItem, true);
+    // const { configItem } = this.props.taskStore;
+    // configItem.index = this.props.taskStore.configItem.index;
+    // this.props.taskStore.updateTaskParams(configItem);
+   
+    if (this.props.taskStore.taskAction === 1) {
+      this.props.taskStore.setAddStatus();
+    } else if (this.props.taskStore.taskAction === 2) {
+      this.props.taskStore.setChangeStatus();
+    }
     this.props.taskStore.switchShow(false);
   }
 
   handleCancel = (e) => {
+    this.props.taskStore.clearStatus();
     this.props.taskStore.switchShow(false);
   }
 
@@ -57,13 +65,14 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleTaskParamsChange = name => (event) => {
-    const { configItem } = this.state;
-    configItem[name] = event.target.value;
+    this.props.taskStore.setParam(name, event.target.value);
+    // const { configItem } = this.props.taskStore;
+    // configItem[name] = event.target.value;
     // this.setState({ configItem });
   };
 
   StepBaseInfo = () => {
-    const { taskName, taskDesc } = this.state.configItem;
+    const { taskName, taskDesc } = this.props.taskStore.configItem;
     return (
       <form>
         <TextField required fullWidth autoFocus margin="normal"
@@ -79,7 +88,7 @@ class TaskParamsConfig extends React.Component {
   }
 
   StepAssetInfo = () => {
-    const { hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.state.configItem;
+    const { hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.props.taskStore.configItem;
     return (
       <div>
         <form>
@@ -122,18 +131,20 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleConfigChange = name => event => {
-    const { configItem } = this.state;
-    configItem[name] = event.target.checked;
-    this.setState({ configItem: configItem });
+    this.props.taskStore.setParam(name, event.target.checked);
+    // const { configItem } = this.props.taskStore;
+    // configItem[name] = event.target.checked;
+    // this.setState({ configItem: configItem });
   };
 
   getConfigCtrl(name, label) {
+    const { configItem } = this.props.taskStore;
     return (
       <FormControlLabel
         control={
           <Checkbox
             // color="green"
-            checked={this.state.configItem[name]}
+            checked={configItem[name]}
             onChange={this.handleConfigChange(name)}
             value={"configItem-" + name}
           />
@@ -165,6 +176,7 @@ class TaskParamsConfig extends React.Component {
   render() {
     const { current } = this.state;
     const { classes } = this.props;
+    const taskStore = this.props.taskStore;
     const steps = [{
       title: '基本信息',
       content: this.StepBaseInfo(),
@@ -176,10 +188,14 @@ class TaskParamsConfig extends React.Component {
       content: this.StepPolicyConfig(),
     }];
 
+    // 本行代码利用store监视机制，对话框显示时调用render函数，从而实现更新页面数据
+    if (taskStore.taskAction <= 0)
+      return <div></div>;
+
     return (
       <Modal
-        title={this.props.taskStore.taskProcName}
-        visible={this.props.taskStore.taskPopupShow}
+        title={taskStore.taskProcName}
+        visible={taskStore.taskPopupShow}
         style={{ top: 20 }}
         onOk={this.handleOk}
         onCancel={this.handleCancel}

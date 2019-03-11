@@ -10,7 +10,7 @@ import { UserIsAuthenticated } from './session'
 class PrivateRoute extends React.Component{
     componentWillMount(){
         let  isAuthenticated = UserIsAuthenticated();
-        this.setState({isAuthenticated:isAuthenticated})
+        this.setState = {isAuthenticated:isAuthenticated};
         if(!isAuthenticated){
           const {history} = this.props;
           setTimeout(() => {

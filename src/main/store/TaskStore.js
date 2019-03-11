@@ -2,14 +2,22 @@ import { observable, action, configure, computed } from 'mobx'
 import { IsEmptyString } from '../../utils/StringUtils'
 import { IsNowExpired, GetExpireTimeStr } from '../../utils/TimeUtils'
 import { GetCookie, SetCookie, DelCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
+import { CopyProps } from '../../utils/ObjUtils'
 
 configure({ enforceActions: 'observed' })
 
 class TaskStore {
+  // 0: means idle
+  // 1: means new record
+  // 2: means record to be edited
+  @observable taskAction = 0;
   @observable taskProcName = '未知操作';
   @observable taskPopupShow = false;
   // @observable newTaskDataReady = false;
 
+  @action setTaskAction = (action) => {
+    this.taskAction = action;
+  }
   @action setTaskProcName = (name) => {
     this.taskProcName = name;
   }
@@ -17,8 +25,25 @@ class TaskStore {
     this.taskPopupShow = show;
   }
 
+  @observable status = {
+    isAdded: false,
+    isChanged: false,
+    rowId: 0,
+  }
+  @action setAddStatus() {
+    this.status.isAdded = true;
+  }
+  @action setChangeStatus() {
+    this.status.isChanged = true;
+  }
+  @action clearStatus = () => {
+    this.taskAction = 0;
+    this.status.isAdded = false;
+    this.status.isChanged = false;
+  }
+
   @observable configItem = {
-    isNeedToAdd: false,
+    index: 0,
     taskName: '新建任务',
     taskDesc: '',
     hostName: '本机',
@@ -28,6 +53,7 @@ class TaskStore {
     loginPwd: '',
     osType: 'Ubuntu',
     osVer: 'V16.0',
+    changeTime: '',
     patch: false,
     sysService: true,
     sysFileProtect: true,
@@ -40,13 +66,21 @@ class TaskStore {
     selfDefined: true,
   };
 
-  @action setTaskParams = (params, add) => {
-    this.configItem = JSON.parse(JSON.stringify(params));
-    this.configItem.isNeedToAdd = add;
+  @action initTaskParams = (params) => {
+    CopyProps(this.configItem, params);
   }
-  @action clearTaskParams = () => {
-    this.configItem.isNeedToAdd = false;
+  @action setParam = (name, data) => {
+    this.configItem[name] = data;
   }
+  // @action updateTaskParams = (params) => {
+  //   this.configItem = Object.assign({}, params);
+  //   // this.configItem = JSON.parse(JSON.stringify(params));
+  //   if (this.taskAction === 1) {
+  //     this.options.isAdded = true;
+  //   } else if (this.taskAction === 2) {
+  //     this.options.isChanged = true;
+  //   }
+  // } 
 
 }
 
