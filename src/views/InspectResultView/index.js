@@ -11,8 +11,7 @@ import { ResultData } from './ResultData'
 const styles = theme => ({
     iconButton: {
         margin: 0,
-        marginBottom: 0,
-        marginTop: 0,
+        marginLeft: 10,
     },
 });
 
@@ -27,13 +26,14 @@ class InspectResultView extends React.Component {
 
     render() {
         const { columns, resultRecordData } = this.state;
+        const { classes } = this.props;
         return (
             <div>
                 <Row>
                     <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
                     <Col span={8} offset={8} align="right">
-                        <Button type="primary" size="large" ><Icon type="plus-circle-o" />查询</Button>
-                        <Button type="primary" size="large" ><Icon type="plus-circle-o" />导出</Button>
+                        <Button className={classes.iconButton} type="primary" size="large" ><Icon type="search" />查询</Button>
+                        <Button className={classes.iconButton} type="primary" size="large" ><Icon type="export" />导出</Button>
                     </Col>
                 </Row>
                 <Table

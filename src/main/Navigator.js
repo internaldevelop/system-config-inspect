@@ -19,7 +19,20 @@ const menus = [
     {
         title: '检测结果',
         icon: 'laptop',
-        key: '/home/inspect-result'
+        key: '/home/inspect-result',
+        subs: [
+            { key: '/home/inspect-result/overview', title: '检测一览', icon: '', },
+            { key: '/home/inspect-result/details', title: '详情', icon: '', },
+        ]
+    },
+    {
+        title: '系统管理',
+        icon: 'home',
+        key: '/home/sysadmin',
+        subs: [
+            { key: '/home/sysadmin/users', title: '用户管理', icon: '', },
+            { key: '/home/sysadmin/personal', title: '个人资料', icon: '', },
+        ]
     },
     // {
     //     title: '风险预警',
@@ -28,11 +41,6 @@ const menus = [
     // },
     // {
     //     title: '账号信息',
-    //     icon: 'home',
-    //     key: '/home'
-    // },
-    // {
-    //     title: '注册管理',
     //     icon: 'home',
     //     key: '/home'
     // },
