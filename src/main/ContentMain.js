@@ -4,12 +4,16 @@ import { withRouter, Switch, Redirect } from 'react-router-dom'
 import PrivateRoute from './AppRouter/PrivateRoute'
 
 import TaskManageView from '../views/TaskManageView'
+import SecurityConfigView from '../views/SecurityConfigView'
+import InspectResultView from '../views/InspectResultView'
 
 
-// import TEST1 from '../pages/SysConfigInspectMain1'
-import InspectResults from '../pages/inspect-result/InspectResults'
-import Home2 from '../pages/task-manage/TaskTable'
-import TEST2 from '../pages/task-manage/TaskTable'
+//====================================================================
+// old pages, just for reference
+import OldResultPage from '../unused/pages/inspect-result/InspectResults'
+import OldPolicyPage from '../unused/pages/security-manage/ConfigTable'
+import OldTaskPage from '../unused/pages/task-manage/TaskTable'
+import TEST1 from '../unused/pages/SysConfigInspectMain1'
 
 
 // const Home1 = LoadableComponent(()=>import('../pages/task-manage/TaskTable'))  //参数一定要是函数，否则不会懒加载，只会代码拆分
@@ -26,8 +30,12 @@ class ContentMain extends React.Component {
       <div style={{padding: 16, position: 'relative'}}>
         <Switch>
           <PrivateRoute exact path='/home' component={TaskManageView}/>
-          <PrivateRoute exact path='/home/sec-config' component={Home2}/>
-          <PrivateRoute exact path='/home/inspect-result' component={InspectResults}/>
+          <PrivateRoute exact path='/home/sec-config' component={SecurityConfigView}/>
+          <PrivateRoute exact path='/home/inspect-result' component={InspectResultView}/>
+
+          <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage}/>
+          <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage}/>
+          <PrivateRoute exact path='/home/other/ref3' component={OldResultPage}/>
 
           <Redirect exact from='/' to='/home'/>
         </Switch>

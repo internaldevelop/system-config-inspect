@@ -45,9 +45,10 @@ const styles = theme => ({
     backgroundImage: 'url(' + LoginBGImage + ')',
   },
   paper: {
+    width: 400,
     marginTop: theme.spacing.unit * 8,
-    marginLeft: theme.spacing.unit * 70,
-    marginRight: theme.spacing.unit * 70,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

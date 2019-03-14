@@ -49,7 +49,7 @@ const styles = theme => ({
         left: '0',
         width: '100vw',
         height: '100vh',
-        backgroundImage: 'url(' + LoginBGImage + ')',
+        // backgroundImage: 'url(' + LoginBGImage + ')',
         backgroundSize: '100% 100%',
         flexDirection: 'column',
         alignItems: 'center',
@@ -60,9 +60,11 @@ const styles = theme => ({
     },
     
     paper: {
+        width: 400,
         marginTop: theme.spacing.unit * 8,
-        marginLeft: theme.spacing.unit * 70,
-        marginRight: theme.spacing.unit * 70,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        // position: 'fixed',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

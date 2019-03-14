@@ -54,7 +54,9 @@ class InspectResultTable extends React.Component {
         const state = this.state;
         return (
             <div>
-                <Table rowSelection={rowSelection} columns={columns} dataSource={data} />
+                <Table
+                    rowSelection={rowSelection} columns={columns} dataSource={data}
+                />
             </div>
         );
     }

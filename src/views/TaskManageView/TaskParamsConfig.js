@@ -10,6 +10,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 import { observer, inject } from 'mobx-react'
 
+import Draggable from '../../components/window/Draggable'
+
 
 const styles = theme => ({
   stepsContent: {
@@ -45,7 +47,7 @@ class TaskParamsConfig extends React.Component {
     // const { configItem } = this.props.taskStore;
     // configItem.index = this.props.taskStore.configItem.index;
     // this.props.taskStore.updateTaskParams(configItem);
-   
+
     if (this.props.taskStore.taskAction === 1) {
       this.props.taskStore.setAddStatus();
     } else if (this.props.taskStore.taskAction === 2) {
@@ -192,12 +194,17 @@ class TaskParamsConfig extends React.Component {
     if (taskStore.taskAction <= 0)
       return <div></div>;
 
+    const modalTitle = <Draggable title={taskStore.taskProcName} />;
+
     return (
       <Modal
-        title={taskStore.taskProcName}
+        // title={taskStore.taskProcName}
+        title={modalTitle}
         visible={taskStore.taskPopupShow}
         style={{ top: 20 }}
-        onOk={this.handleOk}
+        maskClosable={false}
+        footer={null}
+        // onOk={this.handleOk}
         onCancel={this.handleCancel}
       >
         <div>
@@ -206,20 +213,28 @@ class TaskParamsConfig extends React.Component {
           </Steps>
           <div className={classes.stepsContent}>{steps[current].content}</div>
           <div className={classes.stepsAction}>
-            {
-              current > 0 && (
-                <Button style={{ marginLeft: 8 }} onClick={() => this.moveStep(-1)}>
-                  上一步
-              </Button>)
-            }
-            {
-              current < steps.length - 1
-              && <Button type="primary" onClick={() => this.moveStep(1)}>下一步</Button>
-            }
-            {
-              current === steps.length - 1
-              && <Button type="primary" onClick={() => message.success('Processing complete!')}>完成</Button>
-            }
+            <Row gutter={16}>
+              <Col span={6}>
+                {
+                  current > 0 && (
+                    <Button style={{ marginLeft: 8 }} onClick={() => this.moveStep(-1)}>
+                      上一步
+                    </Button>)
+                }
+              </Col>
+              <Col span={6}>
+                {
+                  current < steps.length - 1
+                  && <Button style={{ marginLeft: 8 }} type="secondary" onClick={() => this.moveStep(1)}>下一步</Button>
+                }
+              </Col>
+              <Col span={6}>
+                {<Button type="secondary" style={{ marginLeft: 8 }} onClick={this.handleCancel}>取消</Button>}
+              </Col>
+              <Col span={6}>
+                {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>完成</Button>}
+              </Col>
+            </Row>
           </div>
         </div>
       </Modal>

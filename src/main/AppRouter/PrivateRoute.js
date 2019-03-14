@@ -16,9 +16,9 @@ class PrivateRoute extends React.Component{
     constructor(props) {
         super(props);
         const userStore = this.props.userStore;
-        const { isLogin } = userStore.loginInfo;
         this.state = {
-            isUserLogin: userStore.isLogin,
+            // isUserLogin: userStore.isLogin,
+            isUserLogin: true,
         }
     }
     // componentWillMount(){

@@ -1,11 +1,11 @@
-import { GetExpireTimeStr } from './TimeUtils'
+import { GetExpireTimeGMTStr } from './TimeUtils'
 
 export function SetCookie(name, value) {
     document.cookie = name + "="+ escape (value);
 } 
 
 export function SetCookieExpireDays(name, value, days) {
-    document.cookie = name + "="+ escape (value) + ";expires=" + GetExpireTimeStr(days);
+    document.cookie = name + "="+ escape (value) + ";expires=" + GetExpireTimeGMTStr(days);
 }
 
 export function GetCookie(name)

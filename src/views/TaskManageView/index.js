@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import { Table, Icon, Button, Row, Col } from 'antd'
 import { columns as Column } from './Column'
 import { TaskData } from './TaskData'
@@ -12,7 +13,7 @@ import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
 
 import NewTaskPopup from './NewTaskPopup'
 import TaskParamsConfig from './TaskParamsConfig'
-import { GetCurrentTimeStr } from '../../utils/TimeUtils'
+import { GetNowTimeGMTStr, GetNowTimeMyStr } from '../../utils/TimeUtils'
 
 import { observer, inject } from 'mobx-react'
 
@@ -70,10 +71,6 @@ class TaskManageView extends React.Component {
         };
         taskStore.initTaskParams(configItem);
 
-        // const editConfigItem = Object.assign({}, taskStore.configItem);
-        // var editTaskParamsDlg = document.getElementById('TaskParamsConfig');
-        // editTaskParamsDlg.setState({configItem: editConfigItem});
-
         this.props.taskStore.switchShow(true);
     }
     handleRun = (event) => {
@@ -86,7 +83,6 @@ class TaskManageView extends React.Component {
         taskStore.setTaskAction(1);
         taskStore.setTaskProcName('新建任务');
         let configItem = {
-            // rowId: rowIndex,
             taskName: '新建任务',
             taskDesc: '',
             hostName: '本机',
@@ -98,9 +94,6 @@ class TaskManageView extends React.Component {
             osVer: 'V16.0',
         };
         taskStore.initTaskParams(configItem);
-        // this.setState({ isNewRecord: true });
-        // this.props.taskStore.setTaskAction(1);
-        // this.props.taskStore.setTaskProcName('新建任务');
         this.props.taskStore.switchShow(true);
     }
 
@@ -120,7 +113,7 @@ class TaskManageView extends React.Component {
         const { columns, } = this.state;
         const { classes } = this.props;
         // columns[8].render = (text, record, index) => (
-        columns[1].render = (text, record, index) => (
+        columns[9].render = (text, record, index) => (
             <div>
                 <Button className={classes.actionButton} type="danger" size="small" dataindex={index} onClick={this.handleDel.bind(this)}>删除</Button>
                 <Button className={classes.actionButton} size="small" type="primary" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
@@ -138,13 +131,13 @@ class TaskManageView extends React.Component {
             key: taskRecordData.length + 1,
             index: (taskRecordData.length + 1).toString(),
             task_name: configItem.taskName,
-            run_status: '已完成',
+            run_status: ['已完成'],
             host_name: configItem.hostName,
             host_ip: configItem.hostIP,
             host_port: configItem.hostPort,
             os_type: configItem.osType,
             os_ver: configItem.osVer,
-            change_time: GetCurrentTimeStr(),
+            change_time: GetNowTimeMyStr(),
         });
         this.props.taskStore.clearStatus();
     }
@@ -160,7 +153,7 @@ class TaskManageView extends React.Component {
         record.host_port = configItem.hostPort;
         record.os_type = configItem.osType;
         record.os_ver = configItem.osVer;
-        record.change_time = GetCurrentTimeStr();
+        record.change_time = GetNowTimeMyStr();
         this.props.taskStore.clearStatus();
     }
 
@@ -184,7 +177,8 @@ class TaskManageView extends React.Component {
                     columns={columns}
                     dataSource={taskRecordData}
                     bordered={true}
-                    scroll={{ x: 1600, y: 700 }}
+                    scroll={{ x: 1600, y: 400 }}
+                    // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
                         pageSizeOptions: ['10', '20', '30', '40'],
@@ -194,10 +188,16 @@ class TaskManageView extends React.Component {
                     }}
                 />
                 {/* {taskParamsConfig} */}
-                <TaskParamsConfig id="TaskParamsConfig"/>
+                <TaskParamsConfig id="TaskParamsConfig" />
             </div>
         )
     }
 }
+
+
+TaskManageView.propTypes = {
+    classes: PropTypes.object,
+};
+
 
 export default withStyles(styles)(TaskManageView);

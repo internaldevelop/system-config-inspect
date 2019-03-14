@@ -1,6 +1,6 @@
 import { observable, action, configure, computed } from 'mobx'
 import { IsEmptyString } from '../../utils/StringUtils'
-import { IsNowExpired, GetExpireTimeStr } from '../../utils/TimeUtils'
+import { IsNowExpired, GetExpireTimeGMTStr } from '../../utils/TimeUtils'
 import { GetCookie, SetCookie, DelCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
 import { CopyProps } from '../../utils/ObjUtils'
 
@@ -72,15 +72,6 @@ class TaskStore {
   @action setParam = (name, data) => {
     this.configItem[name] = data;
   }
-  // @action updateTaskParams = (params) => {
-  //   this.configItem = Object.assign({}, params);
-  //   // this.configItem = JSON.parse(JSON.stringify(params));
-  //   if (this.taskAction === 1) {
-  //     this.options.isAdded = true;
-  //   } else if (this.taskAction === 2) {
-  //     this.options.isChanged = true;
-  //   }
-  // } 
 
 }
 

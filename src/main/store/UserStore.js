@@ -1,6 +1,6 @@
 import { observable, action, configure, computed } from 'mobx'
 import { IsEmptyString } from '../../utils/StringUtils'
-import { IsNowExpired, GetExpireTimeStr } from '../../utils/TimeUtils'
+import { IsNowExpired, GetExpireTimeGMTStr } from '../../utils/TimeUtils'
 import { GetCookie, SetCookie, DelCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
 
 configure({enforceActions: 'observed'})
@@ -58,7 +58,7 @@ class UserStore {
         let info = JSON.stringify({
             user: user,
             password: password,
-            expire: GetExpireTimeStr(expireDays),
+            expire: GetExpireTimeGMTStr(expireDays),
         });
         SetCookieExpireDays(loginInfoName, info, expireDays);
     }
