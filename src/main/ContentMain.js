@@ -7,6 +7,7 @@ import TaskManageView from '../views/TaskManageView'
 import SecurityConfigView from '../views/SecurityConfigView'
 import InspectResultOverview from '../views/InspectResultOverview'
 import InspectResultView from '../views/InspectResultView'
+import AccountManageView from '../views/AccountManageView'
 
 
 //====================================================================
@@ -28,7 +29,7 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview}/>
           <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView}/>
 
-          <PrivateRoute exact path='/home/sysadmin/users' component={InspectResultView}/>
+          <PrivateRoute exact path='/home/sysadmin/users' component={AccountManageView}/>
           <PrivateRoute exact path='/home/sysadmin/personal' component={InspectResultView}/>
 
           <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage}/>

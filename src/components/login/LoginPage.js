@@ -27,7 +27,7 @@ const styles = theme => ({
         // background:'#DEF3F4',
         // backface-visibility: hidden,
         // background: linear-gradient(230deg, rgba(53, 57, 74, 0) 0%, rgb(0, 0, 0) 100%);
-    
+
     },
 });
 
@@ -38,7 +38,7 @@ class LoginPage extends React.Component {
     }
 
     render() {
-        const {classes} = this.props;
+        const { classes } = this.props;
         return (
             <div id='login-page'>
                 {/* <div id='bg-image' className={classes.backgroundBox} /> */}
