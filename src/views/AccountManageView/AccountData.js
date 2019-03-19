@@ -1,25 +1,9 @@
-const accountCount = 20;
-
-export function AccountData() {
-    const accounts = [];
-    for (let i = 0; i < accountCount; i++) {
-        accounts.push({
-            index: i,
-            account: `账号-${i+1}`,
-            name: `用户 ${i+1}`,
-            address: '',
-            email: '',
-            phone: '13900013254',
-            desc: '',
-        })
-    }
-    return accounts;
-}
+import { FetchAllAcounts } from '../../modules/data/account'
 
 export function AccountListData() {
     const listData = [];
-    const accounts = AccountData();
-    for (let i = 0; i < accountCount; i++) {
+    const accounts = FetchAllAcounts();
+    for (let i = 0; i < accounts.length; i++) {
         listData.push({
             // href: 'http://ant.design',
             index: accounts[i].index,

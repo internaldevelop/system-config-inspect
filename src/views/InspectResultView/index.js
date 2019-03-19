@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { Table, Icon, Button, Row, Col } from 'antd'
+import { Table, Icon, Button, Row, Col, Tabs } from 'antd'
 
 import { columns as Column } from './Column'
 import { ResultData } from './ResultData'
+
+const TabPane = Tabs.TabPane;
 
 const styles = theme => ({
     iconButton: {
@@ -22,6 +24,22 @@ class InspectResultView extends React.Component {
             columns: Column,
             resultRecordData: ResultData,
         }
+    }
+
+    callback = (key) => {
+        console.log(key);
+    }
+
+    rowDetails = (record) => {
+        // return <p style={{ margin: 0 }}>{record.solution}</p>;
+        return (
+            <Tabs defaultActiveKey="1" onChange={this.callback} >
+                <TabPane tab="任务名称" key="1">{record.task_name}</TabPane>
+                <TabPane tab="检测目标" key="2">{record.target_name}</TabPane>
+                <TabPane tab="问题描述" key="3">{record.risk_desc}</TabPane>
+                <TabPane tab="建议方案" key="4">{record.solution}</TabPane>
+            </Tabs>
+        );
     }
 
     render() {
@@ -41,6 +59,7 @@ class InspectResultView extends React.Component {
                     dataSource={resultRecordData}
                     bordered={true}
                     scroll={{ x: 1600, y: 400 }}
+                    expandedRowRender={record => this.rowDetails(record)}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
                         pageSizeOptions: ['10', '20', '30', '40'],

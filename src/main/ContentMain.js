@@ -8,6 +8,8 @@ import SecurityConfigView from '../views/SecurityConfigView'
 import InspectResultOverview from '../views/InspectResultOverview'
 import InspectResultView from '../views/InspectResultView'
 import AccountManageView from '../views/AccountManageView'
+import AccountInfo from '../views/AccountManageView/AccountInfo'
+import AboutView from '../views/AboutView'
 
 
 //====================================================================
@@ -30,7 +32,9 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView}/>
 
           <PrivateRoute exact path='/home/sysadmin/users' component={AccountManageView}/>
-          <PrivateRoute exact path='/home/sysadmin/personal' component={InspectResultView}/>
+          <PrivateRoute exact path='/home/sysadmin/personal' component={AccountInfo}/>
+
+          <PrivateRoute exact path='/home/about' component={AboutView}/>
 
           <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage}/>
           <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage}/>

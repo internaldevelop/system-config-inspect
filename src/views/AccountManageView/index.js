@@ -7,8 +7,9 @@ import blue from '@material-ui/core/colors/blue';
 
 import { List, Avatar, Row, Col, message, Button, Icon } from 'antd';
 
-import { AccountData, AccountListData } from './AccountData'
+import { AccountListData } from './AccountData'
 import AccountCard from './AccountCard'
+import { GetAccountByIndex, FetchAllAcounts } from '../../modules/data/account'
 
 const styles = theme => ({
     iconButton: {
@@ -30,6 +31,7 @@ class AccountManageView extends React.Component {
         this.state = {
             selectedAccID: 0,
         }
+        FetchAllAcounts();
     }
 
     onClick = (event, index) => {
@@ -80,7 +82,7 @@ class AccountManageView extends React.Component {
 
     getSelectedAccount() {
         let id = this.state.selectedAccID;
-        return AccountData()[id];
+        return GetAccountByIndex(id);
     }
 
     render() {
@@ -92,7 +94,7 @@ class AccountManageView extends React.Component {
                         { this.accountListBox() }
                     </Col>
                     <Col span={16}>
-                        <AccountCard accindex={selected.index}/>
+                        <AccountCard accindex={selected.index} manage={1}/>
                     </Col>
                 </Row>
             </div>

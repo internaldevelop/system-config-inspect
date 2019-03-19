@@ -2,9 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Card, Form, Select, Input, Tooltip, Icon, Cascader } from 'antd';
+import { Card, Form, Select, Input, Tooltip, Icon, Cascader, Row, Col } from 'antd';
 
-import { AccountData, AccountListData } from './AccountData'
+import { GetAccountByIndex } from '../../modules/data/account'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -76,7 +76,7 @@ class AccountCard extends React.Component {
 
     getAccount() {
         let id = this.props.accindex;
-        return AccountData()[id];
+        return GetAccountByIndex(id);
     }
 
     render() {
@@ -109,8 +109,20 @@ class AccountCard extends React.Component {
                 <Card
                     type="inner"
                     title='基本信息'
+                    extra={(account.status === 1) && (this.props.manage === 1) && <a href="#">激活</a>}
                 >
-                    {"账号：" + account.account + "\t\t\t\tID：" + account.index}
+                    <Row>
+                        <Col span={8}>
+                            {"账号：" + account.account}
+                        </Col>
+                        <Col span={8}>
+                            {"账号ID：" + account.index}
+                        </Col>
+                        <Col span={8}>
+                            { (account.status === 1) && "账户未激活"}
+                            { (account.status === 0) && "账户已激活"}
+                        </Col>
+                    </Row>
                 </Card>
                 <Card
                     style={{ marginTop: 16 }}
@@ -126,7 +138,7 @@ class AccountCard extends React.Component {
                     title="个人资料"
                     extra={<a href="#">修改</a>}
                 >
-                    <Form layout='horizontal' style={{ width: '70%', margin: '0 auto' }}>
+                    <Form layout='horizontal' style={{ width: '70%', margin: '0 auto', display: 'block' }}>
                         <FormItem label='邮箱' {...formItemLayout}>
                             {
                                 getFieldDecorator('email', {
