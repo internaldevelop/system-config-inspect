@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { HashRouter, BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
 import PrivateRoute from './AppRouter/PrivateRoute'
 import LoginPage from '../components/login/LoginPage'
 import Signup from '../components/login/SignUp';
@@ -13,7 +13,7 @@ class App extends Component {
 
   render() {
     return (
-      <BrowserRouter>
+      <HashRouter>
         <div>
           <Switch>
             <Route exact path="/" component={LoginPage} />
@@ -24,7 +24,7 @@ class App extends Component {
             {/* <Redirect exact from='/' to='/home'/> */}
           </Switch>
         </div>
-      </BrowserRouter>
+      </HashRouter>
     );
 
   }
