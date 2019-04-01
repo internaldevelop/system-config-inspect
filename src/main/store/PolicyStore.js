@@ -1,4 +1,4 @@
-import { observable, action, configure, computed } from 'mobx'
+import { observable, action, configure } from 'mobx'
 import { CopyProps } from '../../utils/ObjUtils'
 
 configure({ enforceActions: 'observed' })

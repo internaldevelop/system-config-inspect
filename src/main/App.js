@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
 import './App.css';
-import { HashRouter, BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { HashRouter, Route, Switch } from 'react-router-dom'
 import PrivateRoute from './AppRouter/PrivateRoute'
 import LoginPage from '../components/login/LoginPage'
 import Signup from '../components/login/SignUp';
 import SystemEntry from './SystemEntry'
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <HashRouter>

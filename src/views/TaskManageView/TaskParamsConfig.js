@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Modal, Steps, Button, message, Row, Col } from 'antd';
+import { Modal, Steps, Button, Row, Col } from 'antd';
 
 import TextField from '@material-ui/core/TextField';
 import FormGroup from '@material-ui/core/FormGroup';

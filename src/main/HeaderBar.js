@@ -1,26 +1,20 @@
 import React from 'react'
-import classNames from 'classnames';
-import { PageHeader, Button, Icon, Badge, Dropdown, Menu, Modal } from 'antd'
+// import classNames from 'classnames';
 import screenfull from 'screenfull'
 import { inject, observer } from 'mobx-react'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { withStyles } from '@material-ui/core/styles';
 import green from '@material-ui/core/colors/green';
 import pink from '@material-ui/core/colors/pink';
-import Avatar from '@material-ui/core/Avatar';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-// import { isAuthenticated } from '../../utils/Session'
 
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NewTaskIcon from '@material-ui/icons/AddBoxOutlined';
+// import NotificationsIcon from '@material-ui/icons/Notifications';
+// import NewTaskIcon from '@material-ui/icons/AddBoxOutlined';
 import FullScreenIcon from '@material-ui/icons/FullscreenOutlined';
-import FullScreenExitIcon from '@material-ui/icons/FullscreenExitOutlined';
+// import FullScreenExitIcon from '@material-ui/icons/FullscreenExitOutlined';
 import LogoutIcon from '@material-ui/icons/ExitToAppOutlined';
 import MenuIcon from '@material-ui/icons/Menu';
-import { Logout } from '../components/login/Logout';
+// import { Logout } from '../components/login/Logout';
 
 
 const styles = theme => ({
@@ -95,32 +89,21 @@ class HeaderBar extends React.Component {
   }
 
   render() {
-    const { icon, count, visible, avatar, title, subtitle } = this.state
-    const { appStore, collapsed, location, classes } = this.props
-    const notLogin = (
-      <div>
-        <Link to={{ pathname: '/login', state: { from: location } }} style={{ color: 'rgba(0, 0, 0, 0.65)' }}>登录</Link>&nbsp;
-        {/* <img src={require('../../assets/img/defaultUser.jpg')} alt=""/> */}
-      </div>
-    )
-    const menu = (
-      <Menu className='menu'>
-        <Menu.ItemGroup title='用户中心' className='menu-group'>
-          {/* <Menu.Item>你好 - {isAuthenticated()}</Menu.Item> */}
-          <Menu.Item>个人信息</Menu.Item>
-          <Menu.Item><span onClick={this.logout}>退出登录</span></Menu.Item>
-        </Menu.ItemGroup>
-        <Menu.ItemGroup title='设置中心' className='menu-group'>
-          <Menu.Item>个人设置</Menu.Item>
-          <Menu.Item>系统设置</Menu.Item>
-        </Menu.ItemGroup>
-      </Menu>
-    )
-    const login = (
-      <Dropdown overlay={menu}>
-        <img onClick={() => this.setState({ visible: true })} src={avatar} alt="" />
-      </Dropdown>
-    )
+    const { classes } = this.props
+    // const menu = (
+    //   <Menu className='menu'>
+    //     <Menu.ItemGroup title='用户中心' className='menu-group'>
+    //       {/* <Menu.Item>你好 - {isAuthenticated()}</Menu.Item> */}
+    //       <Menu.Item>个人信息</Menu.Item>
+    //       <Menu.Item><span onClick={this.logout}>退出登录</span></Menu.Item>
+    //     </Menu.ItemGroup>
+    //     <Menu.ItemGroup title='设置中心' className='menu-group'>
+    //       <Menu.Item>个人设置</Menu.Item>
+    //       <Menu.Item>系统设置</Menu.Item>
+    //     </Menu.ItemGroup>
+    //   </Menu>
+    // )
+
     return (
       <div id='headerbar'>
         <IconButton className={classes.menuButton} color="primary" aria-label="Open drawer" onClick={this.toggle}>

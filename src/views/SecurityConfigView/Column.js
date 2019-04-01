@@ -1,6 +1,5 @@
 import React from 'react'
-import { Tooltip, Tag, Input, Form } from 'antd';
-const { TextArea } = Input;
+import { Tooltip } from 'antd';
 
 export const columns = [
   {

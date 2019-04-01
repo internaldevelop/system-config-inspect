@@ -15,9 +15,7 @@ import { observer, inject } from 'mobx-react'
 class PrivateRoute extends React.Component{
     constructor(props) {
         super(props);
-        const userStore = this.props.userStore;
         this.state = {
-            // isUserLogin: userStore.isLogin,
             isUserLogin: true,
         }
     }

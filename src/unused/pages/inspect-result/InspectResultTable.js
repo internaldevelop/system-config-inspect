@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { Table } from 'antd';
-import DatePicker from 'antd/lib/date-picker';
+import { Table, Button } from 'antd';
+// import DatePicker from 'antd/lib/date-picker';
 import 'antd/dist/antd.css';
 
 const columns = [{
     title: 'Name',
     dataIndex: 'name',
-    render: text => <a href="javascript:;">{text}</a>,
+    render: text => <Button>{text}</Button>,
 }, {
     title: 'Age',
     dataIndex: 'age',
@@ -51,7 +51,6 @@ const rowSelection = {
 class InspectResultTable extends React.Component {
 
     render() {
-        const state = this.state;
         return (
             <div>
                 <Table

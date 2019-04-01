@@ -12,20 +12,20 @@ import SearchIcon from '@material-ui/icons/SearchRounded';
 import ExportIcon from '@material-ui/icons/SaveRounded';
 import ViewColumnIcon from '@material-ui/icons/ViewColumnRounded';
 import ExpandDetailIcon from '@material-ui/icons/ChevronRightRounded';
-import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
-import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
-import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
+// import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
+// import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
+// import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
 
-const actionsStyles = theme => ({
-    root: {
-        flexShrink: 0,
-        color: theme.palette.text.secondary,
-        marginLeft: theme.spacing.unit * 2.5,
-    },
-    tableContainer: {
-        height: 20,
-    },
-});
+// const actionsStyles = theme => ({
+//     root: {
+//         flexShrink: 0,
+//         color: theme.palette.text.secondary,
+//         marginLeft: theme.spacing.unit * 2.5,
+//     },
+//     tableContainer: {
+//         height: 20,
+//     },
+// });
 
 
 let counter = 0;
@@ -106,9 +106,9 @@ class InspectResultTable1 extends React.Component {
     };
 
     render() {
-        const { classes } = this.props;
-        const { rows, rowsPerPage, page } = this.state;
-        const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+        // const { classes } = this.props;
+        const { rows } = this.state;
+        // const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
         return (
             <MaterialTable

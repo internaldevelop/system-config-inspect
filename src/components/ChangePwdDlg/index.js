@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
 
 import { Modal, Form, Input } from 'antd'
 
@@ -95,7 +94,7 @@ class ChangePwdDlg extends React.Component {
 
     render() {
         const modalTitle = <Draggable title="修改密码" />;
-        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const { getFieldDecorator } = this.props.form;
 
         return (
             <Modal

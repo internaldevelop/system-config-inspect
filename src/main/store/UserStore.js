@@ -1,7 +1,7 @@
 import { observable, action, configure, computed } from 'mobx'
 import { IsEmptyString } from '../../utils/StringUtils'
-import { IsNowExpired, GetExpireTimeGMTStr } from '../../utils/TimeUtils'
-import { GetCookie, SetCookie, DelCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
+import { GetExpireTimeGMTStr } from '../../utils/TimeUtils'
+import { GetCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
 
 configure({enforceActions: 'observed'})
 
@@ -14,6 +14,7 @@ const LoadUserLoginInfo = () => {
     if (IsEmptyString(login)) {
         return ({
             user: '',
+            userUuid: '',
             password: '',
             expire: '',
         });
@@ -24,6 +25,7 @@ const LoadUserLoginInfo = () => {
 
 class UserStore {
     @observable isLogin = false;
+    @observable userUuid = '';
     @observable user = '';
     @observable password = '';
     @observable isExpired = true;
@@ -31,28 +33,32 @@ class UserStore {
     @computed get loginInfo() {
         return ({
             user: this.user,
+            userUuid: this.initLogin.userUuid,
             password: this.password,
             isLogin: this.isLogin,
         });
     }
 
     @action initLogin = () => {
-        const { user, password, expire } = LoadUserLoginInfo();
+        const { user, userUuid, password } = LoadUserLoginInfo();
         this.isLogin = false;
         this.user = user;
+        this.userUuid = userUuid;
         this.password = password;
         // this.isExpired = IsNowExpired(expire);
         this.isExpired = IsEmptyString(user);
     }
 
-    @action setLogin = (user, password, bLogin) => {
+    @action setLogin = (user, userUuid, password, bLogin) => {
         this.user = user;
+        this.userUuid = userUuid;
         this.password = password;
         this.isLogin = bLogin;
     }
 
-    @action saveUser = (user, password, expireDays) => {
+    @action saveUser = (user, userUuid, password, expireDays) => {
         this.user = user;
+        this.userUuid = userUuid;
         this.password = password;
         this.isLogin = true;
         let info = JSON.stringify({

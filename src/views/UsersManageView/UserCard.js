@@ -1,11 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { Card, Form, Select, Input, Tooltip, Icon, message, Row, Col } from 'antd';
+import axios from 'axios';
+import Qs from 'qs';
 
-import { Card, Form, Select, Input, Tooltip, Icon, Cascader, Row, Col } from 'antd';
-
-import { SaveAccountData, GetAccountByIndex } from '../../modules/data/account'
 import ChangePwdDlg from '../../components/ChangePwdDlg'
+import HttpRequest from '../../utils/HttpRequest'
+
+import { GetBackEndRootUrl } from '../../global/environment'
+import { errorCode } from '../../global/error'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -78,19 +82,25 @@ const styles = theme => ({
 });
 
 @Form.create()
-class AccountCard extends React.Component {
+class UserCard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isModifyDetails: false,
+            isModifyDetails: false, // false 表示只读状态，true 表示正在修改中，可以保存和取消
             showChangePwd: false,
-            // accountIndex: this.props.accindex,
+            userUuid: this.props.uuid,
+            userInfo: {}, // 临时保存修改但未提交的用户信息，实际的用户信息保存在 this.props.user
         };
+        this.fetchUser();
     }
 
-    getAccount() {
-        let id = this.props.accindex;
-        return GetAccountByIndex(id);
+    fetchUserCB = (payload) => {
+        this.setState({ userUuid: this.props.uuid, userInfo: payload });
+        const { resetFields } = this.props.form;
+        resetFields();
+    }
+    fetchUser() {
+        HttpRequest.asyncGet(this.fetchUserCB.bind(this), '/users/user-by-uuid', {uuid: this.props.uuid} );
     }
 
     cancelModifyDetails = () => {
@@ -99,23 +109,38 @@ class AccountCard extends React.Component {
         this.setState({ isModifyDetails: !this.state.isModifyDetails });
     }
 
+    activateUser() {
+
+    }
+
+    testHttpPostCB(payload) {
+        console.log('testHttpPostCB post data, return:');
+        console.log(payload);//输出返回的数据
+    }
+    testHttpPost() {
+
+    }
+
     modifyDetails = () => {
-        const { resetFields } = this.props.form;
         let success = true;
-        const id = this.props.accindex;
         if (this.state.isModifyDetails) {
             this.props.form.validateFields((err, values) => {
-                // console.log('Received values of form: ', err, values);
                 if (err !== null) {
                     success = false;
                 } else {
-                    SaveAccountData(id, values);
-                    resetFields();
+                    const { userInfo } = this.state;
+                    let newUserData = {};
+                    Object.assign(newUserData, userInfo, values);
+                    HttpRequest.asyncPost(this.updateUserDataCB, '/users/update', newUserData);
                 }
             });
         }
         if (success)
             this.setState({ isModifyDetails: !this.state.isModifyDetails });
+    }
+
+    updateUserDataCB(payload) {
+        this.fetchUser();
     }
 
     changePassword = () => {
@@ -126,9 +151,9 @@ class AccountCard extends React.Component {
     }
 
     render() {
+        const { userInfo } = this.state;
         const { classes } = this.props;
-        let accountIndex = this.props.accindex;
-        const { getFieldDecorator, getFieldValue } = this.props.form
+        const { getFieldDecorator } = this.props.form
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -147,28 +172,32 @@ class AccountCard extends React.Component {
                 {/* <Option value={87}>+87</Option> */}
             </Select>
         );
+        if (this.props.uuid !== this.state.userUuid) {
+            // this.setState({ userUuid: this.props.uuid });
+            this.fetchUser();
+        }
 
-
-        let account = this.getAccount();
-
+        // The href attribute is required for an anchor to be keyboard accessible. 
+        // Provide a valid, navigable address as the href value. If you cannot provide an href, 
+        // but still need the element to resemble a link, use a button and change it with appropriate styles.
         return (
             <div>
-                <Card title={account.name}>
+                <Card title={userInfo.name}>
                     <Card
                         type="inner"
                         title='基本信息'
-                        extra={(account.status === 1) && (this.props.manage === 1) && <a href="#">激活</a>}
+                        extra={(userInfo.status === 1) && (this.props.manage === 1) && <a onClick={this.testHttpPost.bind(this)}>激活</a>}
                     >
                         <Row>
                             <Col span={8}>
-                                {"账号：" + account.account}
+                                {"账号：" + userInfo.account}
                             </Col>
                             <Col span={8}>
-                                {"账号ID：" + account.index}
+                                {"账号ID：" + userInfo.index}
                             </Col>
                             <Col span={8}>
-                                {(account.status === 1) && "账户未激活"}
-                                {(account.status === 0) && "账户已激活"}
+                                {(userInfo.status === 1) && "账户未激活"}
+                                {(userInfo.status === 0) && "账户已激活"}
                             </Col>
                         </Row>
                     </Card>
@@ -176,7 +205,7 @@ class AccountCard extends React.Component {
                         style={{ marginTop: 16 }}
                         type="inner"
                         title="密码"
-                        extra={(account.status !== 1) && <a onClick={this.changePassword.bind(this)}>修改密码</a>}
+                        extra={(userInfo.status !== 1) && <a onClick={this.changePassword.bind(this)}>修改密码</a>}
                     >
                         <div>
                             密码有效期截止到2022年3月3日23:59
@@ -200,7 +229,7 @@ class AccountCard extends React.Component {
                                     <FormItem label='邮箱' {...formItemLayout}>
                                         {
                                             getFieldDecorator('email', {
-                                                initialValue: account.email,
+                                                initialValue: userInfo.email,
                                                 rules: [
                                                     {
                                                         type: 'email',
@@ -226,7 +255,7 @@ class AccountCard extends React.Component {
                                     )}>
                                         {
                                             getFieldDecorator('name', {
-                                                initialValue: account.name,
+                                                initialValue: userInfo.name,
                                                 rules: []
                                             })(
                                                 <Input allowClear />
@@ -236,23 +265,18 @@ class AccountCard extends React.Component {
                                     <FormItem label='居住地' {...formItemLayout} required>
                                         {
                                             getFieldDecorator('address', {
-                                                initialValue: account.address,
-                                                rules: [
-                                                    {
-                                                        type: 'array',
-                                                        required: true,
-                                                        message: '请选择居住地'
-                                                    }
-                                                ]
+                                                initialValue: userInfo.address,
+                                                rules: []
                                             })(
-                                                <Cascader options={options} expandTrigger="hover" placeholder='' />
+                                                <Input allowClear />
+                                                // <Cascader options={options} expandTrigger="hover" placeholder='' />
                                             )
                                         }
                                     </FormItem>
                                     <FormItem label='电话' {...formItemLayout}>
                                         {
                                             getFieldDecorator('phone', {
-                                                initialValue: account.phone,
+                                                initialValue: userInfo.phone,
                                                 rules: [
                                                     {
                                                         len: 11,
@@ -271,14 +295,14 @@ class AccountCard extends React.Component {
                         </span>
                     </Card>
                 </Card>
-                {this.state.showChangePwd && <ChangePwdDlg accid={accountIndex} onclose={this.handleCloseChangePwd.bind(this)} />}
+                {this.state.showChangePwd && <ChangePwdDlg onclose={this.handleCloseChangePwd.bind(this)} />}
             </div>
         );
     }
 }
 
-AccountCard.propTypes = {
+UserCard.propTypes = {
     classes: PropTypes.object,
 };
 
-export default withStyles(styles)(AccountCard);
+export default withStyles(styles)(UserCard);

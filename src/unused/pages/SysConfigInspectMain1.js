@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import TaskTable from './task-manage/TaskTable'
 
-const drawerWidth = 240;
+// const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
@@ -20,9 +20,9 @@ const styles = theme => ({
 });
 
 class SysConfigInspectMain1 extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+  // constructor(props) {
+  //   super(props);
+  // }
 
   render() {
     const { classes } = this.props;

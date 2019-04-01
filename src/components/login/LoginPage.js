@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Login from './LogIn'
-import LoginBGImage from '../../resources/image/login_bg.jpg'
+// import LoginBGImage from '../../resources/image/login_bg.jpg'
 
 
 const styles = theme => ({
@@ -32,11 +32,6 @@ const styles = theme => ({
 });
 
 class LoginPage extends React.Component {
-    constructor(props) {
-        super(props);
-        // const userStore = this.props.userStore;
-    }
-
     render() {
         const { classes } = this.props;
         return (

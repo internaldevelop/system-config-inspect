@@ -42,7 +42,6 @@ const styles = theme => ({
     padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
     // backgroundColor: 'rgba(178,178,178,0.5)',
     // background: 'rgba(178,178,178,0.5)',
-    backgroundImage: 'url(' + LoginBGImage + ')',
   },
   paper: {
     width: 400,
@@ -116,7 +115,6 @@ class SignUp extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { sent, submitting } = this.state;
 
     return (
       <Paper className={classes.mainpaper}>

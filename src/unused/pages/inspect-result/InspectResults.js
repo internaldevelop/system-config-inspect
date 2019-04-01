@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import InspectResultTable1 from './InspectResultTable1'
 import InspectResultTable from './InspectResultTable'
 import RiskTypeBarChart from './echarts/RiskTypeBar'
-import ResultBarChart from './echarts/SimpleLineChart'
+// import ResultBarChart from './echarts/SimpleLineChart'
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Divider from '@material-ui/core/Divider';
@@ -23,7 +23,7 @@ class InspectResult extends Component {
     }
 
     render() {
-        const { classes } = this.state;
+        // const { classes } = this.state;
 
         return (
             <div>

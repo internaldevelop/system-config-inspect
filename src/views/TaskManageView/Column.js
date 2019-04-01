@@ -1,6 +1,5 @@
 import React from 'react'
-import { Tooltip, Tag, Input, Form } from 'antd';
-const { TextArea } = Input;
+import { Tooltip, Tag } from 'antd';
 
 export const columns = [
   {
@@ -73,7 +72,7 @@ export const columns = [
     fixed: 'right',
     render: () => (
       <span>
-        <a href="javascript:;">Action</a>
+        <a href="javascript:()">Action</a>
         {/* <Divider type="vertical" /> */}
       </span>
     ),

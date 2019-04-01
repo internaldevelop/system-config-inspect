@@ -18,34 +18,24 @@ const menus = [
     },
     {
         title: '检测结果',
-        icon: 'laptop',
+        icon: 'dashboard',
         key: '/home/inspect-result',
         subs: [
-            { key: '/home/inspect-result/overview', title: '检测一览', icon: '', },
-            { key: '/home/inspect-result/details', title: '详情', icon: '', },
+            { key: '/home/inspect-result/overview', title: '检测一览', icon: 'area-chart', },
+            { key: '/home/inspect-result/details', title: '详情', icon: 'table', },
         ]
     },
     {
         title: '系统管理',
-        icon: 'home',
+        icon: 'setting',
         key: '/home/sysadmin',
         subs: [
-            { key: '/home/sysadmin/users', title: '用户管理', icon: '', },
-            { key: '/home/sysadmin/personal', title: '个人资料', icon: '', },
+            { key: '/home/sysadmin/users', title: '用户管理', icon: 'contacts', },
+            { key: '/home/sysadmin/personal', title: '个人资料', icon: 'user', },
         ]
     },
     // {
     //     title: '风险预警',
-    //     icon: 'home',
-    //     key: '/home'
-    // },
-    // {
-    //     title: '账号信息',
-    //     icon: 'home',
-    //     key: '/home'
-    // },
-    // {
-    //     title: '退出账号',
     //     icon: 'home',
     //     key: '/home'
     // },
@@ -59,6 +49,7 @@ const menus = [
         icon: 'bulb',
         key: '/home/other',
         subs: [
+            { key: '/home/other/test1', title: '测试（保留）-1', icon: '' },
             { key: '/home/other/ref1', title: '参考页面1', icon: '', },
             { key: '/home/other/ref2', title: '参考页面2', icon: '', },
             { key: '/home/other/ref3', title: '参考页面3', icon: '' },

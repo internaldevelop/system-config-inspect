@@ -15,14 +15,13 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Link from '@material-ui/core/Link';
 import LoginBGImage from '../../resources/image/login_bg.jpg'
 import { observer, inject } from 'mobx-react'
-import UserStore from '../../main/store/UserStore';
+// import UserStore from '../../main/store/UserStore';
 import { withRouter } from 'react-router-dom'
 
-import { Row, Col, message } from 'antd'
+import { Row, Col, message, Form } from 'antd'
 
 import { randomNum } from '../../utils/tools'
-
-import BGParticle from '../../utils/BGParticle'
+import HttpRequest from '../../utils/HttpRequest';
 
 const styles = theme => ({
     main: {
@@ -98,6 +97,7 @@ const veriCodeHeight = 60;
 @observer
 @inject('userStore')
 // @inject('taskStore')
+@Form.create()
 class LogIn extends React.Component {
 
     constructor(props) {
@@ -111,7 +111,7 @@ class LogIn extends React.Component {
         //     },
         // });
         userStore.initLogin();
-        const { user, password, isLogin } = userStore.loginInfo;
+        const { user, password } = userStore.loginInfo;
         this.state = {
             userName: user,
             password: password,
@@ -132,7 +132,7 @@ class LogIn extends React.Component {
     }
 
     checkVerifyCode() {
-        let inputCode = document.getElementById('verification').value; 
+        let inputCode = document.getElementById('verification').value;
         if (this.state.verifyCode.toUpperCase() !== inputCode.toUpperCase()) {
             message.info('验证码错误，请重新输入验证码');
             document.getElementById('verification').value = '';
@@ -143,18 +143,27 @@ class LogIn extends React.Component {
         return true;
     }
 
+    getUserCB = (payload) => {
+
+    }
+
     handleSubmit = event => {
         event.preventDefault();
+        // 检查验证码是否正确，错误提示
         if (this.checkVerifyCode() !== true)
             return;
 
-        const userStore = this.props.userStore;
         let userName = this.state.userName;
         let password = this.state.password;
+        this.props.form.validateFields((err, values) => {
+            HttpRequest.asyncGet(this.getUserCB, '/users/user-by-account', { account: userName });
+        });
+
+        const userStore = this.props.userStore;
         console.log("用户名：" + userName + "\t密码：" + password);
         let history = this.props.history;
         if (password === "123456") {
-            userStore.saveUser(userName, password, 10);
+            userStore.saveUser(userName, '', password, 10);
             history.push('/home');
         } else {
             alert("密码错误")

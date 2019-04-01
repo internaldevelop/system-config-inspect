@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import MaterialTable, { MTableToolbar } from 'material-table'
 
-import NewAccountIcon from '@material-ui/icons/PersonAddOutlined';
+// import NewAccountIcon from '@material-ui/icons/PersonAddOutlined';
 import FirstPageIcon from '@material-ui/icons/FirstPageRounded';
 import LastPageIcon from '@material-ui/icons/LastPageRounded';
 import NextPageIcon from '@material-ui/icons/ChevronRightRounded';
@@ -17,16 +17,16 @@ import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
 import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
 import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
 
-const actionsStyles = theme => ({
-    root: {
-        flexShrink: 0,
-        color: theme.palette.text.secondary,
-        marginLeft: theme.spacing.unit * 2.5,
-    },
-    tableContainer: {
-        height: 320,
-    },
-});
+// const actionsStyles = theme => ({
+//     root: {
+//         flexShrink: 0,
+//         color: theme.palette.text.secondary,
+//         marginLeft: theme.spacing.unit * 2.5,
+//     },
+//     tableContainer: {
+//         height: 320,
+//     },
+// });
 
 
 let counter = 0;
@@ -111,9 +111,9 @@ class ConfigTable extends React.Component {
     };
 
     render() {
-        const { classes } = this.props;
-        const { rows, rowsPerPage, page } = this.state;
-        const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+        // const { classes } = this.props;
+        const { rows } = this.state;
+        // const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
         return (
             <MaterialTable

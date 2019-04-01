@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { Table, Icon, Button, Row, Col } from 'antd'
 import { columns as Column } from './Column'
-import IconButton from '@material-ui/core/IconButton';
+// import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { observer, inject } from 'mobx-react'
@@ -142,7 +142,7 @@ class SecurityConfigView extends React.Component {
     }
 
     render() {
-        const policyStore = this.props.policyStore;
+        // const policyStore = this.props.policyStore;
         const { columns, policyRecordData, showConfig, actionName } = this.state;
         return (
             <div>

@@ -3,17 +3,17 @@ import PropTypes from 'prop-types';
 import { Table, Icon, Button, Row, Col } from 'antd'
 import { columns as Column } from './Column'
 import { TaskData } from './TaskData'
-import IconButton from '@material-ui/core/IconButton';
+// import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
-import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
-import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
+// import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
+// import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
+// import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
 
-import NewTaskPopup from './NewTaskPopup'
+// import NewTaskPopup from './NewTaskPopup'
 import TaskParamsConfig from './TaskParamsConfig'
-import { GetNowTimeGMTStr, GetNowTimeMyStr } from '../../utils/TimeUtils'
+import { GetNowTimeMyStr } from '../../utils/TimeUtils'
 
 import { observer, inject } from 'mobx-react'
 
@@ -74,8 +74,8 @@ class TaskManageView extends React.Component {
         this.props.taskStore.switchShow(true);
     }
     handleRun = (event) => {
-        let rowIndex = event.target.getAttribute('dataindex')
-        const DelDataSource = this.state.taskRecordData;
+        // let rowIndex = event.target.getAttribute('dataindex')
+        // const DelDataSource = this.state.taskRecordData;
 
     }
     handleNewTask = (event) => {
@@ -126,7 +126,7 @@ class TaskManageView extends React.Component {
     addTaskData = () => {
         const { taskRecordData } = this.state;
         const configItem = this.props.taskStore.configItem;
-        let id = (taskRecordData.length + 1).toString();
+        // let id = (taskRecordData.length + 1).toString();
         taskRecordData.unshift({
             key: taskRecordData.length + 1,
             index: (taskRecordData.length + 1).toString(),
