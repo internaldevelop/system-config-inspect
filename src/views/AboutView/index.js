@@ -52,9 +52,9 @@ class AboutView extends React.Component {
         this.GetSystemInfo();
     }
 
-    GetSystemInfoCB = (payload) => {
+    GetSystemInfoCB = (data) => {
         this.setState({
-            sysInfo: payload,
+            sysInfo: data.payload,
             sysInfoReady: true,
         });
     }

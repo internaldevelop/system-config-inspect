@@ -13,7 +13,7 @@ const LoadUserLoginInfo = () => {
 
     if (IsEmptyString(login)) {
         return ({
-            user: '',
+            account: '',
             userUuid: '',
             password: '',
             expire: '',
@@ -24,6 +24,35 @@ const LoadUserLoginInfo = () => {
 };
 
 class UserStore {
+    @observable loginUser = {
+        isLogin: false,
+        account: '',
+        userUuid: '',
+        password: '',
+        expire: '',
+    };
+    @action setLoginUser = (user) => {
+        Object.assign(this.loginUser, user);
+    };
+    @action saveLoginUser = (expireDays) => {
+        let info = JSON.stringify({
+            account: this.loginUser.account,
+            userUuid: this.loginUser.uuid,
+            password: this.loginUser.password,
+            expire: GetExpireTimeGMTStr(expireDays),
+        });
+        SetCookieExpireDays(loginInfoName, info, expireDays);
+    }
+    // 从cookie中读取保存的 remember user 信息
+    @action initLoginUser = () => {
+        let cachedUser = LoadUserLoginInfo();
+        Object.assign(this.loginUser, cachedUser);
+    }
+
+    @computed get isUserExpired(){
+        return IsEmptyString(this.loginUser.account);
+    }
+
     @observable isLogin = false;
     @observable userUuid = '';
     @observable user = '';
@@ -70,5 +99,4 @@ class UserStore {
     }
 }
 
-// export default new UserStore()
 export default new UserStore()

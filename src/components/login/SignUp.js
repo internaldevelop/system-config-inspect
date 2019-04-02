@@ -15,7 +15,10 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import NewAccountIcon from '@material-ui/icons/PersonAddOutlined';
 import Paper from '@material-ui/core/Paper';
+
 import LoginBGImage from '../../resources/image/login_bg.jpg'
+import HttpRequest from '../../utils/HttpRequest';
+import { errorCode } from '../../global/error';
 
 const styles = theme => ({
   main: {
@@ -73,8 +76,11 @@ class SignUp extends React.Component {
     this.state = {
       userName: '',
       password: '',
-      sent: false,
-      submitting: false,
+      showVerifyError: false,
+      verifyError: '',
+
+      // sent: false,
+      // submitting: false,
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -93,15 +99,36 @@ class SignUp extends React.Component {
     return errors;
   };
 
+  addUserCB = (data) => {
+    if (data.code === errorCode.ERROR_USERNAME_USED) {
+      // 用户已存在，已注册过
+      this.setState({
+        showVerifyError: true,
+        verifyError: '用户已存在，请用其它账号注册',
+      });
+      return;
+    } 
+
+    // 注册完毕后，跳转到登录页面
+    let history = this.context.router.history;
+    history.push('/login');
+  }
+
   handleSubmit = event => {
     event.preventDefault();
     let userName = this.state.userName;
     let password = this.state.password;
-    console.log("用户名：" + userName + "\t密码：" + password);
-    let history = this.context.router.history;
-    if ((userName !== "") && (password !== "")) {
-      history.push('/login');
-    } 
+    if ((userName.length === 0) || (password.length === 0)) {
+      return;
+    }
+
+    HttpRequest.asyncPost(this.addUserCB, '/users/add', { account: userName, name: userName, password }, false);
+
+    // console.log("用户名：" + userName + "\t密码：" + password);
+    // let history = this.context.router.history;
+    // if ((userName !== "") && (password !== "")) {
+    //   history.push('/login');
+    // }
   }
 
   handleUserNameChange = event => {
@@ -146,9 +173,13 @@ class SignUp extends React.Component {
             </Button>
           </form>
           <React.Fragment>
+            {
+              this.state.showVerifyError &&
+              <Typography variant="body2" align="center" color='primary'>{this.state.verifyError}</Typography>
+            }
             <Typography variant="body2" align="center">
               {'已有账号？  '}
-              <Link href="/login" align="center" underline="always">
+              <Link href="/#/login" align="center" underline="always">
                 返回登录
               </Link>
             </Typography>

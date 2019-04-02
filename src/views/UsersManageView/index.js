@@ -62,11 +62,11 @@ class UsersManageView extends React.Component {
         return listData;
     }
 
-    getUsersCB = (payload) => {
+    getUsersCB = (data) => {
         this.setState({
-            users: payload,
+            users: data.payload,
             usersDataReady: true,
-            usersList: this.generateUserList(payload),
+            usersList: this.generateUserList(data.payload),
             selectedAccID: 0,
         });
     }

@@ -28,19 +28,19 @@ class TestView extends React.Component {
         };
     }
 
-    getAllUsersCB = (payload) => {
+    getAllUsersCB = (data) => {
         console.log('getAllUsersCB payload:');//输出返回的数据
-        console.log(payload);//输出返回的数据
-        this.setState({ response: JSON.stringify(payload) });
+        console.log(data.payload);//输出返回的数据
+        this.setState({ response: JSON.stringify(data.payload) });
     }
     getAllUsers() {
         HttpRequest.asyncGet(this.getAllUsersCB, '/users/all');
     }
 
-    getPayloadCB = (payload) => {
+    getPayloadCB = (data) => {
         console.log('getPayloadCB payload:');//输出返回的数据
-        console.log(payload);//输出返回的数据
-        this.setState({ response: JSON.stringify(payload) });
+        console.log(data.payload);//输出返回的数据
+        this.setState({ response: JSON.stringify(data.payload) });
     }
     getUserByUuid() {
         let uuid = document.getElementById('test-params').value;

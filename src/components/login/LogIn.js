@@ -22,6 +22,7 @@ import { Row, Col, message, Form } from 'antd'
 
 import { randomNum } from '../../utils/tools'
 import HttpRequest from '../../utils/HttpRequest';
+import { errorCode } from '../../global/error';
 
 const styles = theme => ({
     main: {
@@ -86,7 +87,7 @@ const styles = theme => ({
         // backgroundColor: 'rgba(178,178,178,0.5)',
     },
     submit: {
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing.unit * 2,
     },
 });
 
@@ -103,26 +104,36 @@ class LogIn extends React.Component {
     constructor(props) {
         super(props);
         const userStore = this.props.userStore;
-        // const taskStore = this.props.taskStore;
-        // taskStore.setTaskParams({
-        //     taskName: '任务2',
-        //     configItem: {
-        //         patch: true,
-        //     },
-        // });
-        userStore.initLogin();
-        const { user, password } = userStore.loginInfo;
+
         this.state = {
-            userName: user,
-            password: password,
+            account: '',
+            password: '',
             verifyCode: '',
+            showVerifyError: false,
+            verifyError: '',
         };
+        // userStore.initLogin();
+        // const { user, password } = userStore.loginInfo;
+        // this.state = {
+        //     userName: user,
+        //     password: password,
+        //     verifyCode: '',
+        // };
 
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentDidMount() {
-        this.createCode()
+        this.createCode();
+
+        const userStore = this.props.userStore;
+        userStore.initLoginUser();
+        if (!userStore.isUserExpired) {
+            this.setState({
+                account: userStore.loginUser.account,
+                password: userStore.loginUser.password,
+            });
+        }
         // this.particle = new BGParticle('backgroundBox')
         // this.particle.init()
     }
@@ -143,8 +154,44 @@ class LogIn extends React.Component {
         return true;
     }
 
-    getUserCB = (payload) => {
+    verifyPasswordCB = (data) => {
+        const userStore = this.props.userStore;
+        if (data.code === errorCode.ERROR_OK) {
+            // 密码校验成功，保存登录用户
+            const { account, password } = this.state;
+            userStore.setLoginUser({
+                isLogin: true,
+                account,
+                userUuid: data.payload.user_uuid,
+                password,
+            });
 
+            let remember = document.getElementById('remember').checked;
+            if (remember)
+                userStore.saveLoginUser(15);
+
+            // 跳转到home页面
+            let history = this.props.history;
+            history.push('/home');
+        } else if (data.code === errorCode.ERROR_USER_PASSWORD_LOCKED) {
+            // 密码已锁定
+            this.setState({
+                showVerifyError: true,
+                verifyError: '密码已锁定，请联系管理员解锁密码',
+            });
+        } else if (data.code === errorCode.ERROR_INVALID_PASSWORD) {
+            // 密码校验失败，提示剩余尝试次数
+            this.setState({
+                showVerifyError: true,
+                verifyError: '密码错误，您还有 ' + data.payload.rat + ' 次尝试机会',
+            });
+        } else if (data.code === errorCode.ERROR_USER_NOT_FOUND) {
+            // 系统里没有该用户，提示注册用户
+            this.setState({
+                showVerifyError: true,
+                verifyError: '没有找到该用户，请注册账户，并联系管理员激活账户',
+            });
+        }
     }
 
     handleSubmit = event => {
@@ -153,25 +200,24 @@ class LogIn extends React.Component {
         if (this.checkVerifyCode() !== true)
             return;
 
-        let userName = this.state.userName;
-        let password = this.state.password;
+        const { account, password } = this.state;
         this.props.form.validateFields((err, values) => {
-            HttpRequest.asyncGet(this.getUserCB, '/users/user-by-account', { account: userName });
+            HttpRequest.asyncPost(this.verifyPasswordCB, '/users/verify-pwd', { account, password }, false);
         });
 
-        const userStore = this.props.userStore;
-        console.log("用户名：" + userName + "\t密码：" + password);
-        let history = this.props.history;
-        if (password === "123456") {
-            userStore.saveUser(userName, '', password, 10);
-            history.push('/home');
-        } else {
-            alert("密码错误")
-        }
+        // const userStore = this.props.userStore;
+        // console.log("用户名：" + account + "\t密码：" + password);
+        // let history = this.props.history;
+        // if (password === "123456") {
+        //     userStore.saveUser(account, '', password, 10);
+        //     history.push('/home');
+        // } else {
+        //     alert("密码错误")
+        // }
     }
 
-    handleUserNameChange = event => {
-        this.setState({ userName: event.target.value });
+    handleAccountChange = event => {
+        this.setState({ account: event.target.value });
     }
 
     handlePasswordChange = event => {
@@ -233,7 +279,7 @@ class LogIn extends React.Component {
                         <form onSubmit={this.handleSubmit.bind(this)} className={classes.form}>
                             <FormControl margin="normal" required fullWidth>
                                 <InputLabel htmlFor="email">用户名</InputLabel>
-                                <Input id="email" name="email" autoComplete="email" autoFocus value={this.state.userName} onChange={this.handleUserNameChange.bind(this)} />
+                                <Input id="email" name="email" autoComplete="email" autoFocus value={this.state.account} onChange={this.handleAccountChange.bind(this)} />
                             </FormControl>
                             <FormControl margin="normal" required fullWidth>
                                 <InputLabel htmlFor="password">密码</InputLabel>
@@ -251,7 +297,7 @@ class LogIn extends React.Component {
                                 </Col>
                             </Row>
                             <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
+                                control={<Checkbox checked={true} id="remember" value="remember" color="primary" />}
                                 label="记住登录"
                             />
                             <Button
@@ -261,10 +307,14 @@ class LogIn extends React.Component {
                                 color="primary"
                                 className={classes.submit}>
                                 登录
-                        </Button>
+                            </Button>
+                            {
+                                this.state.showVerifyError &&
+                                <Typography variant="body2" align="center" color='secondary'>{this.state.verifyError}</Typography>
+                            }
                             <Typography variant="body2" align="center">
                                 {'没有账号？  '}
-                                <Link href="./signup" align="center" underline="always">
+                                <Link href="/#/signup" align="center" underline="always">
                                     点击这里注册
                             </Link>
                             </Typography>

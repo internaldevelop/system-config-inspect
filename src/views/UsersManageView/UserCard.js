@@ -2,66 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Card, Form, Select, Input, Tooltip, Icon, message, Row, Col } from 'antd';
-import axios from 'axios';
-import Qs from 'qs';
 
-import ChangePwdDlg from '../../components/ChangePwdDlg'
-import HttpRequest from '../../utils/HttpRequest'
-
-import { GetBackEndRootUrl } from '../../global/environment'
-import { errorCode } from '../../global/error'
+import ChangePwdDlg from '../../components/ChangePwdDlg';
+import HttpRequest from '../../utils/HttpRequest';
+import { errorCode } from '../../global/error';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-
-const options = [
-    {
-        label: '湖北',
-        value: 'hubei',
-        children: [
-            {
-                label: '武汉',
-                value: 'wuhang',
-                children: [
-                    {
-                        label: '蔡甸区',
-                        value: 'caidian'
-                    },
-                    {
-                        label: '江夏',
-                        value: 'jiangxia'
-                    }
-                ]
-            },
-            {
-                label: '宜昌',
-                value: 'yichang',
-                children: [
-                    {
-                        label: '伍家岗',
-                        value: 'wujiagang'
-                    },
-                    {
-                        label: '夷陵区',
-                        value: 'yilingqu'
-                    },
-                    {
-                        label: '江南',
-                        value: 'jiangnan'
-                    },
-                    {
-                        label: '开发区',
-                        value: 'kaifaqu'
-                    },
-                    {
-                        label: 'CBD',
-                        value: 'CBD'
-                    }
-                ]
-            }
-        ]
-    }
-]
 
 const styles = theme => ({
     iconButton: {
@@ -94,8 +41,8 @@ class UserCard extends React.Component {
         this.fetchUser();
     }
 
-    fetchUserCB = (payload) => {
-        this.setState({ userUuid: this.props.uuid, userInfo: payload });
+    fetchUserCB = (data) => {
+        this.setState({ userUuid: this.props.uuid, userInfo: data.payload });
         const { resetFields } = this.props.form;
         resetFields();
     }
@@ -139,7 +86,7 @@ class UserCard extends React.Component {
             this.setState({ isModifyDetails: !this.state.isModifyDetails });
     }
 
-    updateUserDataCB(payload) {
+    updateUserDataCB(data) {
         this.fetchUser();
     }
 
@@ -186,18 +133,18 @@ class UserCard extends React.Component {
                     <Card
                         type="inner"
                         title='基本信息'
-                        extra={(userInfo.status === 1) && (this.props.manage === 1) && <a onClick={this.testHttpPost.bind(this)}>激活</a>}
+                        extra={(userInfo.status === 0) && (this.props.manage === 1) && <a onClick={this.testHttpPost.bind(this)}>激活</a>}
                     >
                         <Row>
-                            <Col span={8}>
+                            <Col span={6}>
                                 {"账号：" + userInfo.account}
                             </Col>
-                            <Col span={8}>
-                                {"账号ID：" + userInfo.index}
+                            <Col span={14}>
+                                {"账号ID：" + userInfo.uuid}
                             </Col>
-                            <Col span={8}>
-                                {(userInfo.status === 1) && "账户未激活"}
-                                {(userInfo.status === 0) && "账户已激活"}
+                            <Col span={4}>
+                                {(userInfo.status === 0) && "账户未激活"}
+                                {(userInfo.status === 1) && "账户已激活"}
                             </Col>
                         </Row>
                     </Card>
@@ -208,8 +155,8 @@ class UserCard extends React.Component {
                         extra={(userInfo.status !== 1) && <a onClick={this.changePassword.bind(this)}>修改密码</a>}
                     >
                         <div>
-                            密码有效期截止到2022年3月3日23:59
-                    </div>
+                            { "密码有效期截止到：   " + userInfo.expire_time }
+                        </div>
                     </Card>
                     <Card
                         style={{ marginTop: 16 }}

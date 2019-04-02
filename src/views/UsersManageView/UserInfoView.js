@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import { Row, Col } from 'antd';
+import { observer, inject } from 'mobx-react'
+// import UserStore from '../../main/store/UserStore';
+import { withRouter } from 'react-router-dom'
 
 import UserCard from './UserCard'
 import HttpRequest from '../../utils/HttpRequest';
@@ -14,6 +17,9 @@ const styles = theme => ({
     },
 });
 
+@withRouter
+@observer
+@inject('userStore')
 class UserInfoView extends React.Component {
     constructor(props) {
         super(props);
@@ -26,12 +32,14 @@ class UserInfoView extends React.Component {
     }
 
     getLoginUserUuid() {
-        return '4bac0683-a076-41ba-a12b-ba4078f52dac';
+        const userStore = this.props.userStore;
+        return userStore.loginUser.userUuid;
+        // return '4bac0683-a076-41ba-a12b-ba4078f52dac';
     }
 
-    getLoginUserCB = (payload) => {
+    getLoginUserCB = (data) => {
         this.setState({
-            user: payload,
+            user: data.payload,
             userDataReady: true,
         });
     }
