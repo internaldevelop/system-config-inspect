@@ -22,3 +22,28 @@ export function IsEmptyString(obj) {
     return false;
   }
 }
+
+function getTranslateList() {
+  return [
+    {
+      eng: 'Network Error',
+      chn: '网络连接错误',
+    },
+    {
+      eng: 'Internal Error',
+      chn: '系统内部错误',
+    },
+    {
+      eng: 'Database Error',
+      chn: '数据库错误',
+    },
+  ];
+}
+
+export function eng2chn(eng) {
+  const transList = getTranslateList();
+  for (let i=0; i<transList.length; i++) {
+    if (transList[i].eng === eng)
+      return transList[i].chn;
+  }
+}

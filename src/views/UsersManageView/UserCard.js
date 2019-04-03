@@ -56,10 +56,6 @@ class UserCard extends React.Component {
         this.setState({ isModifyDetails: !this.state.isModifyDetails });
     }
 
-    activateUser() {
-
-    }
-
     testHttpPostCB(payload) {
         console.log('testHttpPostCB post data, return:');
         console.log(payload);//输出返回的数据
@@ -95,6 +91,13 @@ class UserCard extends React.Component {
     }
     handleCloseChangePwd = (e) => {
         this.setState({ showChangePwd: false });
+    }
+
+    activateUserCB = (data) => {
+        this.fetchUser();
+    }
+    activateUser() {
+        HttpRequest.asyncPost(this.activateUserCB, '/users/activate', { uuid: this.props.uuid });
     }
 
     render() {
@@ -133,7 +136,7 @@ class UserCard extends React.Component {
                     <Card
                         type="inner"
                         title='基本信息'
-                        extra={(userInfo.status === 0) && (this.props.manage === 1) && <a onClick={this.testHttpPost.bind(this)}>激活</a>}
+                        extra={(userInfo.status === 0) && (this.props.manage === 1) && <a onClick={this.activateUser.bind(this)}>激活</a>}
                     >
                         <Row>
                             <Col span={6}>
@@ -242,7 +245,7 @@ class UserCard extends React.Component {
                         </span>
                     </Card>
                 </Card>
-                {this.state.showChangePwd && <ChangePwdDlg onclose={this.handleCloseChangePwd.bind(this)} />}
+                {this.state.showChangePwd && <ChangePwdDlg useruuid={this.props.uuid} onclose={this.handleCloseChangePwd.bind(this)} />}
             </div>
         );
     }

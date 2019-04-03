@@ -5,6 +5,7 @@ import axios from 'axios';
 import Qs from 'qs';
 import { errorCode } from '../global/error'
 import { GetBackEndRootUrl } from '../global/environment'
+import { eng2chn } from '../utils/StringUtils'
 
 class HttpRequest {
     // async get(path, params = {}) {
@@ -54,6 +55,7 @@ class HttpRequest {
             .catch(error => {
                 console.log('axios asyncGet catch error:');
                 console.log(error);
+                message.error(eng2chn(error.message));
             })
     }
 
@@ -82,6 +84,7 @@ class HttpRequest {
             .catch(error => {
                 console.log('axios catch error:');
                 console.log(error);
+                message.error(eng2chn(error.message));
             })
     }
 
