@@ -1,12 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Draggable from '../../components/window/Draggable'
 import { observer, inject } from 'mobx-react'
 import { Modal, Row, Col } from 'antd';
 import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+
+import HttpRequest from '../../utils/HttpRequest'
 
 const styles = theme => ({
+    root: {
+        display: 'flex',
+        flexWrap: 'wrap',
+    },
+    formControl: {
+        margin: theme.spacing.unit,
+        minWidth: 120,
+    },
     iconButton: {
         margin: 0,
         marginBottom: 0,
@@ -15,6 +33,7 @@ const styles = theme => ({
 });
 
 @inject('policyStore')
+@inject('dictStore')
 @observer
 class PolicyParamsConfig extends React.Component {
     constructor(props) {
@@ -22,8 +41,20 @@ class PolicyParamsConfig extends React.Component {
         this.state = {
             actionName: this.props.action,
             onClose: this.props.onclose,
+            groupsList: this.props.dictStore.policyGroupsList,
+            group: '',
             // show: this.props.showconfig,
         }
+    }
+
+    componentDidMount() {
+        if (this.props.dictStore.isPolicyGroupsEmpty) {
+            HttpRequest.asyncGet(this.getPolicyGroupsCB, '/policy_group/all');
+        }
+    }
+
+    getPolicyGroupsCB = (data) => {
+        this.props.dictStore.setPolicyGroups(data.payload);
     }
 
     handleOk = (e) => {
@@ -39,12 +70,18 @@ class PolicyParamsConfig extends React.Component {
         this.props.policyStore.setParam(name, event.target.value);
     };
 
+    handleSelectChange = event => {
+        this.setState({ [event.target.name]: event.target.value });
+    };
+
     render() {
+        const { classes } = this.props;
         // const { show } = this.state;
         // if (this.props.showconfig !== show)
         //     this.setState({ show: this.props.showconfig });
         const modalTitle = <Draggable title={this.props.action} />;
         const { name, group, type, riskLevel, solution } = this.props.policyStore.policyItem;
+        const { policyGroupsList } = this.props.dictStore;
 
         return (
             <Modal
@@ -56,10 +93,29 @@ class PolicyParamsConfig extends React.Component {
                 onOk={this.handleOk}
                 onCancel={this.handleCancel}
             >
-                <div>
+                <form className={classes.root} autoComplete="off">
+                    {/* <div> */}
                     <TextField required fullWidth autoFocus id="policy-name" label="策略名称" defaultValue={name}
                         variant="outlined" margin="normal" onChange={this.handleParamsChange("name")}
                     />
+                    <FormControl required variant="outlined" style={{ width: '100%' }}>
+                        <Select
+                            value={this.state.group}
+                            onChange={this.handleSelectChange}
+                            input={
+                                <OutlinedInput
+                                    // labelWidth="100%"
+                                    name="group"
+                                    id="outlined-group"
+                                />
+                            }
+                        >
+                            {policyGroupsList.map(group => (
+                                <MenuItem value={group.uuid}>{group.name}</MenuItem>
+                            ))}
+                        </Select>
+                        <InputLabel htmlFor="outlined-group">分组</InputLabel>
+                    </FormControl>
                     <TextField required fullWidth autoFocus id="group" label="分组" defaultValue={group}
                         variant="outlined" margin="normal" onChange={this.handleParamsChange("group")}
                     />
@@ -79,7 +135,8 @@ class PolicyParamsConfig extends React.Component {
                         variant="outlined" margin="normal" onChange={this.handleParamsChange("solution")}
                         rows={5} multiline={true}
                     />
-                </div>
+                    {/* </div> */}
+                </form>
             </Modal>
         )
     }
