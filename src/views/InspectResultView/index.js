@@ -37,15 +37,15 @@ class InspectResultView extends React.Component {
         for (let i = 0; i < result.length; i++) {
             listData.push({
                 key: i,
-                index: i, 
+                index: i+1, 
                 task_name: result[i].task_name, 
                 task_id: result[i].task_id, 
                 target_name: result[i].assets_name, 
                 target_ip: result[i].assets_ip, 
-                risk_type: '操作系统补丁安装', 
-                risk_desc: 'Windows Alerter服务没有启动安全通知', 
-                risk_level: '中', 
-                solution: result[i].solution,
+                risk_type: result[i].policie_name, 
+                risk_desc: result[i].description, 
+                risk_level: result[i].risk_level, 
+                solution: result[i].solutions,
             })
         }
         return listData;
