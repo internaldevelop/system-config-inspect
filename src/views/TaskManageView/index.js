@@ -86,15 +86,14 @@ class TaskManageView extends React.Component {
             let taskItem = {};
             taskItem.key = index + 1;
             taskItem.index = index + 1;
-            taskItem.task_name = task.name;
+            taskItem.task_name = task.task_name;
             taskItem.run_status = [taskStatus[task.status]];
-            taskItem.host_name = "待补充";
-            taskItem.host_ip = "待补充";
-            taskItem.host_port = "待补充";
-            taskItem.os_type = "待补充";
-            taskItem.os_ver = "待补充";
-            taskItem.os_type = "待补充";
-            taskItem.change_time = "待补充";
+            taskItem.host_name = task.assets_name;
+            taskItem.host_ip = task.assets_ip;
+            taskItem.host_port = task.assets_port;
+            taskItem.os_type = task.os_type;
+            taskItem.os_ver = task.os_ver;
+            taskItem.change_time = task.update_time;
             return taskItem;
         })
         this.setState({
@@ -104,7 +103,7 @@ class TaskManageView extends React.Component {
     }
 
     getAllTasks = () => {
-        HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/all');
+        HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/allTaskInfos');
     }
     handleDel = (event) => {
         // dataIndex为表中数据的行索引，配置columns时已指定属性dataIndex的数据来源
