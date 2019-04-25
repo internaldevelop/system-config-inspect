@@ -2,11 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { Table, Icon, Button, Row, Col } from 'antd'
 import { columns as Column } from './Column'
-import { TaskData } from './TaskData'
+// import { TaskData } from './TaskData'
 // import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
+import { observer, inject } from 'mobx-react'
 // import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
 // import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
 // import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
@@ -14,8 +15,8 @@ import Typography from '@material-ui/core/Typography';
 // import NewTaskPopup from './NewTaskPopup'
 import TaskParamsConfig from './TaskParamsConfig'
 import { GetNowTimeMyStr } from '../../utils/TimeUtils'
+import HttpRequest from '../../utils/HttpRequest';
 
-import { observer, inject } from 'mobx-react'
 
 const styles = theme => ({
     iconButton: {
@@ -41,10 +42,74 @@ const styles = theme => ({
 @inject('taskStore')
 @observer
 class TaskManageView extends React.Component {
+    // constructor(props) {
+    //     super(props);
+    //     this.state = {
+    //         tasks: {},
+    //         tasksDataReady: false,
+    //     };
+    //     this.getAllTaksCB();
+    // }
+    constructor(props) {
+        super(props);
+        this.state = {
+            isNewRecord: false,
+            recordChangeID: -1,
+            columns: Column,
+            tasks: [],
+            tasksDataReady: false,
+        }
+        const { columns, } = this.state;
+        const { classes } = this.props;
+        // columns[8].render = (text, record, index) => (
+        columns[9].render = (text, record, index) => (
+            <div>
+                <Button className={classes.actionButton} type="danger" size="small" dataindex={index} onClick={this.handleDel.bind(this)}>删除</Button>
+                <Button className={classes.actionButton} size="small" type="primary" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
+                <Button className={classes.actionButton} type="primary" size="small" dataindex={index} onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
+            </div>
+        )
+        this.setState({ columns: columns });
+
+        this.getAllTasks();
+    }
+
+    getAllTaksCB = (data) => {
+        let taskStatus = ["无效", "有效", "运行中"];
+        let tasksList = [];
+        // 检查响应的payload数据是数组类型
+        if (!(data.payload instanceof Array))
+            return;
+
+        // 把响应数据转换成 table 数据
+        tasksList = data.payload.map((task, index) => {
+            let taskItem = {};
+            taskItem.key = index + 1;
+            taskItem.index = index + 1;
+            taskItem.task_name = task.name;
+            taskItem.run_status = [taskStatus[task.status]];
+            taskItem.host_name = "待补充";
+            taskItem.host_ip = "待补充";
+            taskItem.host_port = "待补充";
+            taskItem.os_type = "待补充";
+            taskItem.os_ver = "待补充";
+            taskItem.os_type = "待补充";
+            taskItem.change_time = "待补充";
+            return taskItem;
+        })
+        this.setState({
+            tasks: tasksList,
+            tasksDataReady: true,
+        });
+    }
+
+    getAllTasks = () => {
+        HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/all');
+    }
     handleDel = (event) => {
         // dataIndex为表中数据的行索引，配置columns时已指定属性dataIndex的数据来源
         let rowIndex = event.target.getAttribute('dataindex')
-        const delDataSource = this.state.taskRecordData;
+        const delDataSource = this.state.tasks;
         // rowIndex为行索引，后面的1为一次去除几行
         delDataSource.splice(rowIndex, 1);
         this.setState({
@@ -53,7 +118,7 @@ class TaskManageView extends React.Component {
     }
     handleEdit = (event) => {
         let rowIndex = event.target.getAttribute('dataindex')
-        const editDataSource = this.state.taskRecordData[rowIndex];
+        const editDataSource = this.state.tasks[rowIndex];
         this.setState({ recordChangeID: rowIndex });
 
         const taskStore = this.props.taskStore;
@@ -102,34 +167,13 @@ class TaskManageView extends React.Component {
         console.log("==================autoReaction: " + change);
     }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            isNewRecord: false,
-            recordChangeID: -1,
-            columns: Column,
-            taskRecordData: TaskData,
-        }
-        const { columns, } = this.state;
-        const { classes } = this.props;
-        // columns[8].render = (text, record, index) => (
-        columns[9].render = (text, record, index) => (
-            <div>
-                <Button className={classes.actionButton} type="danger" size="small" dataindex={index} onClick={this.handleDel.bind(this)}>删除</Button>
-                <Button className={classes.actionButton} size="small" type="primary" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
-                <Button className={classes.actionButton} type="primary" size="small" dataindex={index} onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
-            </div>
-        )
-        this.setState({ columns: columns });
-    }
 
     addTaskData = () => {
-        const { taskRecordData } = this.state;
+        const { tasks } = this.state;
         const configItem = this.props.taskStore.configItem;
-        // let id = (taskRecordData.length + 1).toString();
-        taskRecordData.unshift({
-            key: taskRecordData.length + 1,
-            index: (taskRecordData.length + 1).toString(),
+        tasks.unshift({
+            key: tasks.length + 1,
+            index: (tasks.length + 1).toString(),
             task_name: configItem.taskName,
             run_status: ['已完成'],
             host_name: configItem.hostName,
@@ -143,10 +187,10 @@ class TaskManageView extends React.Component {
     }
 
     editTaskParams = () => {
-        const { taskRecordData, recordChangeID } = this.state;
+        const { tasks, recordChangeID } = this.state;
         const configItem = this.props.taskStore.configItem;
 
-        let record = taskRecordData[recordChangeID];
+        let record = tasks[recordChangeID];
         record.task_name = configItem.taskName;
         record.host_name = configItem.hostName;
         record.host_ip = configItem.hostIP;
@@ -158,7 +202,7 @@ class TaskManageView extends React.Component {
     }
 
     render() {
-        const { columns, taskRecordData } = this.state;
+        const { columns, tasks } = this.state;
         let isAdded = this.props.taskStore.status.isAdded;
         if (isAdded)
             this.addTaskData();
@@ -175,7 +219,7 @@ class TaskManageView extends React.Component {
                 </Row>
                 <Table
                     columns={columns}
-                    dataSource={taskRecordData}
+                    dataSource={tasks}
                     bordered={true}
                     scroll={{ x: 1600, y: 400 }}
                     // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}

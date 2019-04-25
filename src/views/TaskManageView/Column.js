@@ -21,10 +21,11 @@ export const columns = [
     title: '运行状态', width: 120, dataIndex: 'run_status', key: 'run_status',
     render: tags => (
       <span>
-        {tags.map(tag => {
+        { tags instanceof Array && tags.length > 0 && tags.map(tag => {
           let color;
           if (tag === '已完成') color = 'green';
           else if (tag === '运行中') color = 'geekblue';
+          else if (tag === '有效') color = 'geekblue';
           else color = 'volcano';
           return <Tag color={color} key={tag}>{tag}</Tag>
         })}

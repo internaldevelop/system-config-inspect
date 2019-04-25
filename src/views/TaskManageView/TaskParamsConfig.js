@@ -52,23 +52,32 @@ class TaskParamsConfig extends React.Component {
       this.props.taskStore.setParam("assetUuid", data.payload.asset_uuid);
     }
   }
+  verifyTaskParams = (data) => {
+  }
 
   handleAssetChange = event => {
     //
-}
+  }
+  handleTaskChange = event => {
+    //
+  }
 
   handleOk = (e) => {
     // const { configItem } = this.props.taskStore;
     // configItem.index = this.props.taskStore.configItem.index;
     // this.props.taskStore.updateTaskParams(configItem);
     const { assetUuid, hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.props.taskStore.configItem;
+    const { taskName, taskDesc } = this.props.taskStore.configItem;
     if (this.props.taskStore.taskAction === 1) {
       HttpRequest.asyncPost(this.verifyAssetParams, '/assets/add', { name: hostName, ip: hostIP, port: hostPort, user: loginUser, password: loginPwd, os_type: osType, os_ver: osVer }, false);
+      HttpRequest.asyncPost(this.verifyTaskParams, '/tasks/add', { name: taskName, code: "TODO", description: taskDesc, asset_uuid: assetUuid, policies_name: "TODO", create_user_uuid: "TODO" }, false);
       this.props.taskStore.setAddStatus();
     } else if (this.props.taskStore.taskAction === 2) {
       HttpRequest.asyncPost(this.handleAssetChange, '/assets/update', { uuid: assetUuid, name: hostName, ip: hostIP, port: hostPort, user: loginUser, password: loginPwd, os_type: osType, os_ver: osVer }, false);
+      HttpRequest.asyncPost(this.handleTaskChange, '/tasks/update', { name: taskName, code: "TODO", description: taskDesc, asset_uuid: assetUuid, policies_name: "TODO", create_user_uuid: "TODO" }, false);
       this.props.taskStore.setChangeStatus();
     }
+
     this.props.taskStore.switchShow(false);
   }
 
