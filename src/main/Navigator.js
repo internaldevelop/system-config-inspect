@@ -14,7 +14,11 @@ const menus = [
     {
         title: '安全配置管理',
         icon: 'laptop',
-        key: '/home/sec-config'
+        key: '/home/sec-config',
+        subs: [
+            { key: '/home/sec-config/knowledge', title: '安全策略知识库', icon: '', },
+            { key: '/home/sec-config/management', title: '安全策略管理', icon: '', },
+        ]
     },
     {
         title: '检测结果',

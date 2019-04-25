@@ -4,6 +4,7 @@ import { withRouter, Switch, Redirect } from 'react-router-dom'
 import PrivateRoute from './AppRouter/PrivateRoute'
 
 import TaskManageView from '../views/TaskManageView'
+import SecurityKnowledgeBase from '../views/SecurityKnowledgeBase'
 import SecurityConfigView from '../views/SecurityConfigView'
 import InspectResultOverview from '../views/InspectResultOverview'
 import InspectResultView from '../views/InspectResultView'
@@ -28,7 +29,8 @@ class ContentMain extends React.Component {
       <div style={{padding: 16, position: 'relative'}}>
         <Switch>
           <PrivateRoute exact path='/home' component={TaskManageView}/>
-          <PrivateRoute exact path='/home/sec-config' component={SecurityConfigView}/>
+          <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase}/>
+          <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView}/>
           <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview}/>
           <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView}/>
 
