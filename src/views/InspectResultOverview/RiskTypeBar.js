@@ -94,7 +94,7 @@ class RiskTypeBar extends Component {
             
             sourceDatas.forEach(v=>{
                 
-                if(v.product == pName) {
+                if(v.product === pName) {
                     v[osType] = pNum;
                 }
             });

@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import HttpRequest from '../../utils/HttpRequest';
 
-import { Table, Icon, Button, Row, Col, Tabs } from 'antd'
+import { Table, Icon, Button, Row, Col, Tabs, Input } from 'antd'
 
 import { columns as Column } from './Column'
 import { ResultData } from './ResultData'
@@ -16,6 +16,9 @@ const styles = theme => ({
         margin: 0,
         marginLeft: 10,
     },
+    antInput: {
+        width: 300,
+    },
 });
 
 class InspectResultView extends React.Component {
@@ -24,6 +27,7 @@ class InspectResultView extends React.Component {
         this.state = {
             columns: Column,
             resultRecordData: '',
+            inputValue : '',//输入框输入值
         }
 		this.getTasksResults();
     }
@@ -58,7 +62,23 @@ class InspectResultView extends React.Component {
     }
 
     getTasksResults() {
-        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all');
+        const {inputValue} = this.state;
+        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', {taskNameIpType: inputValue});
+    }
+    
+    handleGetInputValue = (event) => {
+        this.setState({
+            inputValue : event.target.value,
+        })
+    };
+    
+    findTasksResults = () => {
+        const {inputValue} = this.state;
+        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', {taskNameIpType: inputValue});
+    };
+    
+    exportTasksResults = () => {
+        alert('导出');
     }
 
     callback = (key) => {
@@ -84,9 +104,12 @@ class InspectResultView extends React.Component {
             <div>
                 <Row>
                     <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
-                    <Col span={8} offset={8} align="right">
-                        <Button className={classes.iconButton} type="primary" size="large" ><Icon type="search" />查询</Button>
-                        <Button className={classes.iconButton} type="primary" size="large" ><Icon type="export" />导出</Button>
+                    <Col span={8} offset={5} align="right">
+                        <Input className={classes.antInput} size="large" value={this.state.inputValue} onChange={this.handleGetInputValue} placeholder="任务名称、目标IP、问题类型" />
+                    </Col>
+                    <Col span={3} align="right">
+                        <Button className={classes.iconButton} type="primary" size="large" onClick={this.findTasksResults} ><Icon type="search" />查询</Button>
+                        <Button className={classes.iconButton} type="primary" size="large" onClick={this.exportTasksResults} ><Icon type="export" />导出</Button>
                     </Col>
                 </Row>
                 <Table

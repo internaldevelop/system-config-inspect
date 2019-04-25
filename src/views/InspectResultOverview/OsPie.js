@@ -3,6 +3,7 @@ import ReactEcharts from 'echarts-for-react';
 // import echarts from 'echarts';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
+import HttpRequest from '../../utils/HttpRequest';
 
 const styles = theme => ({
     root: {
@@ -12,14 +13,24 @@ const styles = theme => ({
 });
 
 class OskPie extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedAccID: -1,
+            usersDataReady: false,
+            sysSourceData: []
+        }
+        this.getTaskStatistics();
+    }
 
     getOption() {
+        const { sysSourceData } = this.state;
         return {
             title: { text: '操作系统分布' },
             legend: {
                 // orient: 'vertical',
                 bottom: 2,
-                data: ['WinServer', 'Kali2', 'Centos7', 'Ubuntu', 'Debian', 'Centos6']
+                //data: ['WinServer', 'Kali2', 'Centos7', 'Ubuntu', 'Debian', 'Centos6']
             },
             tooltip: {
                 trigger: 'item',
@@ -77,19 +88,50 @@ class OskPie extends Component {
                             }
                         }
                     },
-                    data:[
-                        {value:335, name:'WinServer', selected:true},
-                        {value:435, name:'Centos6'},
-                        {value:679, name:'Kali2'},
-                        {value:335, name:'Ubuntu'},
-                        {value:879, name:'Debian'},
-                        {value:1548, name:'Centos7'},
-                    ]
+                    data: sysSourceData
+                    // data:[
+                    //     {value:335, name:'WinServer', selected:true},
+                    //     {value:435, name:'Centos6'},
+                    //     {value:679, name:'Kali2'},
+                    //     {value:335, name:'Ubuntu'},
+                    //     {value:879, name:'Debian'},
+                    //     {value:1548, name:'Centos7'},
+                    // ]
                 },
 
             ]
 
         };
+    }
+    
+    getResultsCB = (data) => {
+        const result = data.payload;
+        let sourceDatas = [];
+
+        for (let i = 0; i < result.length; i++) {
+            let sysType = result[i].os_type;
+            let pNum = result[i].num;
+            
+            let myMap = {};
+            if (i == 0) {
+                myMap = {'value' : pNum, 'name' : sysType, 'selected' : true};
+            } else {
+                myMap = {'value' : pNum, 'name' : sysType};
+            }
+            sourceDatas.push(myMap);
+
+        }
+
+        console.log(sourceDatas);
+               
+        this.setState({
+            sysSourceData: sourceDatas,
+        });
+
+    }
+    
+    getTaskStatistics() {
+        return HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/sys-statistics');
     }
 
     onChartClick(param, echarts) {

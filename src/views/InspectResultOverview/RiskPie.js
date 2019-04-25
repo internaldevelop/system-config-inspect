@@ -3,6 +3,7 @@ import ReactEcharts from 'echarts-for-react';
 // import echarts from 'echarts';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
+import HttpRequest from '../../utils/HttpRequest';
 
 const styles = theme => ({
     root: {
@@ -12,8 +13,18 @@ const styles = theme => ({
 });
 
 class RiskPie extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedAccID: -1,
+            usersDataReady: false,
+            pieSourceData: []
+        }
+        this.getTaskStatistics();
+    }
 
     getOption() {
+        const { pieSourceData } = this.state;
         return {
             title: { text: '漏洞种类分布' },
             // legend: {
@@ -77,21 +88,53 @@ class RiskPie extends Component {
                             }
                         }
                     },
-                    data:[
-                        {value:335, name:'系统服务', selected:true},
-                        {value:679, name:'账号配置'},
-                        {value:1548, name:'防火墙'},
-                        {value:335, name:'审计配置'},
-                        {value:879, name:'SQL注入'},
-                        {value:435, name:'DDos'},
-                        {value:179, name:'自定义'},
-                    ]
+                    data: pieSourceData
+                    // data:[
+                    //     {value:335, name:'系统服务', selected:true},
+                    //     {value:679, name:'账号配置'},
+                    //     {value:1548, name:'防火墙'},
+                    //     {value:335, name:'审计配置'},
+                    //     {value:879, name:'SQL注入'},
+                    //     {value:435, name:'DDos'},
+                    //     {value:179, name:'自定义'},
+                    // ]
                 },
 
             ]
 
         };
     }
+
+    getResultsCB = (data) => {
+        const result = data.payload;
+        let sourceDatas = [];
+
+        for (let i = 0; i < result.length; i++) {
+            let pName = result[i].policie_name;
+            let pNum = result[i].num;
+            
+            let myMap = {};
+            if (i == 0) {
+                myMap = {'value' : pNum, 'name' : pName, 'selected' : true};
+            } else {
+                myMap = {'value' : pNum, 'name' : pName};
+            }
+            sourceDatas.push(myMap);
+
+        }
+
+        console.log(sourceDatas);
+               
+        this.setState({
+            pieSourceData: sourceDatas,
+        });
+
+    }
+    
+    getTaskStatistics() {
+        return HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/policie-statistics');
+    }
+
 
     onChartClick(param, echarts) {
         console.log(param)
