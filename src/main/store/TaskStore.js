@@ -46,6 +46,7 @@ class TaskStore {
     index: 0,
     taskName: '新建任务',
     taskDesc: '',
+    assetUuid: '',
     hostName: '本机',
     hostIP: '127.0.0.1',
     hostPort: '8192',
