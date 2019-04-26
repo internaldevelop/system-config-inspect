@@ -50,7 +50,7 @@ class SecurityKnowledgeBase extends React.Component {
             variant="scrollable"
             scrollButtons="auto"
           >
-            <Tab label="Item One11111111111111111111111111111" />
+            <Tab label="Item One" />
             <Tab label="Item Two" />
             <Tab label="Item Three" />
             <Tab label="Item Four" />
@@ -59,7 +59,7 @@ class SecurityKnowledgeBase extends React.Component {
             <Tab label="Item Seven" />
           </Tabs>
         </AppBar>
-        {value === 0 && <TabContainer>Item One111111111111111111111111</TabContainer>}
+        {value === 0 && <TabContainer>Item One</TabContainer>}
         {value === 1 && <TabContainer>Item Two</TabContainer>}
         {value === 2 && <TabContainer>Item Three</TabContainer>}
         {value === 3 && <TabContainer>Item Four</TabContainer>}
