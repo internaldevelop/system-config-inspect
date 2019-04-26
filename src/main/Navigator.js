@@ -57,6 +57,7 @@ const menus = [
             { key: '/home/other/ref1', title: '参考页面1', icon: '', },
             { key: '/home/other/ref2', title: '参考页面2', icon: '', },
             { key: '/home/other/ref3', title: '参考页面3', icon: '' },
+            { key: '/home/other/oldtask', title: '旧任务页面', icon: '' },
         ]
     },
     {

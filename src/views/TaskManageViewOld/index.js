@@ -16,7 +16,6 @@ import { observer, inject } from 'mobx-react'
 import TaskParamsConfig from './TaskParamsConfig'
 import { GetNowTimeMyStr } from '../../utils/TimeUtils'
 import HttpRequest from '../../utils/HttpRequest';
-import { taskStatus } from '../../global/enumeration/TaskStatus';
 
 
 const styles = theme => ({
@@ -46,51 +45,41 @@ class TaskManageView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isNewRecord: false, // TODO
-            recordChangeID: -1, // TODO
-            columns: Column,    // 列定义
-            tasks: [],          // 本页面的任务数据集合
+            isNewRecord: false,
+            recordChangeID: -1,
+            columns: Column,
+            tasks: [],
+            tasksDataReady: false,
         }
-
-        // 设置操作列的渲染
-        this.initActionColumn();
-
-        // 从后台获取任务数据的集合
-        this.getAllTasks();
-    }
-
-    initActionColumn() {
         const { columns, } = this.state;
         const { classes } = this.props;
-        if (columns.length === 0)
-            return;
-        
-        // 操作列默认为最后一列
-        columns[columns.length - 1].render = (text, record, index) => (
+        // columns[8].render = (text, record, index) => (
+        columns[9].render = (text, record, index) => (
             <div>
                 <Button className={classes.actionButton} type="danger" size="small" dataindex={index} onClick={this.handleDel.bind(this)}>删除</Button>
-                <Button className={classes.actionButton} type="primary" size="small" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
+                <Button className={classes.actionButton} size="small" type="primary" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
                 <Button className={classes.actionButton} type="primary" size="small" dataindex={index} onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
             </div>
         )
-        this.setState({ columns });
+        this.setState({ columns: columns });
+
+        this.getAllTasks();
     }
 
     getAllTaksCB = (data) => {
-        let tasks = [];
+        let taskStatus = ["无效", "有效", "运行中"];
+        let tasksList = [];
         // 检查响应的payload数据是数组类型
         if (!(data.payload instanceof Array))
             return;
 
         // 把响应数据转换成 table 数据
-        tasks = data.payload.map((task, index) => {
+        tasksList = data.payload.map((task, index) => {
             let taskItem = {};
             taskItem.key = index + 1;
             taskItem.index = index + 1;
-            taskItem.task_uuid = task.uuid;
             taskItem.task_name = task.task_name;
-            taskItem.run_status = [task.status];
-            taskItem.asset_uuid = task.asset_uuid;
+            taskItem.run_status = [taskStatus[task.status]];
             taskItem.host_name = task.assets_name;
             taskItem.host_ip = task.assets_ip;
             taskItem.host_port = task.assets_port;
@@ -99,34 +88,24 @@ class TaskManageView extends React.Component {
             taskItem.change_time = task.update_time;
             return taskItem;
         })
-
-        // 更新 tasks 数据源
-        this.setState({ tasks });
+        this.setState({
+            tasks: tasksList,
+            tasksDataReady: true,
+        });
     }
 
     getAllTasks = () => {
-        // 从后台获取任务的详细信息，含任务表的数据和关联表的数据
         HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/allTaskInfos');
     }
-
-    deleteTaskCB = (rowIndex) => (data) => {
-        // 因调用请求函数时，默认参数只返回成功请求，所以此处不需要判断后台是否成功删除任务
-
-        const { tasks } = this.state;
-        // rowIndex 为行索引，第二个参数 1 为一次去除几行
-        tasks.splice(rowIndex, 1);
-        this.setState({ tasks });
-    }
-
     handleDel = (event) => {
-        // 用户确认删除
-
-        // dataindex 为表中数据的行索引，渲染删除按钮组件时，已设置 dataIndex 自定义属性为当前行索引
-        let rowIndex = event.target.getAttribute('dataindex');
-
-        // 向后台提交删除该任务
-        const { tasks } = this.state;
-        HttpRequest.asyncPost(this.deleteTaskCB(rowIndex), '/tasks/remove', { uuid: tasks[rowIndex].task_uuid });
+        // dataIndex为表中数据的行索引，配置columns时已指定属性dataIndex的数据来源
+        let rowIndex = event.target.getAttribute('dataindex')
+        const delDataSource = this.state.tasks;
+        // rowIndex为行索引，后面的1为一次去除几行
+        delDataSource.splice(rowIndex, 1);
+        this.setState({
+            dataSource: delDataSource,
+        });
     }
     handleEdit = (event) => {
         let rowIndex = event.target.getAttribute('dataindex')
@@ -187,7 +166,7 @@ class TaskManageView extends React.Component {
             key: tasks.length + 1,
             index: (tasks.length + 1).toString(),
             task_name: configItem.taskName,
-            run_status: [taskStatus.TASK_ACTIVE],
+            run_status: ['已完成'],
             host_name: configItem.hostName,
             host_ip: configItem.hostIP,
             host_port: configItem.hostPort,

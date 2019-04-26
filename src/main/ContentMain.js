@@ -19,6 +19,7 @@ import TestView from '../views/TestView'
 import OldResultPage from '../unused/pages/inspect-result/InspectResults'
 import OldPolicyPage from '../unused/pages/security-manage/ConfigTable'
 import OldTaskPage from '../unused/pages/task-manage/TaskTable'
+import TaskManageViewOld from '../views/TaskManageViewOld'
 // import TEST1 from '../unused/pages/SysConfigInspectMain1'
 
 
@@ -43,6 +44,7 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage}/>
           <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage}/>
           <PrivateRoute exact path='/home/other/ref3' component={OldResultPage}/>
+          <PrivateRoute exact path='/home/other/oldtask' component={TaskManageViewOld}/>
 
           <Redirect exact from='/' to='/home'/>
         </Switch>

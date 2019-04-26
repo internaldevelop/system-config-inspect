@@ -1,6 +1,5 @@
 import React from 'react'
 import { Tooltip, Tag } from 'antd';
-import { taskStatus } from '../../global/enumeration/TaskStatus';
 
 export const columns = [
   {
@@ -24,55 +23,58 @@ export const columns = [
       <span>
         { tags instanceof Array && tags.length > 0 && tags.map(tag => {
           let color;
-          let cellText;
-          if (tag === taskStatus.TASK_FINISHED) { 
-            color = 'green'; cellText = '已完成'; 
-          } else if (tag === taskStatus.TASK_RUNNING) { 
-            color = 'geekblue'; cellText = '运行中'; 
-          } else if (tag === taskStatus.TASK_ACTIVE) { 
-            color = 'geekblue'; cellText = '有效'; 
-          } else if (tag === taskStatus.TASK_INACTIVE) { 
-            color = 'volcano'; cellText = '无效'; 
-          } else {
-            color = 'volcano'; cellText = '未知'; 
-          }
-          return <Tag color={color} key={tag}>{cellText}</Tag>
+          if (tag === '已完成') color = 'green';
+          else if (tag === '运行中') color = 'geekblue';
+          else if (tag === '有效') color = 'geekblue';
+          else color = 'volcano';
+          return <Tag color={color} key={tag}>{tag}</Tag>
         })}
       </span>)
   },
   {
     title: '主机名称', width: 120, dataIndex: 'host_name', key: 'host_name',
-    sorter: (a, b) => a.host_name.localeCompare(b.host_name, "zh"),
+    sorter: (a, b) => a.change_time.localeCompare(b.change_time, "zh"),
   },
-  // 由于 antd 表格的缺陷，IP 这列加上后，影响列border的对齐，具体原因未知
-  // 因此暂时拿掉 IP 和 port 这两列
-  // {
-  //   title: 'IP', width: 200, dataIndex: 'host_ip', key: 'host_ip',
-  //   sorter: (a, b) => a.host_ip.localeCompare(b.host_ip, "zh"),
-  // },
-  // {
-  //   title: '端口', width: 100, dataIndex: 'host_port', key: 'host_port',
-  //   sorter: (a, b) => a.host_port.localeCompare(b.host_port, "zh"),
-  // },
+  {
+    title: 'IP', width: 100, dataIndex: 'host_ip', key: 'host_ip',
+    sorter: (a, b) => a.change_time.localeCompare(b.change_time, "zh"),
+  },
+  {
+    title: '端口', width: 100, dataIndex: 'host_port', key: 'host_port',
+    sorter: (a, b) => a.change_time.localeCompare(b.change_time, "zh"),
+  },
   {
     title: '系统类型', width: 200, dataIndex: 'os_type', key: 'os_type',
-    sorter: (a, b) => a.os_type.localeCompare(b.os_type, "zh"),
+    sorter: (a, b) => a.change_time.localeCompare(b.change_time, "zh"),
   },
   {
     title: '系统版本', width: 120, dataIndex: 'os_ver', key: 'os_ver',
-    sorter: (a, b) => a.os_ver.localeCompare(b.os_ver, "zh"),
+    sorter: (a, b) => a.change_time.localeCompare(b.change_time, "zh"),
   },
+  // {
+  //   title: '操作',
+  //   key: 'operation',
+  //   width: 250,
+  //   render: () => (
+  //     <span>
+  //       <a href="javascript:;">Action</a>
+  //       {/* <Divider type="vertical" /> */}
+  //     </span>
+  //   ),
+  // },
   {
     title: '修改时间', width: 200, dataIndex: 'change_time', key: 'change_time',
     sorter: (a, b) => a.change_time.localeCompare(b.change_time, "zh"),
   },
   {
-    title: '',
+    title: '操作',
     key: 'operation',
     width: 250,
     fixed: 'right',
     render: () => (
       <span>
+        <a href="javascript:()">Action</a>
+        {/* <Divider type="vertical" /> */}
       </span>
     ),
   },
