@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col } from 'antd'
+import { Table, Icon, Button, Row, Col, Popconfirm } from 'antd'
 import { columns as Column } from './Column'
 // import { TaskData } from './TaskData'
 // import IconButton from '@material-ui/core/IconButton';
@@ -17,6 +17,7 @@ import TaskParamsConfig from './TaskParamsConfig'
 import { GetNowTimeMyStr } from '../../utils/TimeUtils'
 import HttpRequest from '../../utils/HttpRequest';
 import { taskStatus } from '../../global/enumeration/TaskStatus';
+import { actionType } from '../../global/enumeration/ActionType';
 
 
 const styles = theme => ({
@@ -40,9 +41,11 @@ const styles = theme => ({
     },
 });
 
+const DEFAULT_PAGE_SIZE = 10;
 @inject('taskStore')
 @observer
 class TaskManageView extends React.Component {
+    // const DEFAULT_PAGE_SIZE = 10;
     constructor(props) {
         super(props);
         this.state = {
@@ -50,6 +53,9 @@ class TaskManageView extends React.Component {
             recordChangeID: -1, // TODO
             columns: Column,    // 列定义
             tasks: [],          // 本页面的任务数据集合
+            currentPage: 1,     // Table中当前页码（从 1 开始）
+            pageSize: DEFAULT_PAGE_SIZE,
+            showTaskConfig: false,  // 是否显示任务数据编辑窗口
         }
 
         // 设置操作列的渲染
@@ -59,23 +65,27 @@ class TaskManageView extends React.Component {
         this.getAllTasks();
     }
 
+    /** 初始化操作列，定义渲染效果 */
     initActionColumn() {
         const { columns, } = this.state;
         const { classes } = this.props;
         if (columns.length === 0)
             return;
-        
+
         // 操作列默认为最后一列
         columns[columns.length - 1].render = (text, record, index) => (
             <div>
-                <Button className={classes.actionButton} type="danger" size="small" dataindex={index} onClick={this.handleDel.bind(this)}>删除</Button>
-                <Button className={classes.actionButton} type="primary" size="small" dataindex={index} onClick={this.handleEdit.bind(this)}>编辑</Button>
-                <Button className={classes.actionButton} type="primary" size="small" dataindex={index} onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
+                <Popconfirm title="确定要删除该任务吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
+                    <Button className={classes.actionButton} type="danger" size="small">删除</Button>
+                </Popconfirm>
+                <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
+                <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleRun(index).bind(this)}>运行<Icon type="caret-right" /></Button>
             </div>
         )
         this.setState({ columns });
     }
 
+    /** 从后台请求所有任务数据，请求完成后的回调 */
     getAllTaksCB = (data) => {
         let tasks = [];
         // 检查响应的payload数据是数组类型
@@ -88,7 +98,7 @@ class TaskManageView extends React.Component {
             taskItem.key = index + 1;
             taskItem.index = index + 1;
             taskItem.task_uuid = task.uuid;
-            taskItem.task_name = task.task_name;
+            taskItem.task_name = task.name;
             taskItem.run_status = [task.status];
             taskItem.asset_uuid = task.asset_uuid;
             taskItem.host_name = task.assets_name;
@@ -104,37 +114,59 @@ class TaskManageView extends React.Component {
         this.setState({ tasks });
     }
 
+    /** 从后台请求所有任务数据 */
     getAllTasks = () => {
         // 从后台获取任务的详细信息，含任务表的数据和关联表的数据
-        HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/allTaskInfos');
+        HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/all-task-details');
     }
 
-    deleteTaskCB = (rowIndex) => (data) => {
-        // 因调用请求函数时，默认参数只返回成功请求，所以此处不需要判断后台是否成功删除任务
-
+    /** 向后台发起删除任务数据请求的完成回调 
+     *  因调用请求函数时，默认参数只返回成功请求，所以此处不需要判断后台是否成功删除任务
+    */
+    deleteTaskCB = (dataIndex) => (data) => {
         const { tasks } = this.state;
         // rowIndex 为行索引，第二个参数 1 为一次去除几行
-        tasks.splice(rowIndex, 1);
+        tasks.splice(dataIndex, 1);
         this.setState({ tasks });
     }
 
-    handleDel = (event) => {
-        // 用户确认删除
+    /**
+     * 将数据所在页的行索引转换成整个数据列表中的索引
+     * @param {} rowIndex 数据在表格当前页的行索引
+     */
+    transferDataIndex(rowIndex) {
+        // currentPage 为 Table 中当前页码（从 1 开始）
+        const { currentPage, pageSize } = this.state;
+        let dataIndex = (currentPage - 1) * pageSize + rowIndex;
+        return dataIndex;
+    }
 
-        // dataindex 为表中数据的行索引，渲染删除按钮组件时，已设置 dataIndex 自定义属性为当前行索引
-        let rowIndex = event.target.getAttribute('dataindex');
+    /** 处理删除操作
+     * rowIndex 为当前页所含记录中的第几行（base:0），不是所有记录中的第几条
+     * 需要根据当前 pagination 的属性，做变换
+     */
+    handleDel = (rowIndex) => (event) => {
+        // 从行索引转换成实际的数据索引
+        let dataIndex = this.transferDataIndex(rowIndex);
 
         // 向后台提交删除该任务
         const { tasks } = this.state;
-        HttpRequest.asyncPost(this.deleteTaskCB(rowIndex), '/tasks/remove', { uuid: tasks[rowIndex].task_uuid });
+        HttpRequest.asyncPost(this.deleteTaskCB(dataIndex), '/tasks/remove', { uuid: tasks[dataIndex].task_uuid });
     }
-    handleEdit = (event) => {
-        let rowIndex = event.target.getAttribute('dataindex')
-        const editDataSource = this.state.tasks[rowIndex];
-        this.setState({ recordChangeID: rowIndex });
 
+    /** 处理编辑操作 */
+    handleEdit = (rowIndex) => (event) => {
+        // 从行索引转换成实际的数据索引
+        let dataIndex = this.transferDataIndex(rowIndex);
+
+        // 获取需要编辑的任务数据
+        const editDataSource = this.state.tasks[dataIndex];
+        // 保存是哪一条表格数据在编辑
+        this.setState({ recordChangeID: dataIndex });
+
+        // 利用仓库保存任务操作类型、操作窗口名称、任务数据
         const taskStore = this.props.taskStore;
-        taskStore.setTaskAction(2);
+        taskStore.setTaskAction(actionType.ACTION_EDIT);
         taskStore.setTaskProcName('编辑任务参数');
         let configItem = {
             // rowId: rowIndex,
@@ -148,16 +180,24 @@ class TaskManageView extends React.Component {
         };
         taskStore.initTaskParams(configItem);
 
-        this.props.taskStore.switchShow(true);
+        // 打开任务数据操作窗口
+        this.setState({showTaskConfig: true});
+        // // 打开编辑任务窗口
+        // this.props.taskStore.switchShow(true);
     }
-    handleRun = (event) => {
+
+    /** 处理运行任务的操作 */
+    handleRun = (rowIndex) => (event) => {
         // let rowIndex = event.target.getAttribute('dataindex')
         // const DelDataSource = this.state.taskRecordData;
 
     }
+
+    /** 处理新建任务 */
     handleNewTask = (event) => {
         const taskStore = this.props.taskStore;
-        taskStore.setTaskAction(1);
+        // 在任务仓库中保存操作类型、窗口名称和缺省任务数据
+        taskStore.setTaskAction(actionType.ACTION_NEW);
         taskStore.setTaskProcName('新建任务');
         let configItem = {
             taskName: '新建任务',
@@ -171,15 +211,28 @@ class TaskManageView extends React.Component {
             osVer: 'V16.0',
         };
         taskStore.initTaskParams(configItem);
-        this.props.taskStore.switchShow(true);
+
+        // 打开任务数据操作窗口
+        this.setState({showTaskConfig: true});
+        // this.props.taskStore.switchShow(true);
     }
 
-    autoReaction = () => {
-        let change = this.props.taskStore.taskPopupShow;
-        console.log("==================autoReaction: " + change);
+    /** 新建/编辑任务窗口完成的回调处理 */
+    taskActionCB = (isOk, task) => {
+        const taskStore = this.props.taskStore;
+        if (isOk) {
+            if (taskStore.taskAction === actionType.ACTION_NEW) {
+                this.addTaskData();
+            } else if (taskStore.taskAction === actionType.ACTION_EDIT) {
+                this.editTaskParams();
+            }
+        }
+
+        // 关闭任务数据操作窗口
+        this.setState({showTaskConfig: false});
     }
 
-
+    /** 添加任务数据到前端缓存的数据列表中 */
     addTaskData = () => {
         const { tasks } = this.state;
         const configItem = this.props.taskStore.configItem;
@@ -195,9 +248,10 @@ class TaskManageView extends React.Component {
             os_ver: configItem.osVer,
             change_time: GetNowTimeMyStr(),
         });
-        this.props.taskStore.clearStatus();
+        // this.props.taskStore.clearStatus();
     }
 
+    /** 确认修改任务后，在任务列表中修改指定数据 */
     editTaskParams = () => {
         const { tasks, recordChangeID } = this.state;
         const configItem = this.props.taskStore.configItem;
@@ -210,17 +264,23 @@ class TaskManageView extends React.Component {
         record.os_type = configItem.osType;
         record.os_ver = configItem.osVer;
         record.change_time = GetNowTimeMyStr();
-        this.props.taskStore.clearStatus();
+        // this.props.taskStore.clearStatus();
+    }
+
+    /** 处理页面变化（页面跳转/切换/每页记录数变化） */
+    handlePageChange = (currentPage, pageSize) => {
+        this.setState({currentPage, pageSize});
     }
 
     render() {
-        const { columns, tasks } = this.state;
-        let isAdded = this.props.taskStore.status.isAdded;
-        if (isAdded)
-            this.addTaskData();
-        let isChanged = this.props.taskStore.status.isChanged;
-        if (isChanged)
-            this.editTaskParams();
+        const { columns, tasks, showTaskConfig } = this.state;
+        // let isAdded = this.props.taskStore.status.isAdded;
+        // if (isAdded)
+        //     this.addTaskData();
+        // let isChanged = this.props.taskStore.status.isChanged;
+        // if (isChanged)
+        //     this.editTaskParams();
+        let self = this;
 
         // var taskParamsConfig = new TaskParamsConfig;
         return (
@@ -230,21 +290,28 @@ class TaskManageView extends React.Component {
                     <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>
                 </Row>
                 <Table
+                    id="tasksListTable"
                     columns={columns}
                     dataSource={tasks}
                     bordered={true}
                     scroll={{ x: 1600, y: 400 }}
+                    rowKey={record => record.task_uuid}
                     // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                        pageSizeOptions: ['10', '20', '30', '40'],
-                        defaultPageSize: 10,
+                        pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
+                        defaultPageSize: DEFAULT_PAGE_SIZE,
                         showQuickJumper: true,
                         showSizeChanger: true,
+                        onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
+                            self.handlePageChange(current, pageSize); 
+                        },
+                        onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
+                            self.handlePageChange(current, pageSize);
+                        },   
                     }}
                 />
-                {/* {taskParamsConfig} */}
-                <TaskParamsConfig id="TaskParamsConfig" />
+                { showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB}/> }
             </div>
         )
     }

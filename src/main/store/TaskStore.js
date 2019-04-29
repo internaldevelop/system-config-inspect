@@ -25,6 +25,7 @@ class TaskStore {
     this.taskPopupShow = show;
   }
 
+  // TODO: to be deleted
   @observable status = {
     isAdded: false,
     isChanged: false,
@@ -41,31 +42,33 @@ class TaskStore {
     this.status.isAdded = false;
     this.status.isChanged = false;
   }
+  // end of TODO
 
-  @observable configItem = {
-    index: 0,
-    taskName: '新建任务',
-    taskDesc: '',
-    assetUuid: '',
-    hostName: '本机',
-    hostIP: '127.0.0.1',
-    hostPort: '8192',
-    loginUser: 'root',
-    loginPwd: '',
-    osType: 'Ubuntu',
-    osVer: 'V16.0',
-    changeTime: '',
-    patch: false,
-    sysService: true,
-    sysFileProtect: true,
-    accountConfig: true,
-    pwdPolicy: true,
-    commConfig: true,
-    logAudit: true,
-    securityAudit: true,
-    firewall: false,
-    selfDefined: true,
-  };
+  @observable configItem = {};
+  // @observable configItem = {
+  //   index: 0,
+  //   taskName: '新建任务',
+  //   taskDesc: '',
+  //   assetUuid: '',
+  //   hostName: '本机',
+  //   hostIP: '127.0.0.1',
+  //   hostPort: '8192',
+  //   loginUser: 'root',
+  //   loginPwd: '',
+  //   osType: 'Ubuntu',
+  //   osVer: 'V16.0',
+  //   changeTime: '',
+  //   patch: false,
+  //   sysService: true,
+  //   sysFileProtect: true,
+  //   accountConfig: true,
+  //   pwdPolicy: true,
+  //   commConfig: true,
+  //   logAudit: true,
+  //   securityAudit: true,
+  //   firewall: false,
+  //   selfDefined: true,
+  // };
 
   @action initTaskParams = (params) => {
     CopyProps(this.configItem, params);

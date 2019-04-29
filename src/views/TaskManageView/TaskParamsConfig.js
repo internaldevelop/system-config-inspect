@@ -63,6 +63,7 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleOk = (e) => {
+    let actionCB = this.props.actioncb;
     // const { configItem } = this.props.taskStore;
     // configItem.index = this.props.taskStore.configItem.index;
     // this.props.taskStore.updateTaskParams(configItem);
@@ -71,19 +72,22 @@ class TaskParamsConfig extends React.Component {
     if (this.props.taskStore.taskAction === 1) {
       HttpRequest.asyncPost(this.verifyAssetParams, '/assets/add', { name: hostName, ip: hostIP, port: hostPort, user: loginUser, password: loginPwd, os_type: osType, os_ver: osVer }, false);
       HttpRequest.asyncPost(this.verifyTaskParams, '/tasks/add', { name: taskName, code: "TODO", description: taskDesc, asset_uuid: assetUuid, policies_name: "TODO", create_user_uuid: "TODO" }, false);
-      this.props.taskStore.setAddStatus();
+      // this.props.taskStore.setAddStatus();
     } else if (this.props.taskStore.taskAction === 2) {
       HttpRequest.asyncPost(this.handleAssetChange, '/assets/update', { uuid: assetUuid, name: hostName, ip: hostIP, port: hostPort, user: loginUser, password: loginPwd, os_type: osType, os_ver: osVer }, false);
       HttpRequest.asyncPost(this.handleTaskChange, '/tasks/update', { name: taskName, code: "TODO", description: taskDesc, asset_uuid: assetUuid, policies_name: "TODO", create_user_uuid: "TODO" }, false);
-      this.props.taskStore.setChangeStatus();
+      // this.props.taskStore.setChangeStatus();
     }
 
-    this.props.taskStore.switchShow(false);
+    actionCB(true, {});
+    // this.props.taskStore.switchShow(false);
   }
 
   handleCancel = (e) => {
-    this.props.taskStore.clearStatus();
-    this.props.taskStore.switchShow(false);
+    let actionCB = this.props.actioncb;
+    // this.props.taskStore.clearStatus();
+    // this.props.taskStore.switchShow(false);
+    actionCB(false, {});
   }
 
   moveStep = (move) => {
@@ -216,8 +220,8 @@ class TaskParamsConfig extends React.Component {
     }];
 
     // 本行代码利用store监视机制，对话框显示时调用render函数，从而实现更新页面数据
-    if (taskStore.taskAction <= 0)
-      return <div></div>;
+    // if (taskStore.taskAction <= 0)
+      // return <div></div>;
 
     const modalTitle = <Draggable title={taskStore.taskProcName} />;
 
@@ -225,7 +229,8 @@ class TaskParamsConfig extends React.Component {
       <Modal
         // title={taskStore.taskProcName}
         title={modalTitle}
-        visible={taskStore.taskPopupShow}
+        // visible={taskStore.taskPopupShow}
+        visible={true}
         style={{ top: 20 }}
         maskClosable={false}
         footer={null}

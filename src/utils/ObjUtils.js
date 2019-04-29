@@ -12,8 +12,7 @@ export function CopyProps(dest, src) {
     return;
 
   for (var prop in src) {
-    if (dest.hasOwnProperty(prop)) {
+    // if (dest.hasOwnProperty(prop)) 
       dest[prop] = src[prop];
-    }
   }
 }
