@@ -37,6 +37,7 @@ const Step = Steps.Step;
 
 @inject('taskStore')
 @inject('userStore')
+@inject('dictStore')
 @observer
 class TaskParamsConfig extends React.Component {
 
@@ -48,6 +49,11 @@ class TaskParamsConfig extends React.Component {
       // taskItem: taskItem,
     };
   }
+
+  componentWillMount() {
+    // 加载策略字典
+    this.props.dictStore.loadPolicies();
+}
 
   requestTaskCB = (action) => (data) => {
     let actionCB = this.props.actioncb;
@@ -82,13 +88,13 @@ class TaskParamsConfig extends React.Component {
 
   handleOk = (e) => {
     const { asset_uuid, asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;
-    const { uuid, name, description, code } = this.props.taskStore.taskItem;
+    const { uuid, name, description, code, policies_name } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
     if (this.props.taskStore.taskAction === actionType.ACTION_NEW) {
       // 向后台发送请求，创建一条新的任务记录
       HttpRequest.asyncPost(this.requestTaskCB('new'), '/tasks/add-task-details',
         {
-          name, code: "TODO", description, policies_name: "TODO", create_user_uuid: userUuid,
+          name, code: "TODO", description, policies_name, create_user_uuid: userUuid,
           asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd,
         },
         false
@@ -97,7 +103,7 @@ class TaskParamsConfig extends React.Component {
       // 向后台发送请求，更新任务数据
       HttpRequest.asyncPost(this.requestTaskCB('update'), '/tasks/update-task-details',
         {
-          uuid, name, code: "TODO", description, policies_name: "TODO", create_user_uuid: userUuid,
+          uuid, name, code: "TODO", description, policies_name, create_user_uuid: userUuid,
           asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd,
         },
         false
@@ -190,15 +196,21 @@ class TaskParamsConfig extends React.Component {
   isPolicyExist(policyCode) {
     const { policies_name } = this.props.taskStore.taskItem;
     // 把 policy 字符串转换成JSON，并检查是否为JSONArray
-    const policies = JSON.parse(policies_name);
+    let policies;
+    try {
+      policies = JSON.parse(policies_name);
+    }
+    catch (err) {
+      return false;
+    }
     if (!(policies instanceof Array))
       return false;
 
     // 在JSONArray中查找是否已存在指定 policy
-    policies.forEach(element => {
-      if (element.code === policyCode)
+    for (let policy of policies) {
+      if (policy.code === policyCode)
         return true;
-    });
+    }
 
     return false;
   }
@@ -208,15 +220,40 @@ class TaskParamsConfig extends React.Component {
     if (this.isPolicyExist(policyCode))
       return;
 
-    const { policies_name } = this.props.taskStore.taskItem;
-    const policies = JSON.parse(policies_name);
+    // 将任务的 policy 数据（字符串）转换成 JSON 对象
+    let { policies_name } = this.props.taskStore.taskItem;
+    let policies = JSON.parse(policies_name);
 
-  }
-  removePolicy(policyCode) {
-    // 如果 policy 不存在，则不进行移除操作
-    if (!this.isPolicyExist(policyCode))
+    // 在字典中查找该策略数据
+    const dictStore = this.props.dictStore;
+    let policy = dictStore.getPolicyByCode(policyCode);
+    if (policy === null)
       return;
 
+    // 添加本条策略到 JSON 对象中
+    policies.push( { uuid: policy.uuid, code: policy.code, name: policy.name } );
+
+    // 将 JSON 对象转换成字符串，存到仓库中
+    this.props.taskStore.setParam("policies_name", JSON.stringify(policies));
+  }
+
+  removePolicy(policyCode) {
+    const { policies_name } = this.props.taskStore.taskItem;
+    // 把 policy 字符串转换成JSON，并检查是否为JSONArray
+    const policies = JSON.parse(policies_name);
+    if (!(policies instanceof Array))
+      return false;
+
+    // 在JSONArray中查找是否已存在指定 policy
+    policies.foreach((policy, index) => {
+      if (policy.code === policyCode) {
+        // 移除该策略
+        policies.splice(index, 1);
+      }
+    });
+
+    // 将 JSON 对象转换成字符串，存到仓库中
+    this.props.taskStore.setParam("policies_name", JSON.stringify(policies));
   }
 
   getConfigCtrl(code, name) {
@@ -236,24 +273,26 @@ class TaskParamsConfig extends React.Component {
   }
 
   StepPolicyConfig = () => {
-    let tempPolicies_name = JSON.stringify([
-      {
-        uuid: '410cc17e-aa4f-4514-9256-005deb7b8bc8',
-        code: 'LinuxPatchInstall',
-        name: 'Linux系统补丁安装',
-      },
-      {
-        uuid: '5aa4e0dc-2019-49c1-885b-925bac3238d0',
-        code: 'UserAccountConfig',
-        name: '用户账号配置',
-      },
-    ]);
-    this.props.taskStore.setParam("policies_name", tempPolicies_name);
+    // let tempPolicies_name = JSON.stringify([
+    //   {
+    //     uuid: '410cc17e-aa4f-4514-9256-005deb7b8bc8',
+    //     code: 'LinuxPatchInstall',
+    //     name: 'Linux系统补丁安装',
+    //   },
+    //   {
+    //     uuid: '5aa4e0dc-2019-49c1-885b-925bac3238d0',
+    //     code: 'UserAccountConfig',
+    //     name: '用户账号配置',
+    //   },
+    // ]);
+    // this.props.taskStore.setParam("policies_name", tempPolicies_name);
+    const { policiesArray } = this.props.dictStore;
 
     return (
       <div>
         <FormGroup row>
-          {this.getConfigCtrl('patch', "操作系统补丁安装")}
+          { policiesArray.map(policy => this.getConfigCtrl(policy.code, policy.name)) }
+          {/* {this.getConfigCtrl('patch', "操作系统补丁安装")}
           {this.getConfigCtrl('sysService', "操作系统服务")}
           {this.getConfigCtrl('sysFileProtect', "操作系统文件安全防护")}
           {this.getConfigCtrl('accountConfig', "用户账号配置")}
@@ -262,7 +301,7 @@ class TaskParamsConfig extends React.Component {
           {this.getConfigCtrl('logAudit', "日志审计配置")}
           {this.getConfigCtrl('securityAudit', "安全审计")}
           {this.getConfigCtrl('firewall', "系统防火墙安全")}
-          {this.getConfigCtrl('selfDefined', "自定义安全配置")}
+          {this.getConfigCtrl('selfDefined', "自定义安全配置")} */}
         </FormGroup>
       </div>
     );

@@ -41,7 +41,8 @@ class PolicyParamsConfig extends React.Component {
         this.state = {
             actionName: this.props.action,
             onClose: this.props.onclose,
-            groupsList: this.props.dictStore.policyGroupsList,
+            // groupsList: this.props.dictStore.policyGroupsList,
+            // selectedPolicy: '',
             group: '',
             // show: this.props.showconfig,
         }
