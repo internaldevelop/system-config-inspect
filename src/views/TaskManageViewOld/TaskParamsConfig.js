@@ -39,10 +39,10 @@ class TaskParamsConfig extends React.Component {
 
   constructor(props) {
     super(props);
-    // const configItem = this.props.taskStore.configItem;
+    // const taskItem = this.props.taskStore.taskItem;
     this.state = {
       current: 0,
-      // configItem: configItem,
+      // taskItem: taskItem,
     };
   }
 
@@ -63,11 +63,11 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleOk = (e) => {
-    // const { configItem } = this.props.taskStore;
-    // configItem.index = this.props.taskStore.configItem.index;
-    // this.props.taskStore.updateTaskParams(configItem);
-    const { assetUuid, hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.props.taskStore.configItem;
-    const { taskName, taskDesc } = this.props.taskStore.configItem;
+    // const { taskItem } = this.props.taskStore;
+    // taskItem.index = this.props.taskStore.taskItem.index;
+    // this.props.taskStore.updateTaskParams(taskItem);
+    const { assetUuid, hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.props.taskStore.taskItem;
+    const { taskName, taskDesc } = this.props.taskStore.taskItem;
     if (this.props.taskStore.taskAction === 1) {
       HttpRequest.asyncPost(this.verifyAssetParams, '/assets/add', { name: hostName, ip: hostIP, port: hostPort, user: loginUser, password: loginPwd, os_type: osType, os_ver: osVer }, false);
       HttpRequest.asyncPost(this.verifyTaskParams, '/tasks/add', { name: taskName, code: "TODO", description: taskDesc, asset_uuid: assetUuid, policies_name: "TODO", create_user_uuid: "TODO" }, false);
@@ -93,13 +93,13 @@ class TaskParamsConfig extends React.Component {
 
   handleTaskParamsChange = name => (event) => {
     this.props.taskStore.setParam(name, event.target.value);
-    // const { configItem } = this.props.taskStore;
-    // configItem[name] = event.target.value;
-    // this.setState({ configItem });
+    // const { taskItem } = this.props.taskStore;
+    // taskItem[name] = event.target.value;
+    // this.setState({ taskItem });
   };
 
   StepBaseInfo = () => {
-    const { taskName, taskDesc } = this.props.taskStore.configItem;
+    const { taskName, taskDesc } = this.props.taskStore.taskItem;
     return (
       <form>
         <TextField required fullWidth autoFocus margin="normal"
@@ -115,7 +115,7 @@ class TaskParamsConfig extends React.Component {
   }
 
   StepAssetInfo = () => {
-    const { hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.props.taskStore.configItem;
+    const { hostName, hostIP, hostPort, loginUser, loginPwd, osType, osVer } = this.props.taskStore.taskItem;
     return (
       <div>
         <form>
@@ -159,21 +159,21 @@ class TaskParamsConfig extends React.Component {
 
   handleConfigChange = name => event => {
     this.props.taskStore.setParam(name, event.target.checked);
-    // const { configItem } = this.props.taskStore;
-    // configItem[name] = event.target.checked;
-    // this.setState({ configItem: configItem });
+    // const { taskItem } = this.props.taskStore;
+    // taskItem[name] = event.target.checked;
+    // this.setState({ taskItem: taskItem });
   };
 
   getConfigCtrl(name, label) {
-    const { configItem } = this.props.taskStore;
+    const { taskItem } = this.props.taskStore;
     return (
       <FormControlLabel
         control={
           <Checkbox
             // color="green"
-            checked={configItem[name]}
+            checked={taskItem[name]}
             onChange={this.handleConfigChange(name)}
-            value={"configItem-" + name}
+            value={"taskItem-" + name}
           />
         }
         label={label}

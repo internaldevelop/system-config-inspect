@@ -13,7 +13,7 @@ class PolicyStore {
         solution: '',
     };
 
-    @action initTaskParams = (params) => {
+    @action initPolicyItem = (params) => {
         CopyProps(this.policyItem, params);
     }
     @action setParam = (name, data) => {

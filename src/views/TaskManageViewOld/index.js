@@ -115,7 +115,7 @@ class TaskManageView extends React.Component {
         const taskStore = this.props.taskStore;
         taskStore.setTaskAction(2);
         taskStore.setTaskProcName('编辑任务参数');
-        let configItem = {
+        let taskItem = {
             // rowId: rowIndex,
             index: editDataSource.index,
             taskName: editDataSource['task_name'],
@@ -125,7 +125,7 @@ class TaskManageView extends React.Component {
             osType: editDataSource['os_type'],
             osVer: editDataSource['os_ver'],
         };
-        taskStore.initTaskParams(configItem);
+        taskStore.initTaskItem(taskItem);
 
         this.props.taskStore.switchShow(true);
     }
@@ -138,7 +138,7 @@ class TaskManageView extends React.Component {
         const taskStore = this.props.taskStore;
         taskStore.setTaskAction(1);
         taskStore.setTaskProcName('新建任务');
-        let configItem = {
+        let taskItem = {
             taskName: '新建任务',
             taskDesc: '',
             hostName: '本机',
@@ -149,7 +149,7 @@ class TaskManageView extends React.Component {
             osType: 'Ubuntu',
             osVer: 'V16.0',
         };
-        taskStore.initTaskParams(configItem);
+        taskStore.initTaskItem(taskItem);
         this.props.taskStore.switchShow(true);
     }
 
@@ -161,17 +161,17 @@ class TaskManageView extends React.Component {
 
     addTaskData = () => {
         const { tasks } = this.state;
-        const configItem = this.props.taskStore.configItem;
+        const taskItem = this.props.taskStore.taskItem;
         tasks.unshift({
             key: tasks.length + 1,
             index: (tasks.length + 1).toString(),
-            task_name: configItem.taskName,
+            task_name: taskItem.taskName,
             run_status: ['已完成'],
-            host_name: configItem.hostName,
-            host_ip: configItem.hostIP,
-            host_port: configItem.hostPort,
-            os_type: configItem.osType,
-            os_ver: configItem.osVer,
+            host_name: taskItem.hostName,
+            host_ip: taskItem.hostIP,
+            host_port: taskItem.hostPort,
+            os_type: taskItem.osType,
+            os_ver: taskItem.osVer,
             change_time: GetNowTimeMyStr(),
         });
         this.props.taskStore.clearStatus();
@@ -179,15 +179,15 @@ class TaskManageView extends React.Component {
 
     editTaskParams = () => {
         const { tasks, recordChangeID } = this.state;
-        const configItem = this.props.taskStore.configItem;
+        const taskItem = this.props.taskStore.taskItem;
 
         let record = tasks[recordChangeID];
-        record.task_name = configItem.taskName;
-        record.host_name = configItem.hostName;
-        record.host_ip = configItem.hostIP;
-        record.host_port = configItem.hostPort;
-        record.os_type = configItem.osType;
-        record.os_ver = configItem.osVer;
+        record.task_name = taskItem.taskName;
+        record.host_name = taskItem.hostName;
+        record.host_ip = taskItem.hostIP;
+        record.host_port = taskItem.hostPort;
+        record.os_type = taskItem.osType;
+        record.os_ver = taskItem.osVer;
         record.change_time = GetNowTimeMyStr();
         this.props.taskStore.clearStatus();
     }

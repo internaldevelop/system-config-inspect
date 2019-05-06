@@ -2,7 +2,7 @@ import { observable, action, configure } from 'mobx'
 // import { IsEmptyString } from '../../utils/StringUtils'
 // import { IsNowExpired, GetExpireTimeGMTStr } from '../../utils/TimeUtils'
 // import { GetCookie, SetCookie, DelCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
-import { CopyProps } from '../../utils/ObjUtils'
+import { DeepClone } from '../../utils/ObjUtils'
 
 configure({ enforceActions: 'observed' })
 
@@ -44,37 +44,13 @@ class TaskStore {
   }
   // end of TODO
 
-  @observable configItem = {};
-  // @observable configItem = {
-  //   index: 0,
-  //   taskName: '新建任务',
-  //   taskDesc: '',
-  //   assetUuid: '',
-  //   hostName: '本机',
-  //   hostIP: '127.0.0.1',
-  //   hostPort: '8192',
-  //   loginUser: 'root',
-  //   loginPwd: '',
-  //   osType: 'Ubuntu',
-  //   osVer: 'V16.0',
-  //   changeTime: '',
-  //   patch: false,
-  //   sysService: true,
-  //   sysFileProtect: true,
-  //   accountConfig: true,
-  //   pwdPolicy: true,
-  //   commConfig: true,
-  //   logAudit: true,
-  //   securityAudit: true,
-  //   firewall: false,
-  //   selfDefined: true,
-  // };
+  @observable taskItem = {};
 
-  @action initTaskParams = (params) => {
-    CopyProps(this.configItem, params);
+  @action initTaskItem = (taskItem) => {
+    this.taskItem = DeepClone(taskItem);
   }
   @action setParam = (name, data) => {
-    this.configItem[name] = data;
+    this.taskItem[name] = data;
   }
 
 }

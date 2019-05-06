@@ -95,7 +95,7 @@ class SecurityConfigView extends React.Component {
             riskLevel: editDataSource['risk_level'],
             solution: editDataSource['solution'],
         }
-        policyStore.initTaskParams(policyItem);
+        policyStore.initPolicyItem(policyItem);
         this.setState({ showConfig: true, actionName: '修改策略', actionFlag: ACTION_EDIT, recordChangeID: rowIndex });
     }
 
@@ -108,7 +108,7 @@ class SecurityConfigView extends React.Component {
             riskLevel: '中',
             solution: '',
         }
-        policyStore.initTaskParams(policyItem);
+        policyStore.initPolicyItem(policyItem);
         this.setState({ showConfig: true, actionName: '新建策略', actionFlag: ACTION_NEW });
     }
 

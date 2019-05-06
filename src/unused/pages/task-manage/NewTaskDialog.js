@@ -53,7 +53,7 @@ class NewTaskDialog extends React.Component {
     loginPwd: '',
     systemType: 'Ubuntu',
     systemVer: 'V16.0',
-    // configItem: [true, true, true, true, true, true, true, true, true, true],
+    // taskItem: [true, true, true, true, true, true, true, true, true, true],
     // patch: false,
     // sysService: true,
     // sysFileProtect: true,
@@ -65,7 +65,7 @@ class NewTaskDialog extends React.Component {
     // firewall: true,
     // selfDefined: true,
 
-    configItem: {
+    taskItem: {
       patch: false,
       sysService: true,
       sysFileProtect: true,
@@ -80,9 +80,9 @@ class NewTaskDialog extends React.Component {
   };
 
   handleConfigChange = name => event => {
-    const { configItem } = this.state;
-    configItem[name] = event.target.checked;
-    this.setState({ configItem: configItem });
+    const { taskItem } = this.state;
+    taskItem[name] = event.target.checked;
+    this.setState({ taskItem: taskItem });
   };
 
   getSteps = () => {
@@ -95,9 +95,9 @@ class NewTaskDialog extends React.Component {
         control={
           <Checkbox
             // color="green"
-            checked={this.state.configItem[name]}
+            checked={this.state.taskItem[name]}
             onChange={this.handleConfigChange(name)}
-            value={"configItem-" + name}
+            value={"taskItem-" + name}
           />
         }
         label={label}
@@ -107,7 +107,7 @@ class NewTaskDialog extends React.Component {
 
   getStepContent = (step) => {
     const { classes } = this.props;
-    const { taskName, taskDesc, hostName, hostIP, hostPort, loginUser, loginPwd, systemType, systemVer, configItem } = this.state;
+    const { taskName, taskDesc, hostName, hostIP, hostPort, loginUser, loginPwd, systemType, systemVer, taskItem } = this.state;
     switch (step) {
       case 0:
         return (

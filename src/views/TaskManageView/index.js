@@ -18,6 +18,7 @@ import { GetNowTimeMyStr } from '../../utils/TimeUtils'
 import HttpRequest from '../../utils/HttpRequest';
 import { taskStatus } from '../../global/enumeration/TaskStatus';
 import { actionType } from '../../global/enumeration/ActionType';
+import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 
 
 const styles = theme => ({
@@ -92,21 +93,14 @@ class TaskManageView extends React.Component {
         if (!(data.payload instanceof Array))
             return;
 
-        // 把响应数据转换成 table 数据
+        // 从响应数据生成 table 数据源
         tasks = data.payload.map((task, index) => {
-            let taskItem = {};
-            taskItem.key = index + 1;
+            let taskItem = DeepClone(task);
+            // antd 表格需要数据源中含 key 属性
+            taskItem.key = index + 1;  
+            // 表格中索引列（后台接口返回数据中没有此属性）
             taskItem.index = index + 1;
-            taskItem.task_uuid = task.uuid;
-            taskItem.task_name = task.name;
-            taskItem.run_status = [task.status];
-            taskItem.asset_uuid = task.asset_uuid;
-            taskItem.host_name = task.assets_name;
-            taskItem.host_ip = task.assets_ip;
-            taskItem.host_port = task.assets_port;
-            taskItem.os_type = task.os_type;
-            taskItem.os_ver = task.os_ver;
-            taskItem.change_time = task.update_time;
+            // taskItem.status = [task.status];
             return taskItem;
         })
 
@@ -160,30 +154,16 @@ class TaskManageView extends React.Component {
         let dataIndex = this.transferDataIndex(rowIndex);
 
         // 获取需要编辑的任务数据
-        const editDataSource = this.state.tasks[dataIndex];
-        // 保存是哪一条表格数据在编辑
-        this.setState({ recordChangeID: dataIndex });
+        const taskItem = this.state.tasks[dataIndex];
 
         // 利用仓库保存任务操作类型、操作窗口名称、任务数据
         const taskStore = this.props.taskStore;
         taskStore.setTaskAction(actionType.ACTION_EDIT);
         taskStore.setTaskProcName('编辑任务参数');
-        let configItem = {
-            // rowId: rowIndex,
-            index: editDataSource.index,
-            taskName: editDataSource['task_name'],
-            hostName: editDataSource['host_name'],
-            hostIP: editDataSource['host_ip'],
-            hostPort: editDataSource['host_port'],
-            osType: editDataSource['os_type'],
-            osVer: editDataSource['os_ver'],
-        };
-        taskStore.initTaskParams(configItem);
+        taskStore.initTaskItem(taskItem);
 
-        // 打开任务数据操作窗口
-        this.setState({showTaskConfig: true});
-        // // 打开编辑任务窗口
-        // this.props.taskStore.switchShow(true);
+        // 保存待编辑的数据索引，并打开任务数据操作窗口
+        this.setState({recordChangeID: dataIndex, showTaskConfig: true});
     }
 
     /** 处理运行任务的操作 */
@@ -199,22 +179,21 @@ class TaskManageView extends React.Component {
         // 在任务仓库中保存操作类型、窗口名称和缺省任务数据
         taskStore.setTaskAction(actionType.ACTION_NEW);
         taskStore.setTaskProcName('新建任务');
-        let configItem = {
-            taskName: '新建任务',
-            taskDesc: '',
-            hostName: '本机',
-            hostIP: '127.0.0.1',
-            hostPort: '8192',
-            loginUser: 'root',
-            loginPwd: '',
-            osType: 'Ubuntu',
-            osVer: 'V16.0',
+        let taskItem = {
+            name: '新建任务',
+            description: '',
+            asset_name: '本机',
+            asset_ip: '127.0.0.1',
+            asset_port: '8192',
+            asset_login_user: 'root',
+            asset_login_pwd: 'root',
+            asset_os_type: 'Ubuntu',
+            asset_os_ver: 'V16.0',
         };
-        taskStore.initTaskParams(configItem);
+        taskStore.initTaskItem(taskItem);
 
         // 打开任务数据操作窗口
         this.setState({showTaskConfig: true});
-        // this.props.taskStore.switchShow(true);
     }
 
     /** 新建/编辑任务窗口完成的回调处理 */
@@ -235,36 +214,23 @@ class TaskManageView extends React.Component {
     /** 添加任务数据到前端缓存的数据列表中 */
     addTaskData = () => {
         const { tasks } = this.state;
-        const configItem = this.props.taskStore.configItem;
-        tasks.unshift({
-            key: tasks.length + 1,
-            index: (tasks.length + 1).toString(),
-            task_name: configItem.taskName,
-            run_status: [taskStatus.TASK_ACTIVE],
-            host_name: configItem.hostName,
-            host_ip: configItem.hostIP,
-            host_port: configItem.hostPort,
-            os_type: configItem.osType,
-            os_ver: configItem.osVer,
-            change_time: GetNowTimeMyStr(),
-        });
-        // this.props.taskStore.clearStatus();
+        // 从仓库中取出新建的任务对象，设置 key 和 index 属性
+        const taskItem = this.props.taskStore.taskItem;
+        taskItem.key = tasks.length + 1;
+        taskItem.index = (tasks.length + 1).toString();
+
+        // 将新建任务对象添加到任务数据源中（数据源的首位）
+        tasks.unshift(taskItem);
     }
 
     /** 确认修改任务后，在任务列表中修改指定数据 */
     editTaskParams = () => {
         const { tasks, recordChangeID } = this.state;
-        const configItem = this.props.taskStore.configItem;
+        const taskItem = this.props.taskStore.taskItem;
 
+        // 从仓库中取出编辑后的任务对象，深拷贝到源数据中
         let record = tasks[recordChangeID];
-        record.task_name = configItem.taskName;
-        record.host_name = configItem.hostName;
-        record.host_ip = configItem.hostIP;
-        record.host_port = configItem.hostPort;
-        record.os_type = configItem.osType;
-        record.os_ver = configItem.osVer;
-        record.change_time = GetNowTimeMyStr();
-        // this.props.taskStore.clearStatus();
+        DeepCopy(record, taskItem);
     }
 
     /** 处理页面变化（页面跳转/切换/每页记录数变化） */
@@ -274,12 +240,6 @@ class TaskManageView extends React.Component {
 
     render() {
         const { columns, tasks, showTaskConfig } = this.state;
-        // let isAdded = this.props.taskStore.status.isAdded;
-        // if (isAdded)
-        //     this.addTaskData();
-        // let isChanged = this.props.taskStore.status.isChanged;
-        // if (isChanged)
-        //     this.editTaskParams();
         let self = this;
 
         // var taskParamsConfig = new TaskParamsConfig;
