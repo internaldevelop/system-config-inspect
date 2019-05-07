@@ -48,15 +48,15 @@ class PolicyParamsConfig extends React.Component {
         }
     }
 
-    componentDidMount() {
-        if (this.props.dictStore.isPolicyGroupsEmpty) {
-            HttpRequest.asyncGet(this.getPolicyGroupsCB, '/policies/all');
-        }
-    }
+    // componentDidMount() {
+    //     if (this.props.dictStore.isPolicyGroupsEmpty) {
+    //         HttpRequest.asyncGet(this.getPolicyGroupsCB, '/policies/all');
+    //     }
+    // }
 
-    getPolicyGroupsCB = (data) => {
-        this.props.dictStore.setPolicyGroups(data.payload);
-    }
+    // getPolicyGroupsCB = (data) => {
+    //     this.props.dictStore.setPolicyGroups(data.payload);
+    // }
 
     handleOk = (e) => {
         this.state.onClose();

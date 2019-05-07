@@ -189,7 +189,7 @@ class TaskManageView extends React.Component {
             asset_login_pwd: 'root',
             asset_os_type: 'Ubuntu',
             asset_os_ver: 'V16.0',
-            policies_name: [],
+            policy_groups: [],
         };
         taskStore.initTaskItem(taskItem);
 
