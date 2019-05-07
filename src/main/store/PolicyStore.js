@@ -1,20 +1,13 @@
 import { observable, action, configure } from 'mobx'
-import { CopyProps } from '../../utils/ObjUtils'
+import { DeepClone } from '../../utils/ObjUtils'
 
 configure({ enforceActions: 'observed' })
 
 class PolicyStore {
-    @observable policyItem = {
-        index: 0,
-        name: '',
-        group: '',
-        type: '',
-        riskLevel: '中',
-        solution: '',
-    };
+    @observable policyItem = {};
 
-    @action initPolicyItem = (params) => {
-        CopyProps(this.policyItem, params);
+    @action initPolicyItem = (policyItem) => {
+        this.policyItem = DeepClone(policyItem);
     }
     @action setParam = (name, data) => {
         this.policyItem[name] = data;
