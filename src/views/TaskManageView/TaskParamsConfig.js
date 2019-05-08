@@ -87,8 +87,8 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleOk = (e) => {
-    const { asset_uuid, asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;
-    const { uuid, name, description, code, policy_groups } = this.props.taskStore.taskItem;
+    const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;
+    const { uuid, name, description, policy_groups } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
     if (this.props.taskStore.taskAction === actionType.ACTION_NEW) {
       // 向后台发送请求，创建一条新的任务记录
