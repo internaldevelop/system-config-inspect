@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Draggable from '../../components/window/Draggable'
 import { observer, inject } from 'mobx-react'
-import { Modal, Row, Col } from 'antd';
+import { Modal, Row, Col, message } from 'antd';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -15,6 +15,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
 import HttpRequest from '../../utils/HttpRequest'
+import { errorCode } from '../../global/error';
+import { actionType } from '../../global/enumeration/ActionType';
+import { eng2chn } from '../../utils/StringUtils'
 
 const styles = theme => ({
     root: {
@@ -48,23 +51,56 @@ class PolicyParamsConfig extends React.Component {
         }
     }
 
-    // componentDidMount() {
-    //     if (this.props.dictStore.isPolicyGroupsEmpty) {
-    //         HttpRequest.asyncGet(this.getPolicyGroupsCB, '/policies/all');
-    //     }
-    // }
-
-    // getPolicyGroupsCB = (data) => {
-    //     this.props.dictStore.setPolicyGroups(data.payload);
-    // }
-
-    handleOk = (e) => {
-        this.state.onClose();
-        // this.setState({ show: false });
-    }
+    requestTaskCB = (action) => (data) => {
+        let actionCB = this.props.actioncb;
+        let successInfo;
+    
+        if (action === 'new') {
+          successInfo = "策略创建成功";
+        } else if (action === 'update') {
+          successInfo = "策略更新成功";
+        } else {
+          successInfo = "操作成功";
+        }
+    
+        if (data.code === errorCode.ERROR_OK) {
+          message.info(successInfo);
+          this.props.policyStore.setParam("uuid", data.payload.uuid);
+          // 调用父组件传入的回调函数，第一个参数 true 表示本组件的参数设置已确认，且策略记录已在后台创建或更新
+          actionCB(true, {});
+        } else {
+          message.error(eng2chn(data.error));
+          // 后台创建策略记录失败，则用参数 false 通知父组件不更新页面
+          actionCB(false, {});
+        }
+      }
 
     handleCancel = (e) => {
-        this.state.onClose();
+        let actionCB = this.props.actioncb;
+        // 调用父组件传入的回调函数，第一个参数 false 表示本组件的参数设置被取消 cancel
+        actionCB(false, {});
+    }
+
+
+    handleOk = (e) => {
+        const { uuid, name, risk_level, code, solutions } = this.props.policyStore.policyItem;
+        if (this.props.policyStore.policyAction === actionType.ACTION_NEW) {
+          // 向后台发送请求，创建一条新的策略记录
+          HttpRequest.asyncPost(this.requestTaskCB('new'), '/policies/add',
+            {
+              name, code: "TODO", risk_level, solutions,
+            },
+            false
+          );
+        } else if (this.props.policyStore.policyAction === actionType.ACTION_EDIT) {
+          // 向后台发送请求，更新策略数据
+          HttpRequest.asyncPost(this.requestTaskCB('update'), '/policies/update',
+            {
+              uuid, name, code: "TODO", risk_level, solutions,
+            },
+            false
+          );
+        }
     }
 
     handleParamsChange = name => (event) => {
@@ -77,10 +113,11 @@ class PolicyParamsConfig extends React.Component {
 
     render() {
         const { classes } = this.props;
+        const policyStore = this.props.policyStore;
         // const { show } = this.state;
         // if (this.props.showconfig !== show)
         //     this.setState({ show: this.props.showconfig });
-        const modalTitle = <Draggable title={this.props.action} />;
+        const modalTitle = <Draggable title={policyStore.policyProcName} />;
         const { name, group, type, riskLevel, solution } = this.props.policyStore.policyItem;
         const { policyGroupsList } = this.props.dictStore;
 

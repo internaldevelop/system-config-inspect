@@ -61,7 +61,6 @@ class DictStore {
         }
         return null;
     }
-
 };
 
 export default new DictStore()

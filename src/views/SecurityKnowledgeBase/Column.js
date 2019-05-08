@@ -16,10 +16,6 @@ export const columns = [
     )
   },
   {
-    title: '操作系统', width: 160, dataIndex: 'os_type', key: 'os_type',
-    sorter: (a, b) => a.os_type.localeCompare(b.os_type, "zh"),
-  },
-  {
     title: '危险等级', width: 300, dataIndex: 'risk_level', key: 'risk_level',
     sorter: (a, b) => a.risk_level.localeCompare(b.risk_level, "zh")
   },
@@ -40,16 +36,15 @@ export const columns = [
     sorter: (a, b) => a.lv4_require.localeCompare(b.lv4_require, "zh")
   },
   {
-    title: 'Baseline', width: 200, dataIndex: 'baseline', key: 'baseline',
-    sorter: (a, b) => a.baseline.localeCompare(b.baseline, "zh")
-  },
-  {
     title: '解决方案', width: '300px', dataIndex: 'solutions', key: 'solutions',
     render: solution => (
       <Tooltip placement="topLeft" title={solution}>
         <div>{solution}</div>
       </Tooltip>
     )
-
+  },
+  {
+    title: '操作系统', width: 160, dataIndex: 'os_type', key: 'os_type',
+    sorter: (a, b) => a.os_type.localeCompare(b.os_type, "zh"),
   },
 ];
