@@ -18,6 +18,7 @@ const menus = [
         subs: [
             { key: '/home/sec-config/knowledge', title: '安全策略知识库', icon: '', },
             { key: '/home/sec-config/management', title: '安全策略管理', icon: '', },
+            { key: '/home/sec-config/statistics', title: '安全策略统计', icon: '', },
         ]
     },
     {
