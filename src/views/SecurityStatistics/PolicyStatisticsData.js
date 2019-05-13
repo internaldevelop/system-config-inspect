@@ -134,7 +134,7 @@ class PolicyStatisticsData extends React.Component {
                 columns={columns}
                 dataSource={resultRecordData}
                 bordered={true}
-                scroll={{ x: 1600, y: 400 }}
+                scroll={{ x: 1600, y: 330 }}
                 expandedRowRender={record => this.rowDetails(record)}
                 pagination={{
                     showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,

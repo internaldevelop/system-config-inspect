@@ -2,6 +2,7 @@
 export const errorCode = {
     // 成功
     ERROR_OK: 0,
+    ERROR_NOT_DATA: 200,
     ERROR_GENERAL_ERROR: 1001,
     ERROR_INTERNAL_ERROR: 1002,
     ERROR_PARAMETER: 1003,

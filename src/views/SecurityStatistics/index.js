@@ -56,11 +56,11 @@ class SecurityStatistics extends React.Component {
                         <PolicyStatisticsData code={this.state.selVal}/>
                     </Col>
                 </Row>
-                <Row>
+                {/* <Row>
                     <Col span={24}>
                         <PolicyStatisticsBar code={this.state.selVal}/>
                     </Col>
-                </Row>
+                </Row> */}
             </div>
         );
 
