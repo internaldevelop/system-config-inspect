@@ -110,7 +110,7 @@ class RiskPie extends Component {
         let sourceDatas = [];
 
         for (let i = 0; i < result.length; i++) {
-            let pName = result[i].policie_name;
+            let pName = result[i].policy_name;
             let pNum = result[i].num;
             
             let myMap = {};
