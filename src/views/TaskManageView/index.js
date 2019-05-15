@@ -55,6 +55,7 @@ class TaskManageView extends React.Component {
             currentPage: 1,     // Table中当前页码（从 1 开始）
             pageSize: DEFAULT_PAGE_SIZE,
             showTaskConfig: false,  // 是否显示任务数据编辑窗口
+            runIndex: -1,       // 执行的任务在表格本页的索引
         }
 
         // 设置操作列的渲染
@@ -65,8 +66,8 @@ class TaskManageView extends React.Component {
     }
 
     /** 初始化操作列，定义渲染效果 */
-    initActionColumn() {
-        const { columns, } = this.state;
+    initActionColumn = () => {
+        const { columns, runIndex } = this.state;
         const { classes } = this.props;
         if (columns.length === 0)
             return;
@@ -75,10 +76,10 @@ class TaskManageView extends React.Component {
         columns[columns.length - 1].render = (text, record, index) => (
             <div>
                 <Popconfirm title="确定要删除该任务吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                    <Button className={classes.actionButton} type="danger" size="small">删除</Button>
+                    <Button className={classes.actionButton} disabled={runIndex===index ? true: false} type="danger" size="small">删除</Button>
                 </Popconfirm>
-                <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
-                <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleRun(index).bind(this)}>运行<Icon type="caret-right" /></Button>
+                <Button className={classes.actionButton} disabled={runIndex===index ? true: false} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
+                <Button className={classes.actionButton} disabled={runIndex===index ? true: false} type="primary" size="small" onClick={this.handleRun(index).bind(this)}>运行<Icon type="caret-right" /></Button>
             </div>
         )
         this.setState({ columns });
@@ -164,11 +165,23 @@ class TaskManageView extends React.Component {
         this.setState({recordChangeID: dataIndex, showTaskConfig: true});
     }
 
+    runTaskCB = (rowIndex) => (data) => {
+        // 设置操作按钮为 disabled
+        this.setState({runIndex: rowIndex});
+        this.initActionColumn();
+    }
+
     /** 处理运行任务的操作 */
     handleRun = (rowIndex) => (event) => {
-        // let rowIndex = event.target.getAttribute('dataindex')
-        // const DelDataSource = this.state.taskRecordData;
+        // 从行索引转换成实际的数据索引
+        let dataIndex = this.transferDataIndex(rowIndex);
 
+        // 向后台提交任务执行
+        const { tasks } = this.state;
+        // let params = {};
+        // Object.assign(params, { uuid: tasks[dataIndex].task_uuid });
+        // HttpRequest.asyncPost(this.runTaskCB(rowIndex), '/tasks/execute', params);
+        HttpRequest.asyncPost(this.runTaskCB(rowIndex), '/tasks/execute', { uuid: tasks[dataIndex].uuid });
     }
 
     /** 处理新建任务 */

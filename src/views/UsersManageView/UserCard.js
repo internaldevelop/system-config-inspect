@@ -46,7 +46,7 @@ class UserCard extends React.Component {
         const { resetFields } = this.props.form;
         resetFields();
     }
-    fetchUser() {
+    fetchUser = () => {
         HttpRequest.asyncGet(this.fetchUserCB.bind(this), '/users/user-by-uuid', {uuid: this.props.uuid} );
     }
 
@@ -82,7 +82,7 @@ class UserCard extends React.Component {
             this.setState({ isModifyDetails: !this.state.isModifyDetails });
     }
 
-    updateUserDataCB(data) {
+    updateUserDataCB = (data) => {
         this.fetchUser();
     }
 
