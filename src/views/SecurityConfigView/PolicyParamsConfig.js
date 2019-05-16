@@ -46,8 +46,6 @@ class PolicyParamsConfig extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            group_name: '',
-            asset_name: '',
             assetNames: [],
             assets: [],
             groups: [],
@@ -196,6 +194,7 @@ class PolicyParamsConfig extends React.Component {
             if (asset.name === value) {
                 this.props.policyStore.setParam("asset_uuid", asset.uuid);
                 this.props.policyStore.setParam("os_type", asset.os_type);
+                this.props.policyStore.setParam("asset_name", asset.name);
                 break;
             }
         }
@@ -206,6 +205,7 @@ class PolicyParamsConfig extends React.Component {
         for (let policyGroup of groups) {
             if (policyGroup.name === value) {
                 this.props.policyStore.setParam("group_uuid", policyGroup.uuid);
+                this.props.policyStore.setParam("group_name", policyGroup.name);
                 break;
             }
         }
@@ -224,10 +224,9 @@ class PolicyParamsConfig extends React.Component {
         const policyStore = this.props.policyStore;
         const modalTitle = <Draggable title={policyStore.policyProcName} />;
         const { name, lv1_require, lv2_require, lv3_require, lv4_require } = this.props.policyStore.policyItem;
-        const { run_mode, consume_time, run_contents, os_type } = this.props.policyStore.policyItem;
+        const { run_mode, consume_time, run_contents, os_type, asset_name, group_name} = this.props.policyStore.policyItem;
         const { assetNames } = this.state;
         const { groupNames } = this.state;
-        const { asset_name, group_name} = this.state;
         const osType = this.getOsTypeName(os_type);
         const { fileList } = this.state;
         let self = this;
@@ -273,14 +272,15 @@ class PolicyParamsConfig extends React.Component {
                 <form className={classes.root} autoComplete="off">
                     <Row>
                         <Col span={11}>
-                            <TextField required fullWidth id="group_name" label="策略名称" defaultValue={name}
-                                variant="outlined" margin="normal" onChange={this.handleParamsChange("group_name")}
+                            <TextField required fullWidth id="name" label="策略名称" defaultValue={name}
+                                variant="outlined" margin="normal" onChange={this.handleParamsChange("name")}
                             />
                         </Col>
                         <Col span={11} offset={2}>
                             <TextField disabled fullWidth id="os_type" label="操作系统" defaultValue=" " value={osType}
                                 variant="outlined" margin="normal" onChange={this.handleParamsChange("os_type")}
                             />
+                        />
                         </Col>
                     </Row>
                     <Row>

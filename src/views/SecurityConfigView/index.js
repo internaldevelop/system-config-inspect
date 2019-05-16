@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col, Popconfirm } from 'antd'
+import { Table, Icon, Button, Row, Col, Tabs, Popconfirm } from 'antd'
 import { columns as Column } from './Column'
 // import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
@@ -11,6 +11,8 @@ import { actionType } from '../../global/enumeration/ActionType';
 import { policyType } from '../../global/enumeration/PolicyType';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import HttpRequest from '../../utils/HttpRequest';
+
+const TabPane = Tabs.TabPane;
 
 
 const styles = theme => ({
@@ -222,6 +224,20 @@ class SecurityConfigView extends React.Component {
         this.setState({currentPage, pageSize});
     }
 
+    callback = (key) => {
+        console.log(key);
+    }
+
+    rowDetails = (record) => {
+        return (
+            <Tabs defaultActiveKey="1" onChange={this.callback} >
+                <TabPane tab="操作系统" key="1">{record.os_type}</TabPane>
+                <TabPane tab="运行内容" key="2">{record.run_contents}</TabPane>
+                <TabPane tab="运行时间" key="3">{record.consume_time}</TabPane>
+            </Tabs>
+        );
+    }
+
     render() {
         const { columns, showConfig, policies } = this.state;
         let self = this;
@@ -235,7 +251,8 @@ class SecurityConfigView extends React.Component {
                     columns={columns}
                     dataSource={policies}
                     bordered={true}
-                    scroll={{ x: 1600, y: 400 }}
+                    scroll={{ x: 2000, y: 400 }}
+                    expandedRowRender={record => this.rowDetails(record)}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
                         pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],

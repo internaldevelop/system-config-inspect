@@ -22,8 +22,8 @@ const styles = theme => ({
         zIndex: 10,
         width: '100%',
         height: '100%',
-        backgroundColor: '#000',
-        opacity: 0.01,
+        backgroundColor: '#000000',
+        opacity: 0.8,
         display: 'block',
     },
 });
