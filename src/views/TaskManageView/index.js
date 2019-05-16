@@ -266,7 +266,7 @@ class TaskManageView extends React.Component {
                     columns={columns}
                     dataSource={tasks}
                     bordered={true}
-                    scroll={{ x: 1600, y: 400 }}
+                    scroll={{ x: 1600, y: 400               }}
                     rowKey={record => record.task_uuid}
                     // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
                     pagination={{
