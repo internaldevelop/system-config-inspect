@@ -85,6 +85,8 @@ class TaskManageView extends React.Component {
         // 开启300毫秒的定时器
         timer300mS = setInterval(() => this.timer300msProcess(), 300);
 
+        HttpRequest.asyncGet(this.getTasksRunStatusCB, '/tasks/run-status');
+
         // let arr = [1, 3, 5];
         // PushNew(arr, 1, 2, 3, 4, 5, 6, 7, 8);
         // DeleteElements(arr, 2, 6, 7);
@@ -154,21 +156,30 @@ class TaskManageView extends React.Component {
     }
 
     timer300msProcess = () => {
-        // 检查是否有正在执行中的任务
+        // 获取所有运行过的任务的状态信息
         const { runList, tasks } = this.state;
         if (runList.length > 0) {
-            // 提取执行中任务的 UUID
-            let uuidList = "";
-            for (let id of runList)
-                uuidList += tasks[id].uuid + ",";
-            // let uuidList = runList.map((id, index) => tasks[id].uuid);
-            // 向后台请求任务的执行状态
             HttpRequest.asyncGet(
                 this.getTasksRunStatusCB,
-                '/tasks/run-status',
-                { uuid_list: uuidList }
+                '/tasks/run-status'
             );
         }
+
+        // 检查是否有正在执行中的任务
+        // const { runList, tasks } = this.state;
+        // if (runList.length > 0) {
+        //     // 提取执行中任务的 UUID
+        //     let uuidList = "";
+        //     for (let id of runList)
+        //         uuidList += tasks[id].uuid + ",";
+        //     // let uuidList = runList.map((id, index) => tasks[id].uuid);
+        //     // 向后台请求任务的执行状态
+        //     HttpRequest.asyncGet(
+        //         this.getTasksRunStatusCB,
+        //         '/tasks/run-status',
+        //         { uuid_list: uuidList }
+        //     );
+        // }
     }
 
     handleResize = e => {
@@ -211,10 +222,10 @@ class TaskManageView extends React.Component {
             } else {
                 return (
                     <div>
-                        { 
+                        {
                             runStatus.run_status === taskRunStatus.INTERRUPTED ?
-                            <Progress type="circle" width={progressSize} percent={runStatus.done_rate} status="exception" /> :
-                            <Progress type="circle" width={progressSize} percent={runStatus.done_rate} />
+                                <Progress type="circle" width={progressSize} percent={runStatus.done_rate} status="exception" /> :
+                                <Progress type="circle" width={progressSize} percent={runStatus.done_rate} />
                         }
                     </div>
                 )
