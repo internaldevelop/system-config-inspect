@@ -6,12 +6,9 @@ import { columns as Column } from './Column'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { observer, inject } from 'mobx-react'
-
-import { GetNowTimeMyStr } from '../../utils/TimeUtils'
-
-import PolicyTable from '../SecurityKnowledgeBase/PolicyTable'
 import PolicyParamsConfig from './PolicyParamsConfig'
 import { actionType } from '../../global/enumeration/ActionType';
+import { policyType } from '../../global/enumeration/PolicyType';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import HttpRequest from '../../utils/HttpRequest';
 
@@ -27,13 +24,6 @@ const styles = theme => ({
         marginRight: 5,
         marginBottom: 0,
         marginTop: 0,
-    },
-    runButton: {
-        marginLeft: 5,
-        marginRight: 5,
-        marginBottom: 0,
-        marginTop: 0,
-        backgroundColor: "green",
     },
 });
 
@@ -67,15 +57,30 @@ class SecurityConfigView extends React.Component {
             return;
 
         // 操作列默认为最后一列
-        columns[columns.length - 1].render = (text, record, index) => (
-            <div>
+        columns[columns.length - 1].render = (text, record, index) => {
+            return (
+                <div>
                 <Popconfirm title="确定要删除该任务吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                    <Button className={classes.actionButton} type="danger" size="small">删除</Button>
+                    <Button disabled={this.isDisableEditPolicy(index)} className={classes.actionButton} type="danger" size="small">删除</Button>
                 </Popconfirm>
                 <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
-            </div>
-        )
+                </div>
+            )
+        }
         this.setState({ columns });
+    }
+
+    /**
+     * 目前只允许自定义类型policy可编辑
+     */
+    isDisableEditPolicy = (rowIndex) => {
+        // 从行索引转换成实际的数据索引
+        let dataIndex = this.transferDataIndex(rowIndex);
+        const { policies } = this.state;
+        if (policies[dataIndex].type === policyType.TYPE_NORMAL) {
+            return true;
+        }
+        return false;
     }
 
     /** 从后台请求所有策略数据，请求完成后的回调 */
@@ -93,6 +98,7 @@ class SecurityConfigView extends React.Component {
             // 表格中索引列（后台接口返回数据中没有此属性）
             policyItem.index = index + 1;
             // taskItem.status = [task.status];
+
             return policyItem;
         })
 
@@ -102,7 +108,7 @@ class SecurityConfigView extends React.Component {
 
     /** 从后台请求所有策略数据 */
     getAllPolicies = () => {
-        HttpRequest.asyncGet(this.getAllPoliciesCB, '/policies/all', )
+        HttpRequest.asyncGet(this.getAllPoliciesCB, '/policies/all-detail-info', )
     }
 
     /** 向后台发起删除任务数据请求的完成回调 
@@ -166,9 +172,7 @@ class SecurityConfigView extends React.Component {
         let policyItem = {
             name: '新建策略',
             group: '',
-            type: '',
-            riskLevel: '中',
-            solution: '',
+            type: policyType.TYPE_SELF_DEFINITION,//目前只有自定义策略可以新建
         };
         policyStore.initPolicyItem(policyItem);
 
@@ -220,26 +224,30 @@ class SecurityConfigView extends React.Component {
 
     render() {
         const { columns, showConfig, policies } = this.state;
+        let self = this;
         return (
             <div>
                 <Row>
                     <Col span={8}><Typography variant="h6">安全策略管理</Typography></Col>
                     <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>
                 </Row>
-                {/* <PolicyTable type={1}></PolicyTable> */}
                 <Table
                     columns={columns}
-                    // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
-                    // style={{ overflow: 'hidden', whiteSpace: 'nowrap',  textOverflow: 'clip', }}
                     dataSource={policies}
                     bordered={true}
                     scroll={{ x: 1600, y: 400 }}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                        pageSizeOptions: ['10', '20', '30', '40'],
-                        defaultPageSize: 10,
+                        pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
+                        defaultPageSize: DEFAULT_PAGE_SIZE,
                         showQuickJumper: true,
                         showSizeChanger: true,
+                        onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
+                            self.handlePageChange(current, pageSize); 
+                        },
+                        onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
+                            self.handlePageChange(current, pageSize);
+                        }, 
                     }}
                 />
                 {showConfig && <PolicyParamsConfig actioncb={this.handleCloseConfig} />}
