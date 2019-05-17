@@ -8,6 +8,34 @@ export function IsEmptyObject(obj) {
 }
 
 /**
+ * 不重复地添加新元素到数组
+ * @param {Array} arr 
+*/
+export function PushNew(arr) {
+  let eleCount = arguments.length;
+  for (let i=1; i<eleCount; i++) {
+    let ele = arguments[i];
+    if (arr.indexOf(ele) < 0)
+      arr.push(ele);
+  }
+}
+
+/**
+ * 在数组中删除指定的元素
+ * @param {Array} arr 
+ */
+export function DeleteElements(arr) {
+  let eleCount = arguments.length;
+  for (let i=1; i<eleCount; i++) {
+    let ele = arguments[i];
+    let index = arr.indexOf(ele);
+    if (index >= 0) {
+      arr.splice(index, 1);
+    }
+  }
+}
+
+/**
  * 浅拷贝，不影响目标对象中不拷贝的属性
  * @deprecated
  * @param {Object} dest 存放待拷贝属性的目标对象

@@ -17,7 +17,7 @@ export const columns = [
     render: content => <EllipsisText content={content} width={220}/>,
   },
   {
-    title: '运行状态', width: 120, dataIndex: 'status', key: 'status',
+    title: '运行状态', width: 120, dataIndex: 'status', key: 'run_status',
     render: status => {
       let color;
       let cellText;
