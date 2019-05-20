@@ -2,6 +2,7 @@ import { observable, action, configure, computed } from 'mobx'
 import { IsEmptyString } from '../../utils/StringUtils'
 import { GetExpireTimeGMTStr } from '../../utils/TimeUtils'
 import { GetCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
+import { userType } from '../../global/enumeration/UserType'
 
 configure({enforceActions: 'observed'})
 
@@ -17,6 +18,7 @@ const LoadUserLoginInfo = () => {
             userUuid: '',
             password: '',
             expire: '',
+            userGroup: userType.TYPE_NORMAL_USER,
         });
     }
     var value = JSON.parse(login);
@@ -30,6 +32,7 @@ class UserStore {
         userUuid: '',
         password: '',
         expire: '',
+        userGroup: userType.TYPE_NORMAL_USER,
     };
     @action setLoginUser = (user) => {
         Object.assign(this.loginUser, user);
@@ -58,6 +61,7 @@ class UserStore {
     @observable user = '';
     @observable password = '';
     @observable isExpired = true;
+    @observable userGroup = userType.TYPE_NORMAL_USER;
 
     @computed get loginInfo() {
         return ({
@@ -65,24 +69,27 @@ class UserStore {
             userUuid: this.initLogin.userUuid,
             password: this.password,
             isLogin: this.isLogin,
+            userGroup: this.userGroup,
         });
     }
 
     @action initLogin = () => {
-        const { user, userUuid, password } = LoadUserLoginInfo();
+        const { user, userUuid, password, userGroup } = LoadUserLoginInfo();
         this.isLogin = false;
         this.user = user;
         this.userUuid = userUuid;
         this.password = password;
         // this.isExpired = IsNowExpired(expire);
         this.isExpired = IsEmptyString(user);
+        this.userGroup = userGroup;
     }
 
-    @action setLogin = (user, userUuid, password, bLogin) => {
+    @action setLogin = (user, userUuid, password, bLogin, userGroup) => {
         this.user = user;
         this.userUuid = userUuid;
         this.password = password;
         this.isLogin = bLogin;
+        this.userGroup = userGroup;
     }
 
     @action saveUser = (user, userUuid, password, expireDays) => {

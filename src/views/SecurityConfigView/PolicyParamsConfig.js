@@ -212,9 +212,9 @@ class PolicyParamsConfig extends React.Component {
     }
 
     getOsTypeName = (type) => {
-        if (type === osType.TYPE_WINDOWS) {
+        if (parseInt(type) === osType.TYPE_WINDOWS) {
             return osTypeNames[0];
-        } else if (type === osType.TYPE_LINUX) {
+        } else if (parseInt(type)  === osType.TYPE_LINUX) {
             return osTypeNames[1];
         }
     }
@@ -280,7 +280,6 @@ class PolicyParamsConfig extends React.Component {
                             <TextField disabled fullWidth id="os_type" label="操作系统" defaultValue=" " value={osType}
                                 variant="outlined" margin="normal" onChange={this.handleParamsChange("os_type")}
                             />
-                        />
                         </Col>
                     </Row>
                     <Row>

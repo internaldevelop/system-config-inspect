@@ -21,6 +21,7 @@ import { GetMainViewHeight } from '../../utils/PageUtils'
 import { PushNew, DeleteElements } from '../../utils/ObjUtils'
 import { stat } from 'fs';
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
+import { userType } from '../../global/enumeration/UserType'
 
 let timer1S = undefined;    // 1 秒的定时器
 let timer300mS = undefined;    // 300 毫秒的定时器
@@ -44,10 +45,19 @@ const styles = theme => ({
         marginTop: 0,
         backgroundColor: "green",
     },
+    shade: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#808080',
+        opacity: 0.95,
+        display: 'block',
+    },
 });
 
 const DEFAULT_PAGE_SIZE = 10;
 @inject('taskStore')
+@inject('userStore')
 @observer
 class TaskManageView extends React.Component {
     // const DEFAULT_PAGE_SIZE = 10;
@@ -410,13 +420,24 @@ class TaskManageView extends React.Component {
         this.setState({ currentPage, pageSize });
     }
 
+    hasModifyRight = () => {
+        const { userGroup }= this.props.userStore.loginInfo;
+        if (userGroup === userType.TYPE_NORMAL_USER) {
+            return true;
+        }
+        return false;
+    }
+
     render() {
         const { columns, tasks, showTaskConfig, scrollWidth, scrollHeight } = this.state;
         let self = this;
+        const { classes } = this.props;
 
         // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
+                {!this.hasModifyRight() && <div className={classes.shade}></div>}
+                <div>
                 <Row>
                     <Col span={8}><Typography variant="h6">任务管理</Typography></Col>
                     <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>
@@ -444,6 +465,7 @@ class TaskManageView extends React.Component {
                     }}
                 />
                 {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB} />}
+                </div>
             </div>
         )
     }

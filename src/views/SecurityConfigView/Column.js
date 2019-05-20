@@ -23,8 +23,8 @@ export const columns = [
     render: content => <EllipsisText content={content} width={200}/>,
   },
   {
-    title: '安保1级', width: 300, dataIndex: 'lv1_require', key: 'lv1_require',
-    render: content => <EllipsisText content={content} width={300}/>,
+    title: '安保1级', width: 200, dataIndex: 'lv1_require', key: 'lv1_require',
+    render: content => <EllipsisText content={content} width={200}/>,
   },
   {
     title: '安保2级', width: 200, dataIndex: 'lv2_require', key: 'lv2_require',

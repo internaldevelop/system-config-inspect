@@ -164,6 +164,7 @@ class LogIn extends React.Component {
                 account,
                 userUuid: data.payload.user_uuid,
                 password,
+                userGroup: data.payload.user_group,
             });
 
             let remember = document.getElementById('remember').checked;

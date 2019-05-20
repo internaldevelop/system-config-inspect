@@ -5,7 +5,9 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
+import { observer, inject } from 'mobx-react'
 import { policyGroup } from '../../global/enumeration/PolicyGroup';
+import { userType } from '../../global/enumeration/UserType'
 import { Table, Row, Col} from 'antd'
 import { columns as Column } from './Column'
 import PolicyTable from './PolicyTable'
@@ -78,6 +80,8 @@ const policyGroupInfo = [{
   title: '安全审计策略',
 }];
 
+@inject('userStore')
+@observer
 class SecurityKnowledgeBase extends React.Component {
   constructor(props) {
     super(props);
@@ -156,6 +160,14 @@ class SecurityKnowledgeBase extends React.Component {
       />
     );
   }
+
+  hasModifyRight = () => {
+    const { userGroup }= this.props.userStore.loginInfo;
+    if (userGroup === userType.TYPE_ADMINISTRATOR) {
+        return false;
+    }
+    return true;
+}
 
   render() {
     const { classes } = this.props;

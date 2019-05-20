@@ -9,7 +9,9 @@ import { observer, inject } from 'mobx-react'
 import PolicyParamsConfig from './PolicyParamsConfig'
 import { actionType } from '../../global/enumeration/ActionType';
 import { policyType } from '../../global/enumeration/PolicyType';
+import { userType } from '../../global/enumeration/UserType'
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
+import { GetMainViewHeight } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
 
 const TabPane = Tabs.TabPane;
@@ -27,10 +29,19 @@ const styles = theme => ({
         marginBottom: 0,
         marginTop: 0,
     },
+    shade: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#808080',
+        opacity: 0.95,
+        display: 'block',
+    },
 });
 
 const DEFAULT_PAGE_SIZE = 10;
 @inject('policyStore')
+@inject('userStore')
 @observer
 class SecurityConfigView extends React.Component {
     constructor(props) {
@@ -42,6 +53,8 @@ class SecurityConfigView extends React.Component {
             recordChangeID: -1,
             currentPage: 1,     // Table中当前页码（从 1 开始）
             pageSize: DEFAULT_PAGE_SIZE,
+            scrollWidth: 2000,        // 表格的 scrollWidth
+            scrollHeight: 300,      // 表格的 scrollHeight
         }
 
         // 设置操作列的渲染
@@ -49,6 +62,17 @@ class SecurityConfigView extends React.Component {
 
         // 从后台获取任务数据的集合
         this.getAllPolicies();
+    }
+
+    componentDidMount() {
+        // 增加监听器，侦测浏览器窗口大小改变
+        window.addEventListener('resize', this.handleResize.bind(this));
+        this.setState({ scrollHeight: GetMainViewHeight() });
+    }
+
+    handleResize = e => {
+        console.log('浏览器窗口大小改变事件', e.target.innerWidth, e.target.innerHeight);
+        this.setState({ scrollHeight: GetMainViewHeight() });
     }
 
     /** 初始化操作列，定义渲染效果 */
@@ -238,11 +262,22 @@ class SecurityConfigView extends React.Component {
         );
     }
 
+    hasModifyRight = () => {
+        const { userGroup }= this.props.userStore.loginInfo;
+        if (userGroup === userType.TYPE_NORMAL_USER) {
+            return true;
+        }
+        return false;
+    }
+
     render() {
-        const { columns, showConfig, policies } = this.state;
+        const { columns, showConfig, policies, scrollWidth, scrollHeight } = this.state;
         let self = this;
+        const { classes } = this.props;
         return (
             <div>
+                {!this.hasModifyRight() && <div className={classes.shade}></div>}
+                <div>
                 <Row>
                     <Col span={8}><Typography variant="h6">安全策略管理</Typography></Col>
                     <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>
@@ -251,7 +286,7 @@ class SecurityConfigView extends React.Component {
                     columns={columns}
                     dataSource={policies}
                     bordered={true}
-                    scroll={{ x: 2000, y: 400 }}
+                    scroll={{ x: scrollWidth, y: scrollHeight }}
                     expandedRowRender={record => this.rowDetails(record)}
                     pagination={{
                         showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
@@ -268,6 +303,7 @@ class SecurityConfigView extends React.Component {
                     }}
                 />
                 {showConfig && <PolicyParamsConfig actioncb={this.handleCloseConfig} />}
+                </div>
             </div>
         )
 
