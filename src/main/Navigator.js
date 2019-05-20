@@ -18,7 +18,6 @@ const menus = [
         subs: [
             { key: '/home/sec-config/knowledge', title: '安全策略知识库', icon: '', },
             { key: '/home/sec-config/management', title: '安全策略管理', icon: '', },
-            { key: '/home/sec-config/statistics', title: '安全策略统计', icon: '', },
         ]
     },
     {
@@ -28,6 +27,7 @@ const menus = [
         subs: [
             { key: '/home/inspect-result/overview', title: '检测一览', icon: 'area-chart', },
             { key: '/home/inspect-result/details', title: '详情', icon: 'table', },
+            { key: '/home/sec-config/statistics', title: '任务分析', icon: 'table', },
         ]
     },
     {

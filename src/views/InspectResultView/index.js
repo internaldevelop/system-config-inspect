@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import HttpRequest from '../../utils/HttpRequest';
+import { GetBackEndRootUrl } from '../../global/environment'
 
-import { Table, Icon, Button, Row, Col, Tabs, Input } from 'antd'
+import { Table, Icon, Button, Row, Col, Tabs, Input, Select } from 'antd'
 
 import { columns as Column } from './Column'
 import { ResultData } from './ResultData'
@@ -21,6 +22,8 @@ const styles = theme => ({
     },
 });
 
+const Option = Select.Option;
+
 class InspectResultView extends React.Component {
     constructor(props) {
         super(props);
@@ -28,6 +31,7 @@ class InspectResultView extends React.Component {
             columns: Column,
             resultRecordData: '',
             inputValue : '',//输入框输入值
+            selectValue : '',
         }
 		this.getTasksResults();
     }
@@ -77,8 +81,18 @@ class InspectResultView extends React.Component {
         HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', {taskNameIpType: inputValue});
     };
     
+    handleChange = (value) => {
+        const { selectValue } = this.state;
+        this.setState({
+            selectValue:value,
+        });
+        console.log(selectValue);
+    }
+    
+    // 导出
     exportTasksResults = () => {
-        alert('导出');
+        const { inputValue, selectValue } = this.state;
+        window.location.href = GetBackEndRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
     }
 
     callback = (key) => {
@@ -104,11 +118,17 @@ class InspectResultView extends React.Component {
             <div>
                 <Row>
                     <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
-                    <Col span={8} offset={5} align="right">
+                    <Col span={7} offset={5} align="right">
                         <Input className={classes.antInput} size="large" value={this.state.inputValue} onChange={this.handleGetInputValue} placeholder="任务名称、目标IP、问题类型" />
-                    </Col>
-                    <Col span={3} align="right">
                         <Button className={classes.iconButton} type="primary" size="large" onClick={this.findTasksResults} ><Icon type="search" />查询</Button>
+                    </Col>
+                    <Col span={4} align="right">
+                        <Select defaultValue='Excel' size="large" onChange={this.handleChange}>
+                            <Option value='Excel'>Excel</Option>
+                            <Option value='Word'>Word</Option>
+                            <Option value='Pdf'>Pdf</Option>
+                            <Option value='Html'>Html</Option>
+                        </Select>
                         <Button className={classes.iconButton} type="primary" size="large" onClick={this.exportTasksResults} ><Icon type="export" />导出</Button>
                     </Col>
                 </Row>
