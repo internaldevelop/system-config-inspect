@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col, Popconfirm, Progress } from 'antd'
+import { Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
 import { columns as Column } from './Column'
 // import { TaskData } from './TaskData'
 // import IconButton from '@material-ui/core/IconButton';
@@ -22,6 +22,7 @@ import { PushNew, DeleteElements } from '../../utils/ObjUtils'
 import { stat } from 'fs';
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
 import { userType } from '../../global/enumeration/UserType'
+import { sockMsgType } from '../../global/enumeration/SockMsgType'
 
 let timer1S = undefined;    // 1 秒的定时器
 let timer300mS = undefined;    // 300 毫秒的定时器
@@ -93,9 +94,12 @@ class TaskManageView extends React.Component {
         this.setState({ scrollHeight: GetMainViewHeight() });
 
         // 开启300毫秒的定时器
-        timer300mS = setInterval(() => this.timer300msProcess(), 300);
+        // timer300mS = setInterval(() => this.timer300msProcess(), 300);
 
         HttpRequest.asyncGet(this.getTasksRunStatusCB, '/tasks/run-status');
+
+        // 开启 websocket ，实时获取后台处理状态，比如任务运行状态
+        this.openWebsocket();
 
         // let arr = [1, 3, 5];
         // PushNew(arr, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -107,13 +111,57 @@ class TaskManageView extends React.Component {
         window.removeEventListener('resize', this.handleResize.bind(this));
 
         // 清除定时器
-        clearInterval(timer300mS);
+        // clearInterval(timer300mS);
     }
 
     isRunning = (rowIndex) => {
         const { runList } = this.state;
         let dataIndex = this.transferDataIndex(rowIndex);
         return (runList.indexOf(dataIndex) >= 0);
+    }
+
+    processSockMessage = (data) => {
+        let message = JSON.parse(data);
+        if (message.type === sockMsgType.MULTIPLE_TASK_RUN_INFO) {
+            // 处理多任务运行状态
+            this.processTaskRunStatusInfo(message.payload); 
+        } else {
+            // 其它消息类型不做处理
+        }
+    }
+
+    openWebsocket = () => {
+        var socket;
+        let self = this;
+        if (typeof (WebSocket) == "undefined") {
+            console.log("您的浏览器不支持WebSocket");
+        } else {
+            console.log("您的浏览器支持WebSocket");
+            //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
+            //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
+            socket = new WebSocket("ws://localhost:8090/websocket/2011");
+            //打开事件  
+            socket.onopen = function () {
+                console.log("Socket 已打开");
+                //socket.send("这是来自客户端的消息" + location.href + new Date());  
+            };
+            //获得消息事件  
+            socket.onmessage = function (msg) {
+                console.log(msg.data);
+                self.processSockMessage(msg.data);
+                //发现消息进入    开始处理前端触发逻辑
+            };
+            //关闭事件  
+            socket.onclose = function () {
+                console.log("Socket已关闭");
+            };
+            //发生了错误事件  
+            socket.onerror = function () {
+                message.error("Socket发生了错误");
+                //此时可以尝试刷新页面
+            }
+        }
+
     }
 
     /**
@@ -141,15 +189,15 @@ class TaskManageView extends React.Component {
         return null;
     }
 
-    getTasksRunStatusCB = (data) => {
+    processTaskRunStatusInfo = (payload) => {
         let statusList = [];
         let runList = this.state.runList;
         // 检查响应的payload数据是数组类型
-        if (!(data.payload instanceof Array))
+        if (!(payload instanceof Array))
             return;
 
         // 拷贝任务执行状态的数据
-        statusList = data.payload.map((status, index) => {
+        statusList = payload.map((status, index) => {
             // 如果任务完成100%，或者任务中断，则移除该任务
             if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
                 let id = this.getIndexFromTaskUuid(status.task_uuid);
@@ -165,6 +213,10 @@ class TaskManageView extends React.Component {
         this.renderRunStatusColumn();
     }
 
+    getTasksRunStatusCB = (data) => {
+        this.processTaskRunStatusInfo(data.payload);
+    }
+
     timer300msProcess = () => {
         // 获取所有运行过的任务的状态信息
         const { runList, tasks } = this.state;
@@ -174,22 +226,6 @@ class TaskManageView extends React.Component {
                 '/tasks/run-status'
             );
         }
-
-        // 检查是否有正在执行中的任务
-        // const { runList, tasks } = this.state;
-        // if (runList.length > 0) {
-        //     // 提取执行中任务的 UUID
-        //     let uuidList = "";
-        //     for (let id of runList)
-        //         uuidList += tasks[id].uuid + ",";
-        //     // let uuidList = runList.map((id, index) => tasks[id].uuid);
-        //     // 向后台请求任务的执行状态
-        //     HttpRequest.asyncGet(
-        //         this.getTasksRunStatusCB,
-        //         '/tasks/run-status',
-        //         { uuid_list: uuidList }
-        //     );
-        // }
     }
 
     handleResize = e => {
@@ -347,9 +383,6 @@ class TaskManageView extends React.Component {
 
         // 向后台提交任务执行
         const { tasks } = this.state;
-        // let params = {};
-        // Object.assign(params, { uuid: tasks[dataIndex].task_uuid });
-        // HttpRequest.asyncPost(this.runTaskCB(rowIndex), '/tasks/execute', params);
         HttpRequest.asyncPost(this.runTaskCB(rowIndex), '/tasks/execute', { uuid: tasks[dataIndex].uuid });
 
     }
