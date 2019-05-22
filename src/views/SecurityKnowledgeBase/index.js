@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import { observer, inject } from 'mobx-react'
 import { policyGroup } from '../../global/enumeration/PolicyGroup';
 import { userType } from '../../global/enumeration/UserType'
-import { Table, Row, Col} from 'antd'
+import { Table, Row, Col } from 'antd'
 import { columns as Column } from './Column'
 import PolicyTable from './PolicyTable'
 import { DeepClone } from '../../utils/ObjUtils'
@@ -31,6 +31,15 @@ const styles = theme => ({
     flexGrow: 1,
     width: '100%',
     backgroundColor: theme.palette.background.paper,
+  },
+  shade: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#808080',
+    opacity: 0.95,
+    display: 'block',
+    zIndex: 999,
   },
 });
 
@@ -97,37 +106,37 @@ class SecurityKnowledgeBase extends React.Component {
   };
 
   getPoliciesCB = (data) => {
-      const { value, policies } = this.state;
-      let allPolicies = [];
-      let code = policyGroupInfo[value].code;
-      let currentPolicies = [];
-      let currentGroupGolicies = [];
-      // 检查响应的payload数据是数组类型
-      if (!(data.payload instanceof Array)) {
-        currentGroupGolicies = { id: code, policies: currentPolicies};
-        return;
-  }
-  
-      // 把响应数据转换成 table 数据
-      currentPolicies = data.payload.map((policy, index) => {
-          let policyItem = DeepClone(policy);
-          policyItem.key = index + 1;  
-          policyItem.index = index + 1;
-          return policyItem;
-      })
-      currentGroupGolicies = { code: code, policies: currentPolicies};
-      for (let policy of policies) {
-        allPolicies.push(policy);
-      }
-      allPolicies.push(currentGroupGolicies);
-      // 更新 policies 数据源
-      this.setState({ policies: allPolicies });
+    const { value, policies } = this.state;
+    let allPolicies = [];
+    let code = policyGroupInfo[value].code;
+    let currentPolicies = [];
+    let currentGroupGolicies = [];
+    // 检查响应的payload数据是数组类型
+    if (!(data.payload instanceof Array)) {
+      currentGroupGolicies = { id: code, policies: currentPolicies };
+      return;
+    }
+
+    // 把响应数据转换成 table 数据
+    currentPolicies = data.payload.map((policy, index) => {
+      let policyItem = DeepClone(policy);
+      policyItem.key = index + 1;
+      policyItem.index = index + 1;
+      return policyItem;
+    })
+    currentGroupGolicies = { code: code, policies: currentPolicies };
+    for (let policy of policies) {
+      allPolicies.push(policy);
+    }
+    allPolicies.push(currentGroupGolicies);
+    // 更新 policies 数据源
+    this.setState({ policies: allPolicies });
   }
 
   getPoliciesByGroupCode = (groupCode) => {
     // 根据groupId获取所在组所有的策略
-    HttpRequest.asyncGet(this.getPoliciesCB, '/policies/get-policies-by-group-code', {groupCode});
-}
+    HttpRequest.asyncGet(this.getPoliciesCB, '/policies/get-policies-by-group-code', { groupCode });
+  }
 
   showPolicies = (code) => {
     const { columns, policies } = this.state;
@@ -145,29 +154,29 @@ class SecurityKnowledgeBase extends React.Component {
     }
     return (
       <Table
-      columns={columns}
-      dataSource={policiesSource}
-      bordered={true}
-      scroll={{ x: 1600, y: 400 }}
-      // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
-      pagination={{
+        columns={columns}
+        dataSource={policiesSource}
+        bordered={true}
+        scroll={{ x: 1600, y: 400 }}
+        // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
+        pagination={{
           showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
           pageSizeOptions: ['10', '20', '30', '40'],
           defaultPageSize: 10,
           showQuickJumper: true,
           showSizeChanger: true,
-      }}
+        }}
       />
     );
   }
 
   hasModifyRight = () => {
-    const { userGroup }= this.props.userStore.loginInfo;
+    const { userGroup } = this.props.userStore.loginInfo;
     if (userGroup === userType.TYPE_ADMINISTRATOR) {
-        return false;
+      return false;
     }
     return true;
-}
+  }
 
   render() {
     const { classes } = this.props;
@@ -175,24 +184,27 @@ class SecurityKnowledgeBase extends React.Component {
 
     return (
       <div>
-        <Row>
-          <Col span={8}><Typography variant="h6">安全策略知识库</Typography></Col>
-        </Row>
-        <div className={classes.root}>
-        <AppBar position="static" color="default">
-          <Tabs
-            value={value}
-            onChange={this.handleChange}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-          {policyGroupInfo.map(item => <Tab label={item.title}/>)}
-          </Tabs>
-        </AppBar>
-        {policyGroupInfo.map((item, index) => (value === index && <TabContainer>{this.showPolicies(item.code)}</TabContainer>))}
-      </div>
+        {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
+        <div>
+          <Row>
+            <Col span={8}><Typography variant="h6">安全策略知识库</Typography></Col>
+          </Row>
+          <div className={classes.root}>
+            <AppBar position="static" color="default">
+              <Tabs
+                value={value}
+                onChange={this.handleChange}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="scrollable"
+                scrollButtons="auto"
+              >
+                {policyGroupInfo.map(item => <Tab label={item.title} />)}
+              </Tabs>
+            </AppBar>
+            {policyGroupInfo.map((item, index) => (value === index && <TabContainer>{this.showPolicies(item.code)}</TabContainer>))}
+          </div>
+        </div>
       </div>
     );
   }

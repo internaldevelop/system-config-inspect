@@ -31,6 +31,11 @@ const menus = [
         ]
     },
     {
+        title: '安全配置项目管理',
+        icon: '',
+        key: '/home/project-config',
+    },
+    {
         title: '系统管理',
         icon: 'setting',
         key: '/home/sysadmin',

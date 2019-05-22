@@ -1,11 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { observer, inject } from 'mobx-react'
+import { userType } from '../../global/enumeration/UserType'
 // import green from '@material-ui/core/colors/green';
 // import pink from '@material-ui/core/colors/pink';
 // import blue from '@material-ui/core/colors/blue';
 
-import { List, Avatar, Row, Col, Button, Icon } from 'antd';
+import { Skeleton, List, Avatar, Row, Col, Button, Icon } from 'antd';
 
 import UserCard from './UserCard'
 import HttpRequest from '../../utils/HttpRequest';
@@ -21,9 +23,20 @@ const styles = theme => ({
     },
     unselectedItem: {
         // backgroundColor: 'rgba(178,178,178,0.5)',
-    }
+    },
+    shade: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#808080',
+        opacity: 0.95,
+        display: 'block',
+        zIndex: 999,
+    },
 });
 
+@inject('userStore')
+@observer
 class UsersManageView extends React.Component {
     constructor(props) {
         super(props);
@@ -45,10 +58,10 @@ class UsersManageView extends React.Component {
 
     generateUserList(users) {
         const listData = [];
-        if ( (typeof users === "undefined") || (users.length === 0) ) {
+        if ((typeof users === "undefined") || (users.length === 0)) {
             return listData;
         }
-        
+
         for (let i = 0; i < users.length; i++) {
             listData.push({
                 // href: 'http://ant.design',
@@ -114,25 +127,36 @@ class UsersManageView extends React.Component {
         );
     }
 
+    hasModifyRight = () => {
+        const { userGroup } = this.props.userStore.loginInfo;
+        if (userGroup === userType.TYPE_ADMINISTRATOR) {
+            return true;
+        }
+        return false;
+    }
+
     render() {
         const { usersDataReady, selectedAccID, users } = this.state;
+        const { classes } = this.props;
         let userUuid;
         if (selectedAccID >= 0)
             userUuid = users[selectedAccID].uuid;
         // let user = users[selectedAccID];
         return (
             <div>
-                {
-                    usersDataReady && selectedAccID >= 0 && 
-                    <Row>
-                        <Col span={8}>
-                            {this.userListBox()}
-                        </Col>
-                        <Col span={16}>
-                            <UserCard  uuid={userUuid} manage={1} />
-                        </Col>
-                    </Row>
-                }
+                <Skeleton loading={!this.hasModifyRight()} active avatar paragraph title>
+                    {
+                        usersDataReady && selectedAccID >= 0 &&
+                        <Row>
+                            <Col span={8}>
+                                {this.userListBox()}
+                            </Col>
+                            <Col span={16}>
+                                <UserCard uuid={userUuid} manage={1} />
+                            </Col>
+                        </Row>
+                    }
+                </Skeleton>
             </div>
         );
     }

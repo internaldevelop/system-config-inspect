@@ -4,6 +4,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import HttpRequest from '../../utils/HttpRequest';
 import { GetBackEndRootUrl } from '../../global/environment'
+import { observer, inject } from 'mobx-react'
+import { userType } from '../../global/enumeration/UserType'
 
 import { Table, Icon, Button, Row, Col, Tabs, Input, Select } from 'antd'
 
@@ -20,45 +22,56 @@ const styles = theme => ({
     antInput: {
         width: 300,
     },
+    shade: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#808080',
+        opacity: 0.95,
+        display: 'block',
+        zIndex: 999,
+    },
 });
 
 const Option = Select.Option;
 
+@observer
+@inject('userStore')
 class InspectResultView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             columns: Column,
             resultRecordData: '',
-            inputValue : '',//输入框输入值
-            selectValue : '',
+            inputValue: '',//输入框输入值
+            selectValue: '',
         }
-		this.getTasksResults();
+        this.getTasksResults();
     }
 
-	generateResultList(result) {
+    generateResultList(result) {
         const listData = [];
-        if ( (typeof result === "undefined") || (result.length === 0) ) {
+        if ((typeof result === "undefined") || (result.length === 0)) {
             return listData;
         }
-        
+
         for (let i = 0; i < result.length; i++) {
             listData.push({
                 key: i,
-                index: i+1, 
-                task_name: result[i].task_name, 
-                task_id: result[i].task_id, 
-                target_name: result[i].assets_name, 
-                target_ip: result[i].assets_ip, 
-                risk_type: result[i].policie_name, 
-                risk_desc: result[i].description, 
-                risk_level: result[i].risk_level, 
+                index: i + 1,
+                task_name: result[i].task_name,
+                task_id: result[i].task_id,
+                target_name: result[i].assets_name,
+                target_ip: result[i].assets_ip,
+                risk_type: result[i].policie_name,
+                risk_desc: result[i].description,
+                risk_level: result[i].risk_level,
                 solution: result[i].solutions,
             })
         }
         return listData;
     }
-    
+
     getResultsCB = (data) => {
         this.setState({
             resultRecordData: this.generateResultList(data.payload),
@@ -66,29 +79,29 @@ class InspectResultView extends React.Component {
     }
 
     getTasksResults() {
-        const {inputValue} = this.state;
-        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', {taskNameIpType: inputValue});
+        const { inputValue } = this.state;
+        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', { taskNameIpType: inputValue });
     }
-    
+
     handleGetInputValue = (event) => {
         this.setState({
-            inputValue : event.target.value,
+            inputValue: event.target.value,
         })
     };
-    
+
     findTasksResults = () => {
-        const {inputValue} = this.state;
-        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', {taskNameIpType: inputValue});
+        const { inputValue } = this.state;
+        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', { taskNameIpType: inputValue });
     };
-    
+
     handleChange = (value) => {
         const { selectValue } = this.state;
         this.setState({
-            selectValue:value,
+            selectValue: value,
         });
         console.log(selectValue);
     }
-    
+
     // 导出
     exportTasksResults = () => {
         const { inputValue, selectValue } = this.state;
@@ -111,41 +124,52 @@ class InspectResultView extends React.Component {
         );
     }
 
+    hasModifyRight = () => {
+        const { userGroup } = this.props.userStore.loginInfo;
+        if (userGroup !== userType.TYPE_ADMINISTRATOR) {
+            return true;
+        }
+        return false;
+    }
+
     render() {
         const { columns, resultRecordData } = this.state;
         const { classes } = this.props;
         return (
             <div>
-                <Row>
-                    <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
-                    <Col span={7} offset={5} align="right">
-                        <Input className={classes.antInput} size="large" value={this.state.inputValue} onChange={this.handleGetInputValue} placeholder="任务名称、目标IP、问题类型" />
-                        <Button className={classes.iconButton} type="primary" size="large" onClick={this.findTasksResults} ><Icon type="search" />查询</Button>
-                    </Col>
-                    <Col span={4} align="right">
-                        <Select defaultValue='Excel' size="large" onChange={this.handleChange}>
-                            <Option value='Excel'>Excel</Option>
-                            <Option value='Word'>Word</Option>
-                            <Option value='Pdf'>Pdf</Option>
-                            <Option value='Html'>Html</Option>
-                        </Select>
-                        <Button className={classes.iconButton} type="primary" size="large" onClick={this.exportTasksResults} ><Icon type="export" />导出</Button>
-                    </Col>
-                </Row>
-                <Table
-                    columns={columns}
-                    dataSource={resultRecordData}
-                    bordered={true}
-                    scroll={{ x: 1600, y: 400 }}
-                    expandedRowRender={record => this.rowDetails(record)}
-                    pagination={{
-                        showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                        pageSizeOptions: ['10', '20', '30', '40'],
-                        defaultPageSize: 10,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
-                    }}
-                />
+                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
+                <div>
+                    <Row>
+                        <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
+                        <Col span={7} offset={5} align="right">
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue} onChange={this.handleGetInputValue} placeholder="任务名称、目标IP、问题类型" />
+                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.findTasksResults} ><Icon type="search" />查询</Button>
+                        </Col>
+                        <Col span={4} align="right">
+                            <Select defaultValue='Excel' size="large" onChange={this.handleChange}>
+                                <Option value='Excel'>Excel</Option>
+                                <Option value='Word'>Word</Option>
+                                <Option value='Pdf'>Pdf</Option>
+                                <Option value='Html'>Html</Option>
+                            </Select>
+                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.exportTasksResults} ><Icon type="export" />导出</Button>
+                        </Col>
+                    </Row>
+                    <Table
+                        columns={columns}
+                        dataSource={resultRecordData}
+                        bordered={true}
+                        scroll={{ x: 1600, y: 400 }}
+                        expandedRowRender={record => this.rowDetails(record)}
+                        pagination={{
+                            showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
+                            pageSizeOptions: ['10', '20', '30', '40'],
+                            defaultPageSize: 10,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                        }}
+                    />
+                </div>
             </div>
         )
 

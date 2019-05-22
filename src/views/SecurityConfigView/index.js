@@ -36,6 +36,7 @@ const styles = theme => ({
         backgroundColor: '#808080',
         opacity: 0.95,
         display: 'block',
+        zIndex: 999,
     },
 });
 
@@ -55,7 +56,10 @@ class SecurityConfigView extends React.Component {
             pageSize: DEFAULT_PAGE_SIZE,
             scrollWidth: 2000,        // 表格的 scrollWidth
             scrollHeight: 300,      // 表格的 scrollHeight
+            shadeState: false,
         }
+
+        this.hasModifyRight();
 
         // 设置操作列的渲染
         this.initActionColumn();
@@ -86,10 +90,10 @@ class SecurityConfigView extends React.Component {
         columns[columns.length - 1].render = (text, record, index) => {
             return (
                 <div>
-                <Popconfirm title="确定要删除该任务吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                    <Button disabled={this.isDisableEditPolicy(index)} className={classes.actionButton} type="danger" size="small">删除</Button>
-                </Popconfirm>
-                <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
+                    <Popconfirm title="确定要删除该策略吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
+                        <Button disabled={this.isDisableEditPolicy(index)} className={classes.actionButton} type="danger" size="small">删除</Button>
+                    </Popconfirm>
+                    <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
                 </div>
             )
         }
@@ -120,7 +124,7 @@ class SecurityConfigView extends React.Component {
         policies = data.payload.map((policy, index) => {
             let policyItem = DeepClone(policy);
             // antd 表格需要数据源中含 key 属性
-            policyItem.key = index + 1;  
+            policyItem.key = index + 1;
             // 表格中索引列（后台接口返回数据中没有此属性）
             policyItem.index = index + 1;
             // taskItem.status = [task.status];
@@ -134,7 +138,7 @@ class SecurityConfigView extends React.Component {
 
     /** 从后台请求所有策略数据 */
     getAllPolicies = () => {
-        HttpRequest.asyncGet(this.getAllPoliciesCB, '/policies/all-detail-info', )
+        HttpRequest.asyncGet(this.getAllPoliciesCB, '/policies/all-detail-info')
     }
 
     /** 向后台发起删除任务数据请求的完成回调 
@@ -186,10 +190,10 @@ class SecurityConfigView extends React.Component {
         policyStore.initPolicyItem(policyItem);
 
         // 保存待编辑的数据索引，并打开任务数据操作窗口
-        this.setState({recordChangeID: dataIndex, showConfig: true});
+        this.setState({ recordChangeID: dataIndex, showConfig: true });
     }
 
-        /** 处理新建策略 */
+    /** 处理新建策略 */
     handleNewPolicy = (event) => {
         const policyStore = this.props.policyStore;
         // 在任务仓库中保存操作类型、窗口名称和缺省任务数据
@@ -203,7 +207,7 @@ class SecurityConfigView extends React.Component {
         policyStore.initPolicyItem(policyItem);
 
         // 打开策略数据操作窗口
-        this.setState({showConfig: true});
+        this.setState({ showConfig: true });
     }
 
     /** 新建/编辑策略窗口完成的回调处理 */
@@ -218,7 +222,7 @@ class SecurityConfigView extends React.Component {
         }
 
         // 关闭策略数据操作窗口
-        this.setState({showConfig: false});
+        this.setState({ showConfig: false });
     }
 
     /** 添加策略数据到前端缓存的数据列表中 */
@@ -245,7 +249,7 @@ class SecurityConfigView extends React.Component {
 
     /** 处理页面变化（页面跳转/切换/每页记录数变化） */
     handlePageChange = (currentPage, pageSize) => {
-        this.setState({currentPage, pageSize});
+        this.setState({ currentPage, pageSize });
     }
 
     callback = (key) => {
@@ -263,7 +267,7 @@ class SecurityConfigView extends React.Component {
     }
 
     hasModifyRight = () => {
-        const { userGroup }= this.props.userStore.loginInfo;
+        const { userGroup } = this.props.userStore.loginInfo;
         if (userGroup === userType.TYPE_NORMAL_USER) {
             return true;
         }
@@ -276,33 +280,33 @@ class SecurityConfigView extends React.Component {
         const { classes } = this.props;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade}></div>}
+                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
                 <div>
-                <Row>
-                    <Col span={8}><Typography variant="h6">安全策略管理</Typography></Col>
-                    <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>
-                </Row>
-                <Table
-                    columns={columns}
-                    dataSource={policies}
-                    bordered={true}
-                    scroll={{ x: scrollWidth, y: scrollHeight }}
-                    expandedRowRender={record => this.rowDetails(record)}
-                    pagination={{
-                        showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                        pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
-                        defaultPageSize: DEFAULT_PAGE_SIZE,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
-                        onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
-                            self.handlePageChange(current, pageSize); 
-                        },
-                        onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
-                            self.handlePageChange(current, pageSize);
-                        }, 
-                    }}
-                />
-                {showConfig && <PolicyParamsConfig actioncb={this.handleCloseConfig} />}
+                    <Row>
+                        <Col span={8}><Typography variant="h6">安全策略管理</Typography></Col>
+                        <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>
+                    </Row>
+                    <Table
+                        columns={columns}
+                        dataSource={policies}
+                        bordered={true}
+                        scroll={{ x: scrollWidth, y: scrollHeight }}
+                        expandedRowRender={record => this.rowDetails(record)}
+                        pagination={{
+                            showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
+                            pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
+                            defaultPageSize: DEFAULT_PAGE_SIZE,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                            onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
+                                self.handlePageChange(current, pageSize);
+                            },
+                            onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
+                                self.handlePageChange(current, pageSize);
+                            },
+                        }}
+                    />
+                    {showConfig && <PolicyParamsConfig actioncb={this.handleCloseConfig} />}
                 </div>
             </div>
         )

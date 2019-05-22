@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import { Button, Row, Col, Input, message, Checkbox } from 'antd';
-import SockJsClient from 'react-stomp';
+//import SockJsClient from 'react-stomp';
 // import io from 'socket.io-client';
 
 import HttpRequest from '../../utils/HttpRequest';

@@ -2,30 +2,19 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
 import { columns as Column } from './Column'
-// import { TaskData } from './TaskData'
-// import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import { observer, inject } from 'mobx-react'
-// import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
-// import RunTaskIcon from '@material-ui/icons/PlayCircleOutline'
-// import EditTaskIcon from '@material-ui/icons/DescriptionOutlined'
-
-// import NewTaskPopup from './NewTaskPopup'
-import TaskParamsConfig from './TaskParamsConfig'
+import ProjectParamsConfig from './ProjectParamsConfig'
 import HttpRequest from '../../utils/HttpRequest';
 import { actionType } from '../../global/enumeration/ActionType';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
 import { PushNew, DeleteElements } from '../../utils/ObjUtils'
-import { stat } from 'fs';
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
-
-let timer1S = undefined;    // 1 秒的定时器
-let timer300mS = undefined;    // 300 毫秒的定时器
 
 const styles = theme => ({
     iconButton: {
@@ -58,20 +47,20 @@ const styles = theme => ({
 });
 
 const DEFAULT_PAGE_SIZE = 10;
-@inject('taskStore')
 @inject('userStore')
+@inject('projectStore')
 @observer
-class TaskManageView extends React.Component {
+class SecurityProjectView extends React.Component {
     // const DEFAULT_PAGE_SIZE = 10;
     constructor(props) {
         super(props);
         this.state = {
             recordChangeID: -1, // TODO
             columns: Column,    // 列定义
-            tasks: [],          // 本页面的任务数据集合
+            projects: [],          // 本页面的项目数据集合
             currentPage: 1,     // Table中当前页码（从 1 开始）
             pageSize: DEFAULT_PAGE_SIZE,
-            showTaskConfig: false,  // 是否显示任务数据编辑窗口
+            showProjectConfig: false,  // 是否显示项目数据编辑窗口
             scrollWidth: 2000,        // 表格的 scrollWidth
             scrollHeight: 300,      // 表格的 scrollHeight
             runIndex: -1,       // 执行的任务在表格本页的索引
@@ -83,36 +72,23 @@ class TaskManageView extends React.Component {
         this.redrawActionColumn();
 
         // 初始化运行状态列
-        this.renderRunStatusColumn();
+        //this.renderRunStatusColumn();
 
-        // 从后台获取任务数据的集合
-        this.getAllTasks();
+        // 从后台获取项目数据的集合
+        this.getAllProjects();
     }
 
     componentDidMount() {
         // 增加监听器，侦测浏览器窗口大小改变
         window.addEventListener('resize', this.handleResize.bind(this));
         this.setState({ scrollHeight: GetMainViewHeight() });
-
-        // 开启300毫秒的定时器
-        // timer300mS = setInterval(() => this.timer300msProcess(), 300);
-
-        HttpRequest.asyncGet(this.getTasksRunStatusCB, '/tasks/run-status');
-
         // 开启 websocket ，实时获取后台处理状态，比如任务运行状态
         this.openWebsocket();
-
-        // let arr = [1, 3, 5];
-        // PushNew(arr, 1, 2, 3, 4, 5, 6, 7, 8);
-        // DeleteElements(arr, 2, 6, 7);
     }
 
     componentWillUnmount() {
         // 组件卸装前，一定要移除监听器
         window.removeEventListener('resize', this.handleResize.bind(this));
-
-        // 清除定时器
-        // clearInterval(timer300mS);
     }
 
     isRunning = (rowIndex) => {
@@ -121,11 +97,63 @@ class TaskManageView extends React.Component {
         return (runList.indexOf(dataIndex) >= 0);
     }
 
+    getAllTasksForProject = (tasks) => {
+        let jsonTasks;
+        try {
+            jsonTasks = JSON.parse(tasks);
+        }
+        catch (err) {
+            return null;
+        }
+        return jsonTasks;
+    }
+
+    updateProjectInfoBackFromSocket = (data) => {
+        let jsonTasks;
+        const { projects } = this.state;
+        for (let project of projects) {
+            if (project.uuid === data.project_uuid) {
+                jsonTasks = this.getAllTasksForProject(project.tasks);
+                if (jsonTasks instanceof Array) {
+                    for (let task of jsonTasks) {
+
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    processTaskRunStatusInfo = (payload) => {
+        let statusList = [];
+        let runList = this.state.runList;
+        // 检查响应的payload数据是数组类型
+        if (!(payload instanceof Array))
+            return;
+
+        // 拷贝任务执行状态的数据
+        statusList = payload.map((status, index) => {
+            const projectUuid = status.project_uuid;
+            // 如果任务完成100%，或者任务中断，则移除该任务
+            if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
+                let id = this.getIndexFromTaskUuid(status.task_uuid);
+                DeleteElements(runList, id);
+            }
+            let statusItem = DeepClone(status);
+            return statusItem;
+        })
+
+        // 更新 任务状态
+        this.setState({ statusList });
+
+        this.renderRunStatusColumn();
+    }
+
     processSockMessage = (data) => {
         let message = JSON.parse(data);
         if (message.type === sockMsgType.MULTIPLE_TASK_RUN_INFO) {
             // 处理多任务运行状态
-            this.processTaskRunStatusInfo(message.payload); 
+            this.processTaskRunStatusInfo(message.payload);
         } else {
             // 其它消息类型不做处理
         }
@@ -140,7 +168,7 @@ class TaskManageView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket("ws://localhost:8090/websocket/2011");
+            socket = new WebSocket("ws://localhost:8090/websocket/2012");
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");
@@ -169,9 +197,9 @@ class TaskManageView extends React.Component {
      * 从任务的UUID获取该任务在当前数据源中的索引位置
      */
     getIndexFromTaskUuid = (uuid) => {
-        const { tasks } = this.state;
-        for (let index in tasks) {
-            if (tasks[index].uuid === uuid)
+        const { projects } = this.state;
+        for (let index in projects) {
+            if (projects[index].uuid === uuid)
                 return parseInt(index);
         }
         return -1;
@@ -190,15 +218,15 @@ class TaskManageView extends React.Component {
         return null;
     }
 
-    processTaskRunStatusInfo = (payload) => {
+    getTasksRunStatusCB = (data) => {
         let statusList = [];
         let runList = this.state.runList;
         // 检查响应的payload数据是数组类型
-        if (!(payload instanceof Array))
+        if (!(data.payload instanceof Array))
             return;
 
         // 拷贝任务执行状态的数据
-        statusList = payload.map((status, index) => {
+        statusList = data.payload.map((status, index) => {
             // 如果任务完成100%，或者任务中断，则移除该任务
             if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
                 let id = this.getIndexFromTaskUuid(status.task_uuid);
@@ -210,23 +238,6 @@ class TaskManageView extends React.Component {
 
         // 更新 任务状态
         this.setState({ statusList });
-
-        this.renderRunStatusColumn();
-    }
-
-    getTasksRunStatusCB = (data) => {
-        this.processTaskRunStatusInfo(data.payload);
-    }
-
-    timer300msProcess = () => {
-        // 获取所有运行过的任务的状态信息
-        const { runList, tasks } = this.state;
-        if (runList.length > 0) {
-            HttpRequest.asyncGet(
-                this.getTasksRunStatusCB,
-                '/tasks/run-status'
-            );
-        }
     }
 
     handleResize = e => {
@@ -246,7 +257,7 @@ class TaskManageView extends React.Component {
             <div>
                 {this.isRunning(index) ?
                     <Button className={classes.actionButton} disabled={true} type="danger" size="small">删除</Button> :
-                    <Popconfirm title="确定要删除该任务吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
+                    <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
                         <Button className={classes.actionButton} type="danger" size="small">删除</Button>
                     </Popconfirm>
                 }
@@ -282,42 +293,41 @@ class TaskManageView extends React.Component {
         this.setState({ columns });
     }
 
-    /** 从后台请求所有任务数据，请求完成后的回调 */
-    getAllTaksCB = (data) => {
-        let tasks = [];
+    /** 从后台请求所有项目数据，请求完成后的回调 */
+    getAllProjectsCB = (data) => {
+        let projects = [];
         // 检查响应的payload数据是数组类型
         if (!(data.payload instanceof Array))
             return;
 
         // 从响应数据生成 table 数据源
-        tasks = data.payload.map((task, index) => {
-            let taskItem = DeepClone(task);
+        projects = data.payload.map((project, index) => {
+            let projectItem = DeepClone(project);
             // antd 表格需要数据源中含 key 属性
-            taskItem.key = index + 1;
+            projectItem.key = index + 1;
             // 表格中索引列（后台接口返回数据中没有此属性）
-            taskItem.index = index + 1;
+            projectItem.index = index + 1;
             // taskItem.status = [task.status];
-            return taskItem;
+            return projectItem;
         })
 
-        // 更新 tasks 数据源
-        this.setState({ tasks });
+        // 更新 projects 数据源
+        this.setState({ projects });
     }
 
-    /** 从后台请求所有任务数据 */
-    getAllTasks = () => {
-        // 从后台获取任务的详细信息，含任务表的数据和关联表的数据
-        HttpRequest.asyncGet(this.getAllTaksCB, '/tasks/all-task-details');
+    /** 从后台请求所有项目详细数据 */
+    getAllProjects = () => {
+        HttpRequest.asyncGet(this.getAllProjectsCB, '/projects/all');
     }
 
     /** 向后台发起删除任务数据请求的完成回调 
      *  因调用请求函数时，默认参数只返回成功请求，所以此处不需要判断后台是否成功删除任务
     */
-    deleteTaskCB = (dataIndex) => (data) => {
-        const { tasks } = this.state;
+    deleteProjectCB = (dataIndex) => (data) => {
+        const { projects } = this.state;
         // rowIndex 为行索引，第二个参数 1 为一次去除几行
-        tasks.splice(dataIndex, 1);
-        this.setState({ tasks });
+        projects.splice(dataIndex, 1);
+        this.setState({ projects });
     }
 
     /**
@@ -339,9 +349,9 @@ class TaskManageView extends React.Component {
         // 从行索引转换成实际的数据索引
         let dataIndex = this.transferDataIndex(rowIndex);
 
-        // 向后台提交删除该任务
-        const { tasks } = this.state;
-        HttpRequest.asyncPost(this.deleteTaskCB(dataIndex), '/tasks/remove', { uuid: tasks[dataIndex].task_uuid });
+        // 向后台提交删除该项目
+        const { projects } = this.state;
+        HttpRequest.asyncPost(this.deleteProjectCB(dataIndex), '/projects/remove', { uuid: projects[dataIndex].uuid });
     }
 
     /** 处理编辑操作 */
@@ -350,30 +360,28 @@ class TaskManageView extends React.Component {
         let dataIndex = this.transferDataIndex(rowIndex);
 
         // 获取需要编辑的任务数据
-        const taskItem = this.state.tasks[dataIndex];
+        const projectItem = this.state.projects[dataIndex];
 
         // 利用仓库保存任务操作类型、操作窗口名称、任务数据
-        const taskStore = this.props.taskStore;
-        taskStore.setTaskAction(actionType.ACTION_EDIT);
-        taskStore.setTaskProcName('编辑任务参数');
-        taskStore.initTaskItem(taskItem);
+        const projectStore = this.props.projectStore;
+        projectStore.setProjectAction(actionType.ACTION_EDIT);
+        projectStore.setProjectProcName('编辑项目参数');
+        projectStore.initProjectItem(projectItem);
 
         // 保存待编辑的数据索引，并打开任务数据操作窗口
-        this.setState({ recordChangeID: dataIndex, showTaskConfig: true });
+        this.setState({ recordChangeID: dataIndex, showProjectConfig: true });
     }
 
-    runTaskCB = (rowIndex) => (data) => {
+    runProjectCB = (rowIndex) => (data) => {
         let runList = this.state.runList;
-        // 记录执行状态中的任务索引
+        // 记录执行状态中的项目索引
         PushNew(runList, this.transferDataIndex(rowIndex));
 
-        // 通过记录运行任务的索引，设置操作按钮为 disabled
+        // 通过记录运行项目的索引，设置操作按钮为 disabled
         this.setState({ runList });
 
         // 重新初始化操作列，以使按钮失效
         this.redrawActionColumn();
-
-        // 
     }
 
     /** 处理运行任务的操作 */
@@ -383,70 +391,60 @@ class TaskManageView extends React.Component {
         let dataIndex = this.transferDataIndex(rowIndex);
 
         // 向后台提交任务执行
-        const { tasks } = this.state;
-        HttpRequest.asyncPost(this.runTaskCB(rowIndex), '/tasks/execute', { uuid: tasks[dataIndex].uuid });
+        const { projects } = this.state;
+        HttpRequest.asyncPost(this.runProjectCB(rowIndex), '/tasks/execute-project-task', { uuid: projects[dataIndex].uuid, tasks: projects[dataIndex].tasks, run_time_mode: projects[dataIndex].run_time_mode });
 
     }
 
     /** 处理新建任务 */
-    handleNewTask = (event) => {
-        const taskStore = this.props.taskStore;
-        // 在任务仓库中保存操作类型、窗口名称和缺省任务数据
-        taskStore.setTaskAction(actionType.ACTION_NEW);
-        taskStore.setTaskProcName('新建任务');
-        let taskItem = {
-            name: '新建任务',
-            description: '',
-            asset_name: '本机',
-            asset_ip: '127.0.0.1',
-            asset_port: '8192',
-            asset_login_user: 'root',
-            asset_login_pwd: 'root',
-            asset_os_type: 'Ubuntu',
-            asset_os_ver: 'V16.0',
-            policy_groups: [],
+    handleNewProject = (event) => {
+        const projectStore = this.props.projectStore;
+        projectStore.setProjectAction(actionType.ACTION_NEW);
+        projectStore.setProjectProcName('新建项目');
+        let projectItem = {
+            name: '新建项目',
         };
-        taskStore.initTaskItem(taskItem);
+        projectStore.initProjectItem(projectItem);
 
-        // 打开任务数据操作窗口
-        this.setState({ showTaskConfig: true });
+        // 打开项目数据操作窗口
+        this.setState({ showProjectConfig: true });
     }
 
-    /** 新建/编辑任务窗口完成的回调处理 */
-    taskActionCB = (isOk, task) => {
-        const taskStore = this.props.taskStore;
+    /** 新建/编辑项目窗口完成的回调处理 */
+    projectActionCB = (isOk, task) => {
+        const projectStore = this.props.projectStore;
         if (isOk) {
-            if (taskStore.taskAction === actionType.ACTION_NEW) {
-                this.addTaskData();
-            } else if (taskStore.taskAction === actionType.ACTION_EDIT) {
-                this.editTaskParams();
+            if (projectStore.projectAction === actionType.ACTION_NEW) {
+                this.addProjectData();
+            } else if (projectStore.projectAction === actionType.ACTION_EDIT) {
+                this.editProjectParams();
             }
         }
 
         // 关闭任务数据操作窗口
-        this.setState({ showTaskConfig: false });
+        this.setState({ showProjectConfig: false });
     }
 
     /** 添加任务数据到前端缓存的数据列表中 */
-    addTaskData = () => {
-        const { tasks } = this.state;
-        // 从仓库中取出新建的任务对象，设置 key 和 index 属性
-        const taskItem = this.props.taskStore.taskItem;
-        taskItem.key = tasks.length + 1;
-        taskItem.index = (tasks.length + 1).toString();
+    addProjectData = () => {
+        const { projects } = this.state;
+        // 从仓库中取出新建的项目对象，设置 key 和 index 属性
+        const projectItem = this.props.projectStore.projectItem;
+        projectItem.key = projects.length + 1;
+        projectItem.index = (projects.length + 1).toString();
 
-        // 将新建任务对象添加到任务数据源中（数据源的首位）
-        tasks.unshift(taskItem);
+        // 将新建项目对象添加到项目数据源中（数据源的首位）
+        projects.unshift(projectItem);
     }
 
-    /** 确认修改任务后，在任务列表中修改指定数据 */
-    editTaskParams = () => {
-        const { tasks, recordChangeID } = this.state;
-        const taskItem = this.props.taskStore.taskItem;
+    /** 确认修改项目后，在项目列表中修改指定数据 */
+    editProjectParams = () => {
+        const { projects, recordChangeID } = this.state;
+        const projectItem = this.props.projectStore.projectItem;
 
         // 从仓库中取出编辑后的任务对象，深拷贝到源数据中
-        let record = tasks[recordChangeID];
-        DeepCopy(record, taskItem);
+        let record = projects[recordChangeID];
+        DeepCopy(record, projectItem);
     }
 
     /** 处理页面变化（页面跳转/切换/每页记录数变化） */
@@ -455,7 +453,7 @@ class TaskManageView extends React.Component {
     }
 
     hasModifyRight = () => {
-        const { userGroup }= this.props.userStore.loginInfo;
+        const { userGroup } = this.props.userStore.loginInfo;
         if (userGroup === userType.TYPE_NORMAL_USER) {
             return true;
         }
@@ -463,42 +461,40 @@ class TaskManageView extends React.Component {
     }
 
     render() {
-        const { columns, tasks, showTaskConfig, scrollWidth, scrollHeight } = this.state;
+        const { columns, projects, showProjectConfig, scrollWidth, scrollHeight } = this.state;
         let self = this;
         const { classes } = this.props;
 
         // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{filter: "blur(5px)"}}></div>}
+                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
                 <div>
-                <Row>
-                    <Col span={8}><Typography variant="h6">任务管理</Typography></Col>
-                    <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>
-                </Row>
-                <Table
-                    id="tasksListTable"
-                    columns={columns}
-                    dataSource={tasks}
-                    bordered={true}
-                    scroll={{ x: scrollWidth, y: scrollHeight }}
-                    rowKey={record => record.task_uuid}
-                    // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
-                    pagination={{
-                        showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                        pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
-                        defaultPageSize: DEFAULT_PAGE_SIZE,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
-                        onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
-                            self.handlePageChange(current, pageSize);
-                        },
-                        onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
-                            self.handlePageChange(current, pageSize);
-                        },
-                    }}
-                />
-                {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB} />}
+                    <Row>
+                        <Col span={8}><Typography variant="h6">项目管理</Typography></Col>
+                        <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
+                    </Row>
+                    <Table
+                        columns={columns}
+                        dataSource={projects}
+                        bordered={true}
+                        scroll={{ x: scrollWidth, y: scrollHeight }}
+                        rowKey={record => record.uuid}
+                        pagination={{
+                            showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
+                            pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
+                            defaultPageSize: DEFAULT_PAGE_SIZE,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                            onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
+                                self.handlePageChange(current, pageSize);
+                            },
+                            onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
+                                self.handlePageChange(current, pageSize);
+                            },
+                        }}
+                    />
+                    {showProjectConfig && <ProjectParamsConfig id="ProjectParamsConfig" actioncb={this.projectActionCB} />}
                 </div>
             </div>
         )
@@ -506,9 +502,9 @@ class TaskManageView extends React.Component {
 }
 
 
-TaskManageView.propTypes = {
+SecurityProjectView.propTypes = {
     classes: PropTypes.object,
 };
 
 
-export default withStyles(styles)(TaskManageView);
+export default withStyles(styles)(SecurityProjectView);
