@@ -15,6 +15,7 @@ import { observer, inject } from 'mobx-react'
 // import NewTaskPopup from './NewTaskPopup'
 import TaskParamsConfig from './TaskParamsConfig'
 import HttpRequest from '../../utils/HttpRequest';
+import { generateUuidStr } from '../../utils/tools'
 import { actionType } from '../../global/enumeration/ActionType';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
@@ -125,7 +126,9 @@ class TaskManageView extends React.Component {
         let message = JSON.parse(data);
         if (message.type === sockMsgType.MULTIPLE_TASK_RUN_INFO) {
             // 处理多任务运行状态
-            this.processTaskRunStatusInfo(message.payload); 
+            this.processMultipleTaskRunStatusInfo(message.payload);
+        } else if (message.type === sockMsgType.SINGLE_TASK_RUN_INFO) {
+            // 处理单任务运行状态
         } else {
             // 其它消息类型不做处理
         }
@@ -140,7 +143,7 @@ class TaskManageView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket("ws://localhost:8090/websocket/2011");
+            socket = new WebSocket("ws://localhost:8090/websocket/" + generateUuidStr());
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");
@@ -168,11 +171,20 @@ class TaskManageView extends React.Component {
     /**
      * 从任务的UUID获取该任务在当前数据源中的索引位置
      */
-    getIndexFromTaskUuid = (uuid) => {
+    taskUuidToTasksIndex = (uuid) => {
         const { tasks } = this.state;
         for (let index in tasks) {
             if (tasks[index].uuid === uuid)
                 return parseInt(index);
+        }
+        return -1;
+    }
+
+    taskUuidToRunStatusIndex = (uuid) => {
+        const { statusList } = this.state;
+        for (let index in statusList) {
+            if (statusList[index].task_uuid === uuid)
+                return index;
         }
         return -1;
     }
@@ -190,7 +202,33 @@ class TaskManageView extends React.Component {
         return null;
     }
 
-    processTaskRunStatusInfo = (payload) => {
+    processSingleTaskRunStatusInfo = (payload) => {
+        let status = payload;
+        let runList = this.state.runList;
+        let statusList = this.state.statusList;
+        // 如果任务完成100%，或者任务中断，则移除该任务
+        if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
+            let id = this.taskUuidToTasksIndex(status.task_uuid);
+            DeleteElements(runList, id);
+        }
+
+        let index = this.taskUuidToRunStatusIndex(status.task_uuid);
+        if (index >= 0) {
+            // 移除旧的运行状态数据
+            statusList.splice(index, 1);
+        }
+        
+        // 添加新的任务运行状态
+        let statusItem = DeepClone(status);
+        statusList.push(statusItem);
+
+        // 更新 任务状态
+        this.setState({ statusList });
+
+        this.renderRunStatusColumn();
+    }
+
+    processMultipleTaskRunStatusInfo = (payload) => {
         let statusList = [];
         let runList = this.state.runList;
         // 检查响应的payload数据是数组类型
@@ -201,7 +239,7 @@ class TaskManageView extends React.Component {
         statusList = payload.map((status, index) => {
             // 如果任务完成100%，或者任务中断，则移除该任务
             if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
-                let id = this.getIndexFromTaskUuid(status.task_uuid);
+                let id = this.taskUuidToTasksIndex(status.task_uuid);
                 DeleteElements(runList, id);
             }
             let statusItem = DeepClone(status);
@@ -215,7 +253,7 @@ class TaskManageView extends React.Component {
     }
 
     getTasksRunStatusCB = (data) => {
-        this.processTaskRunStatusInfo(data.payload);
+        this.processMultipleTaskRunStatusInfo(data.payload);
     }
 
     timer300msProcess = () => {
@@ -455,7 +493,7 @@ class TaskManageView extends React.Component {
     }
 
     hasModifyRight = () => {
-        const { userGroup }= this.props.userStore.loginInfo;
+        const { userGroup } = this.props.userStore.loginInfo;
         if (userGroup === userType.TYPE_NORMAL_USER) {
             return true;
         }
@@ -470,35 +508,35 @@ class TaskManageView extends React.Component {
         // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{filter: "blur(5px)"}}></div>}
+                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
                 <div>
-                <Row>
-                    <Col span={8}><Typography variant="h6">任务管理</Typography></Col>
-                    <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>
-                </Row>
-                <Table
-                    id="tasksListTable"
-                    columns={columns}
-                    dataSource={tasks}
-                    bordered={true}
-                    scroll={{ x: scrollWidth, y: scrollHeight }}
-                    rowKey={record => record.task_uuid}
-                    // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
-                    pagination={{
-                        showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                        pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
-                        defaultPageSize: DEFAULT_PAGE_SIZE,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
-                        onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
-                            self.handlePageChange(current, pageSize);
-                        },
-                        onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
-                            self.handlePageChange(current, pageSize);
-                        },
-                    }}
-                />
-                {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB} />}
+                    <Row>
+                        <Col span={8}><Typography variant="h6">任务管理</Typography></Col>
+                        <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>
+                    </Row>
+                    <Table
+                        id="tasksListTable"
+                        columns={columns}
+                        dataSource={tasks}
+                        bordered={true}
+                        scroll={{ x: scrollWidth, y: scrollHeight }}
+                        rowKey={record => record.task_uuid}
+                        // style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', }}
+                        pagination={{
+                            showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
+                            pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
+                            defaultPageSize: DEFAULT_PAGE_SIZE,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                            onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
+                                self.handlePageChange(current, pageSize);
+                            },
+                            onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
+                                self.handlePageChange(current, pageSize);
+                            },
+                        }}
+                    />
+                    {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB} />}
                 </div>
             </div>
         )

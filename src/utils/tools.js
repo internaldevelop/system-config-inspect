@@ -7,3 +7,13 @@
 export function randomNum(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
+
+/**
+ * 生成 uuid，形如："db3f58ff-9c3d-4a85-b9d7-8fe6d7a1ec0e
+ */
+export function generateUuidStr() {
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+    return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+}
