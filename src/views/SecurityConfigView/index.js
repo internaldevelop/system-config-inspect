@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col, Tabs, Popconfirm } from 'antd'
+import { Skeleton, Table, Icon, Button, Row, Col, Tabs, Popconfirm } from 'antd'
 import { columns as Column } from './Column'
 // import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
@@ -28,15 +28,6 @@ const styles = theme => ({
         marginRight: 5,
         marginBottom: 0,
         marginTop: 0,
-    },
-    shade: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#808080',
-        opacity: 0.95,
-        display: 'block',
-        zIndex: 999,
     },
 });
 
@@ -280,8 +271,7 @@ class SecurityConfigView extends React.Component {
         const { classes } = this.props;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-                <div>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">安全策略管理</Typography></Col>
                         <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>
@@ -307,7 +297,7 @@ class SecurityConfigView extends React.Component {
                         }}
                     />
                     {showConfig && <PolicyParamsConfig actioncb={this.handleCloseConfig} />}
-                </div>
+                    </Skeleton>
             </div>
         )
 

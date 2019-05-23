@@ -14,11 +14,11 @@ export const columns = [
     sorter: (a, b) => a.name.localeCompare(b.name, "zh"),
     render: content => <EllipsisText content={content} width={180}/>,
   },
-  {
-    title: '运行状态', width: 150, dataIndex: 'process_flag', key: 'process_flag',
-    sorter: (a, b) => a.process_flag.localeCompare(b.process_flag, "zh"),
-    render: content => <EllipsisText content={content} width={150}/>,
-  },
+  // {
+  //   title: '执行状态', width: 150, dataIndex: 'run_status', key: 'run_status',
+  //   sorter: (a, b) => a.run_status.localeCompare(b.run_status, "zh"),
+  //   render: content => <EllipsisText content={content} width={150}/>,
+  // },
   {
     title: '任务数目', width: 150, dataIndex: 'task_number', key: 'task_number',
     sorter: (a, b) => a.task_number.localeCompare(b.task_number, "zh"),
@@ -33,11 +33,11 @@ export const columns = [
     sorter: (a, b) => a.output_mode.localeCompare(b.output_mode, "zh"),
     render: content => <EllipsisText content={content} width={180}/>,
   },
-  {
-    title: '输出位置', width: 200, dataIndex: 'output_path', key: 'output_path',
-    sorter: (a, b) => a.output_path.localeCompare(b.output_path, "zh"),
-    render: content => <EllipsisText content={content} width={200}/>,
-  },
+  // {
+  //   title: '输出位置', width: 200, dataIndex: 'output_path', key: 'output_path',
+  //   sorter: (a, b) => a.output_path.localeCompare(b.output_path, "zh"),
+  //   render: content => <EllipsisText content={content} width={200}/>,
+  // },
   {
     title: '',
     key: 'operation',

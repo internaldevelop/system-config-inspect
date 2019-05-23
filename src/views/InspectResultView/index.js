@@ -7,7 +7,7 @@ import { GetBackEndRootUrl } from '../../global/environment'
 import { observer, inject } from 'mobx-react'
 import { userType } from '../../global/enumeration/UserType'
 
-import { Table, Icon, Button, Row, Col, Tabs, Input, Select } from 'antd'
+import { Skeleton, Table, Icon, Button, Row, Col, Tabs, Input, Select } from 'antd'
 
 import { columns as Column } from './Column'
 import { ResultData } from './ResultData'
@@ -21,15 +21,6 @@ const styles = theme => ({
     },
     antInput: {
         width: 300,
-    },
-    shade: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#808080',
-        opacity: 0.95,
-        display: 'block',
-        zIndex: 999,
     },
 });
 
@@ -137,8 +128,7 @@ class InspectResultView extends React.Component {
         const { classes } = this.props;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-                <div>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
                         <Col span={7} offset={5} align="right">
@@ -169,7 +159,7 @@ class InspectResultView extends React.Component {
                             showSizeChanger: true,
                         }}
                     />
-                </div>
+                </Skeleton>
             </div>
         )
 

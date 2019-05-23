@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
+import { Skeleton, Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
 import { columns as Column } from './Column'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -11,10 +11,12 @@ import HttpRequest from '../../utils/HttpRequest';
 import { actionType } from '../../global/enumeration/ActionType';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
-import { PushNew, DeleteElements } from '../../utils/ObjUtils'
+import { generateUuidStr } from '../../utils/tools'
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
+import { errorCode } from '../../global/error';
+import { eng2chn } from '../../utils/StringUtils'
 
 const styles = theme => ({
     iconButton: {
@@ -34,15 +36,6 @@ const styles = theme => ({
         marginBottom: 0,
         marginTop: 0,
         backgroundColor: "green",
-    },
-    shade: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#808080',
-        opacity: 0.95,
-        display: 'block',
-        zIndex: 999,
     },
 });
 
@@ -71,9 +64,6 @@ class SecurityProjectView extends React.Component {
         // 设置操作列的渲染
         this.redrawActionColumn();
 
-        // 初始化运行状态列
-        //this.renderRunStatusColumn();
-
         // 从后台获取项目数据的集合
         this.getAllProjects();
     }
@@ -82,8 +72,10 @@ class SecurityProjectView extends React.Component {
         // 增加监听器，侦测浏览器窗口大小改变
         window.addEventListener('resize', this.handleResize.bind(this));
         this.setState({ scrollHeight: GetMainViewHeight() });
+        // move getAllTasksRunStatus and update the project status on server when this.getAllProjects();
+        //HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status');
         // 开启 websocket ，实时获取后台处理状态，比如任务运行状态
-        this.openWebsocket();
+        //this.openWebsocket();
     }
 
     componentWillUnmount() {
@@ -92,9 +84,31 @@ class SecurityProjectView extends React.Component {
     }
 
     isRunning = (rowIndex) => {
-        const { runList } = this.state;
+        // 从行索引转换成实际的数据索引
         let dataIndex = this.transferDataIndex(rowIndex);
-        return (runList.indexOf(dataIndex) >= 0);
+        const { projects } = this.state;
+        if (projects instanceof Array) {
+            if (projects[dataIndex].process_flag === taskRunStatus.RUNNING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    requestUpdateProjectProcessFlagCB = (action) => (data) => {
+        if (data.code === errorCode.ERROR_OK) {
+            const { projects } = this.state;
+            for (let project of projects) {
+                if (project.uuid === data.project_uuid) {
+                    project.process_flag = data.process_flag;
+                    this.setState({ projects });
+                    this.renderRunStatusColumn();
+                    break;
+                }
+            }
+        } else {
+            message.error(eng2chn(data.error));
+        }
     }
 
     getAllTasksForProject = (tasks) => {
@@ -114,9 +128,14 @@ class SecurityProjectView extends React.Component {
         for (let project of projects) {
             if (project.uuid === data.project_uuid) {
                 jsonTasks = this.getAllTasksForProject(project.tasks);
-                if (jsonTasks instanceof Array) {
-                    for (let task of jsonTasks) {
-
+                if (data.done_rate === 100 || data.run_status === taskRunStatus.FINISHED || data.run_status === taskRunStatus.INTERRUPTED) {
+                    if (this.checkProjectAllTasksIfDone(jsonTasks, project)) {
+                        HttpRequest.asyncPost(this.requestUpdateProjectProcessFlagCB, '/projects/update',
+                            {
+                                uuid: project.uuid, process_flag: taskRunStatus.FINISHED,
+                            },
+                            false
+                        );
                     }
                 }
                 break;
@@ -124,36 +143,24 @@ class SecurityProjectView extends React.Component {
         }
     }
 
-    processTaskRunStatusInfo = (payload) => {
-        let statusList = [];
-        let runList = this.state.runList;
-        // 检查响应的payload数据是数组类型
-        if (!(payload instanceof Array))
-            return;
-
-        // 拷贝任务执行状态的数据
-        statusList = payload.map((status, index) => {
-            const projectUuid = status.project_uuid;
-            // 如果任务完成100%，或者任务中断，则移除该任务
-            if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
-                let id = this.getIndexFromTaskUuid(status.task_uuid);
-                DeleteElements(runList, id);
+    checkProjectAllTasksIfDone(jsonTasks, project) {
+        if (jsonTasks instanceof Array) {
+            let taskUuidList;
+            for (let task of jsonTasks) {
+                taskUuidList = taskUuidList + "," + task.uuid;
             }
-            let statusItem = DeepClone(status);
-            return statusItem;
-        })
-
-        // 更新 任务状态
-        this.setState({ statusList });
-
-        this.renderRunStatusColumn();
+            HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status', { uuid_list: taskUuidList });
+        }
     }
 
     processSockMessage = (data) => {
         let message = JSON.parse(data);
         if (message.type === sockMsgType.MULTIPLE_TASK_RUN_INFO) {
             // 处理多任务运行状态
-            this.processTaskRunStatusInfo(message.payload);
+            this.processMultipleTaskRunStatusInfo(message.payload);
+        } else if (message.type === sockMsgType.SINGLE_TASK_RUN_INFO) {
+            // 处理单任务运行状态
+            this.processSingleTaskRunStatusInfo(message.payload)
         } else {
             // 其它消息类型不做处理
         }
@@ -168,7 +175,7 @@ class SecurityProjectView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket("ws://localhost:8090/websocket/2012");
+            socket = new WebSocket("ws://localhost:8090/websocket/");// + generateUuidStr()
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");
@@ -193,51 +200,39 @@ class SecurityProjectView extends React.Component {
 
     }
 
-    /**
-     * 从任务的UUID获取该任务在当前数据源中的索引位置
-     */
-    getIndexFromTaskUuid = (uuid) => {
+    getAllTasksRunStatusCB = (data) => {
         const { projects } = this.state;
-        for (let index in projects) {
-            if (projects[index].uuid === uuid)
-                return parseInt(index);
-        }
-        return -1;
-    }
-
-    /**
-     * 从表格当前页的行号获取任务的执行状态数据
-     */
-    getTaskRunStatusFromRowIndex = (rowIndex) => {
-        const { statusList, tasks } = this.state;
-        let dataIndex = this.transferDataIndex(rowIndex);
-        for (let index in statusList) {
-            if (statusList[index].task_uuid === tasks[dataIndex].uuid)
-                return statusList[index];
-        }
-        return null;
-    }
-
-    getTasksRunStatusCB = (data) => {
-        let statusList = [];
-        let runList = this.state.runList;
+        let needsUpdateProjectStatusList = [];
         // 检查响应的payload数据是数组类型
         if (!(data.payload instanceof Array))
             return;
 
-        // 拷贝任务执行状态的数据
-        statusList = data.payload.map((status, index) => {
-            // 如果任务完成100%，或者任务中断，则移除该任务
-            if (status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED) {
-                let id = this.getIndexFromTaskUuid(status.task_uuid);
-                DeleteElements(runList, id);
+        for (let project of projects) {
+            let doneNumber = 0;
+            for (let status of data) {
+                if (project.uuid === taskRunStatus.project_uuid) {
+                    if ((status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED)) {
+                        doneNumber++;
+                    } else {
+                        break;
+                    }
+                }
             }
-            let statusItem = DeepClone(status);
-            return statusItem;
-        })
-
-        // 更新 任务状态
-        this.setState({ statusList });
+            if (doneNumber === project.task_number) {
+                needsUpdateProjectStatusList.PushNew(project.uuid);
+            } else {
+                break;
+            }
+        }
+        //TODO if considering update projects status on server
+        if (needsUpdateProjectStatusList instanceof Array && needsUpdateProjectStatusList.length > 0) {
+            HttpRequest.asyncPost(null, '/projects/update-list',
+                {
+                    uuids: needsUpdateProjectStatusList,
+                },
+                false
+            );
+        }
     }
 
     handleResize = e => {
@@ -247,7 +242,7 @@ class SecurityProjectView extends React.Component {
 
     /** 初始化操作列，定义渲染效果 */
     redrawActionColumn = () => {
-        const { columns, runIndex } = this.state;
+        const { columns } = this.state;
         const { classes } = this.props;
         if (columns.length === 0)
             return;
@@ -268,29 +263,14 @@ class SecurityProjectView extends React.Component {
         this.setState({ columns });
     }
 
-    renderRunStatusColumn = () => {
-        const { columns } = this.state;
-        let progressSize = 40;
-
-        // TODO: 需改进 columns[2] 的写法
-        columns[2].render = (text, record, index) => {
-            let runStatus = this.getTaskRunStatusFromRowIndex(index);
-            if (runStatus === null) {
-                return (<Progress type="circle" percent={0} width={progressSize} format={() => '空闲'} />)
-            } else {
-                return (
-                    <div>
-                        {
-                            runStatus.run_status === taskRunStatus.INTERRUPTED ?
-                                <Progress type="circle" width={progressSize} percent={runStatus.done_rate} status="exception" /> :
-                                <Progress type="circle" width={progressSize} percent={runStatus.done_rate} />
-                        }
-                    </div>
-                )
-            }
+    getRunStatus = (flag) => {
+        if (flag === taskRunStatus.IDLE) {
+            return '空闲状态';
+        } else if (flag === taskRunStatus.RUNNING) {
+            return '正在运行';
+        } else {
+            return '已经完成';
         }
-
-        this.setState({ columns });
     }
 
     /** 从后台请求所有项目数据，请求完成后的回调 */
@@ -307,7 +287,7 @@ class SecurityProjectView extends React.Component {
             projectItem.key = index + 1;
             // 表格中索引列（后台接口返回数据中没有此属性）
             projectItem.index = index + 1;
-            // taskItem.status = [task.status];
+            //projectItem.run_status = this.getRunStatus(project.process_flag);
             return projectItem;
         })
 
@@ -372,27 +352,21 @@ class SecurityProjectView extends React.Component {
         this.setState({ recordChangeID: dataIndex, showProjectConfig: true });
     }
 
-    runProjectCB = (rowIndex) => (data) => {
-        let runList = this.state.runList;
-        // 记录执行状态中的项目索引
-        PushNew(runList, this.transferDataIndex(rowIndex));
-
-        // 通过记录运行项目的索引，设置操作按钮为 disabled
-        this.setState({ runList });
+    runProjectCB = (dataIndex) => (data) => {
+        const projectItem = this.state.projects[dataIndex];
 
         // 重新初始化操作列，以使按钮失效
         this.redrawActionColumn();
     }
 
-    /** 处理运行任务的操作 */
+    /** 处理运行项目的操作 */
     handleRun = (rowIndex) => (event) => {
-        console.log("===> handleRun", this.state.runList);
         // 从行索引转换成实际的数据索引
         let dataIndex = this.transferDataIndex(rowIndex);
 
         // 向后台提交任务执行
         const { projects } = this.state;
-        HttpRequest.asyncPost(this.runProjectCB(rowIndex), '/tasks/execute-project-task', { uuid: projects[dataIndex].uuid, tasks: projects[dataIndex].tasks, run_time_mode: projects[dataIndex].run_time_mode });
+        HttpRequest.asyncPost(this.runProjectCB(dataIndex), '/tasks/execute-project-task', { uuid: projects[dataIndex].uuid, tasks: projects[dataIndex].tasks, run_time_mode: projects[dataIndex].run_time_mode, process_flag: taskRunStatus.RUNNING });
 
     }
 
@@ -403,6 +377,7 @@ class SecurityProjectView extends React.Component {
         projectStore.setProjectProcName('新建项目');
         let projectItem = {
             name: '新建项目',
+            process_flag: taskRunStatus.IDLE,
         };
         projectStore.initProjectItem(projectItem);
 
@@ -455,7 +430,7 @@ class SecurityProjectView extends React.Component {
     hasModifyRight = () => {
         const { userGroup } = this.props.userStore.loginInfo;
         if (userGroup === userType.TYPE_NORMAL_USER) {
-            return true;
+            //return true;
         }
         return false;
     }
@@ -463,13 +438,10 @@ class SecurityProjectView extends React.Component {
     render() {
         const { columns, projects, showProjectConfig, scrollWidth, scrollHeight } = this.state;
         let self = this;
-        const { classes } = this.props;
 
-        // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-                <div>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">项目管理</Typography></Col>
                         <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
@@ -495,7 +467,7 @@ class SecurityProjectView extends React.Component {
                         }}
                     />
                     {showProjectConfig && <ProjectParamsConfig id="ProjectParamsConfig" actioncb={this.projectActionCB} />}
-                </div>
+                </Skeleton>
             </div>
         )
     }

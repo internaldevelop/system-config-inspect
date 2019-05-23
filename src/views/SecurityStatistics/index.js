@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col, Select } from 'antd'
+import { Skeleton, Row, Col, Select } from 'antd'
 // import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -14,15 +14,6 @@ const styles = theme => ({
     iconButton: {
         margin: 0,
         marginLeft: 10,
-    },
-    shade: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#808080',
-        opacity: 0.95,
-        display: 'block',
-        zIndex: 999,
     },
 });
 
@@ -56,11 +47,9 @@ class SecurityStatistics extends React.Component {
 
     render() {
         const { columns, resultRecordData } = this.state;
-        const { classes } = this.props;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-                <div>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
                     <Row>
                         <Col span={24}>
                             <Select defaultValue='1' style={{ width: 200 }} onChange={this.handleChange}>
@@ -84,7 +73,7 @@ class SecurityStatistics extends React.Component {
                         <PolicyStatisticsBar code={this.state.selVal}/>
                     </Col>
                 </Row> */}
-                </div>
+                </Skeleton>
             </div>
         );
 
