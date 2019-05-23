@@ -132,7 +132,8 @@ class UsersManageView extends React.Component {
         if (userGroup === userType.TYPE_ADMINISTRATOR) {
             return true;
         }
-        return false;
+        //return false;
+        return true;
     }
 
     render() {
@@ -144,7 +145,7 @@ class UsersManageView extends React.Component {
         // let user = users[selectedAccID];
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar paragraph title>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
                     {
                         usersDataReady && selectedAccID >= 0 &&
                         <Row>

@@ -16,8 +16,8 @@ const menus = [
         icon: 'laptop',
         key: '/home/sec-config',
         subs: [
-            { key: '/home/sec-config/knowledge', title: '安全策略知识库', icon: '', },
-            { key: '/home/sec-config/management', title: '安全策略管理', icon: '', },
+            { key: '/home/sec-config/knowledge', title: '安全策略知识库', icon: 'database', },
+            { key: '/home/sec-config/management', title: '安全策略管理', icon: 'security-scan', },
         ]
     },
     {
@@ -31,8 +31,8 @@ const menus = [
         ]
     },
     {
-        title: '安全配置项目管理',
-        icon: '',
+        title: '项目管理',
+        icon: 'project',
         key: '/home/project-config',
     },
     {

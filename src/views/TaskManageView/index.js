@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
+import { Skeleton, Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
 import { columns as Column } from './Column'
 // import { TaskData } from './TaskData'
 // import IconButton from '@material-ui/core/IconButton';
@@ -46,15 +46,6 @@ const styles = theme => ({
         marginBottom: 0,
         marginTop: 0,
         backgroundColor: "green",
-    },
-    shade: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#808080',
-        opacity: 0.95,
-        display: 'block',
-        zIndex: 999,
     },
 });
 
@@ -218,7 +209,7 @@ class TaskManageView extends React.Component {
             // 移除旧的运行状态数据
             statusList.splice(index, 1);
         }
-        
+
         // 添加新的任务运行状态
         let statusItem = DeepClone(status);
         statusList.push(statusItem);
@@ -504,13 +495,11 @@ class TaskManageView extends React.Component {
     render() {
         const { columns, tasks, showTaskConfig, scrollWidth, scrollHeight } = this.state;
         let self = this;
-        const { classes } = this.props;
 
         // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-                <div>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">任务管理</Typography></Col>
                         <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>
@@ -538,7 +527,7 @@ class TaskManageView extends React.Component {
                         }}
                     />
                     {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB} />}
-                </div>
+                </Skeleton>
             </div>
         )
     }

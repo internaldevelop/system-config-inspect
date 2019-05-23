@@ -21,8 +21,13 @@ class ProjectStore {
 
   @observable projectItem = {};
 
+  @observable projectOldItem = {};
+
   @action initProjectItem = (projectItem) => {
     this.projectItem = DeepClone(projectItem);
+  }
+  @action initProjectOldItem = (projectItem) => {
+    this.projectOldItem = DeepClone(projectItem);
   }
   @action setParam = (name, data) => {
     this.projectItem[name] = data;

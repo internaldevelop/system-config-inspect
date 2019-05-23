@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { observer, inject } from 'mobx-react'
 import { userType } from '../../global/enumeration/UserType'
 
-import { Row, Col } from 'antd'
+import { Skeleton, Row, Col } from 'antd'
 
 import RiskTypeBar from './RiskTypeBar'
 import RiskPie from './RiskPie'
@@ -14,15 +14,6 @@ const styles = theme => ({
     iconButton: {
         margin: 0,
         marginLeft: 10,
-    },
-    shade: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#808080',
-        opacity: 0.95,
-        display: 'block',
-        zIndex: 999,
     },
 });
 
@@ -49,22 +40,21 @@ class InspectResultOverview extends React.Component {
         const { classes } = this.props;
         return (
             <div>
-                {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-                <div>
-                <Row>
-                    <Col span={24}>
-                        <RiskTypeBar />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={11}>
-                        <RiskPie />
-                    </Col>
-                    <Col span={11} offset={2}>
-                        <OsPie />
-                    </Col>
-                </Row>
-                </div>
+                <Skeleton loading={!this.hasModifyRight()} active avatar>
+                    <Row>
+                        <Col span={24}>
+                            <RiskTypeBar />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={11}>
+                            <RiskPie />
+                        </Col>
+                        <Col span={11} offset={2}>
+                            <OsPie />
+                        </Col>
+                    </Row>
+                </Skeleton>
             </div>
         );
 

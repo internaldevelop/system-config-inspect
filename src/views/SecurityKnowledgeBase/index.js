@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import { observer, inject } from 'mobx-react'
 import { policyGroup } from '../../global/enumeration/PolicyGroup';
 import { userType } from '../../global/enumeration/UserType'
-import { Table, Row, Col } from 'antd'
+import { Skeleton, Table, Row, Col } from 'antd'
 import { columns as Column } from './Column'
 import PolicyTable from './PolicyTable'
 import { DeepClone } from '../../utils/ObjUtils'
@@ -31,15 +31,6 @@ const styles = theme => ({
     flexGrow: 1,
     width: '100%',
     backgroundColor: theme.palette.background.paper,
-  },
-  shade: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#808080',
-    opacity: 0.95,
-    display: 'block',
-    zIndex: 999,
   },
 });
 
@@ -184,8 +175,7 @@ class SecurityKnowledgeBase extends React.Component {
 
     return (
       <div>
-        {!this.hasModifyRight() && <div className={classes.shade} style={{ filter: "blur(5px)" }}></div>}
-        <div>
+        <Skeleton loading={!this.hasModifyRight()} active avatar>
           <Row>
             <Col span={8}><Typography variant="h6">安全策略知识库</Typography></Col>
           </Row>
@@ -204,7 +194,7 @@ class SecurityKnowledgeBase extends React.Component {
             </AppBar>
             {policyGroupInfo.map((item, index) => (value === index && <TabContainer>{this.showPolicies(item.code)}</TabContainer>))}
           </div>
-        </div>
+        </Skeleton>
       </div>
     );
   }
