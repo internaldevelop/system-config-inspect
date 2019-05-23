@@ -129,6 +129,7 @@ class TaskManageView extends React.Component {
             this.processMultipleTaskRunStatusInfo(message.payload);
         } else if (message.type === sockMsgType.SINGLE_TASK_RUN_INFO) {
             // 处理单任务运行状态
+            this.processSingleTaskRunStatusInfo(message.payload)
         } else {
             // 其它消息类型不做处理
         }
