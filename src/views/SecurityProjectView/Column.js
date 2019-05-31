@@ -25,12 +25,13 @@ export const columns = [
     render: content => <EllipsisText content={content} width={150}/>,
   },
   {
-    title: '运行模式', width: 180, dataIndex: 'run_time_mode', key: 'run_time_mode',
+    title: '运行模式', width: 180, dataIndex: 'run_time_mode_name', key: 'run_time_mode_name',
+    sorter: (a, b) => a.run_time_mode_name.localeCompare(b.run_time_mode_name, "zh"),
     render: content => <EllipsisText content={content} width={180}/>,
   },
   {
-    title: '输出类型', width: 180, dataIndex: 'output_mode', key: 'output_mode',
-    sorter: (a, b) => a.output_mode.localeCompare(b.output_mode, "zh"),
+    title: '输出类型', width: 180, dataIndex: 'output_mode_name', key: 'output_mode_name',
+    sorter: (a, b) => a.output_mode_name.localeCompare(b.output_mode_name, "zh"),
     render: content => <EllipsisText content={content} width={180}/>,
   },
   // {

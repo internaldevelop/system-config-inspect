@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Skeleton, Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
-import { columns as Column } from './Column'
+import { AutoComplete, Skeleton, Table, Icon, Button, Row, Col, Popconfirm, message } from 'antd'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -15,8 +14,11 @@ import { generateUuidStr } from '../../utils/tools'
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
+import { runTimeModeNames } from '../../global/enumeration/RumTimeMode';
+import { outputModeNames } from '../../global/enumeration/OutputMode';
 import { errorCode } from '../../global/error';
 import { eng2chn } from '../../utils/StringUtils'
+import ProjectCard from './ProjectCard'
 
 const styles = theme => ({
     iconButton: {
@@ -39,31 +41,21 @@ const styles = theme => ({
     },
 });
 
-const DEFAULT_PAGE_SIZE = 10;
-@inject('userStore')
 @inject('projectStore')
+@inject('userStore')
 @observer
 class SecurityProjectView extends React.Component {
     // const DEFAULT_PAGE_SIZE = 10;
     constructor(props) {
         super(props);
         this.state = {
-            recordChangeID: -1, // TODO
-            columns: Column,    // 列定义
             projects: [],          // 本页面的项目数据集合
-            currentPage: 1,     // Table中当前页码（从 1 开始）
-            pageSize: DEFAULT_PAGE_SIZE,
+            projectNames: [],
             showProjectConfig: false,  // 是否显示项目数据编辑窗口
-            scrollWidth: 2000,        // 表格的 scrollWidth
-            scrollHeight: 300,      // 表格的 scrollHeight
-            runIndex: -1,       // 执行的任务在表格本页的索引
-            runList: [],        // 执行的任务在数据源里的索引 index 集合（可以允许多个任务同时执行）
+            showProjectCard: false,    // 显示项目Card页面
             statusList: [],     // 含多个执行中任务的状态数组
+            inputValue: ''
         }
-
-        // 设置操作列的渲染
-        this.redrawActionColumn();
-
         // 从后台获取项目数据的集合
         this.getAllProjects();
     }
@@ -73,7 +65,7 @@ class SecurityProjectView extends React.Component {
         window.addEventListener('resize', this.handleResize.bind(this));
         this.setState({ scrollHeight: GetMainViewHeight() });
         // move getAllTasksRunStatus and update the project status on server when this.getAllProjects();
-        //HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status');
+        // HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status');
         // 开启 websocket ，实时获取后台处理状态，比如任务运行状态
         //this.openWebsocket();
     }
@@ -83,14 +75,10 @@ class SecurityProjectView extends React.Component {
         window.removeEventListener('resize', this.handleResize.bind(this));
     }
 
-    isRunning = (rowIndex) => {
-        // 从行索引转换成实际的数据索引
-        let dataIndex = this.transferDataIndex(rowIndex);
-        const { projects } = this.state;
-        if (projects instanceof Array) {
-            if (projects[dataIndex].process_flag === taskRunStatus.RUNNING) {
-                return true;
-            }
+    isRunning = () => {
+        const projectItem = this.props.projectStore.projectItem;
+        if (projectItem.process_flag === taskRunStatus.RUNNING) {
+            return true;
         }
         return false;
     }
@@ -200,67 +188,9 @@ class SecurityProjectView extends React.Component {
 
     }
 
-    getAllTasksRunStatusCB = (data) => {
-        const { projects } = this.state;
-        let needsUpdateProjectStatusList = [];
-        // 检查响应的payload数据是数组类型
-        if (!(data.payload instanceof Array))
-            return;
-
-        for (let project of projects) {
-            let doneNumber = 0;
-            for (let status of data) {
-                if (project.uuid === taskRunStatus.project_uuid) {
-                    if ((status.done_rate === 100 || status.run_status === taskRunStatus.INTERRUPTED)) {
-                        doneNumber++;
-                    } else {
-                        break;
-                    }
-                }
-            }
-            if (doneNumber === project.task_number) {
-                needsUpdateProjectStatusList.PushNew(project.uuid);
-            } else {
-                break;
-            }
-        }
-        //TODO if considering update projects status on server
-        if (needsUpdateProjectStatusList instanceof Array && needsUpdateProjectStatusList.length > 0) {
-            HttpRequest.asyncPost(null, '/projects/update-list',
-                {
-                    uuids: needsUpdateProjectStatusList,
-                },
-                false
-            );
-        }
-    }
-
     handleResize = e => {
         console.log('浏览器窗口大小改变事件', e.target.innerWidth, e.target.innerHeight);
         this.setState({ scrollHeight: GetMainViewHeight() });
-    }
-
-    /** 初始化操作列，定义渲染效果 */
-    redrawActionColumn = () => {
-        const { columns } = this.state;
-        const { classes } = this.props;
-        if (columns.length === 0)
-            return;
-
-        // 操作列默认为最后一列
-        columns[columns.length - 1].render = (text, record, index) => (
-            <div>
-                {this.isRunning(index) ?
-                    <Button className={classes.actionButton} disabled={true} type="danger" size="small">删除</Button> :
-                    <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                        <Button className={classes.actionButton} type="danger" size="small">删除</Button>
-                    </Popconfirm>
-                }
-                <Button className={classes.actionButton} disabled={this.isRunning(index)} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
-                <Button className={classes.actionButton} disabled={this.isRunning(index)} type="primary" size="small" onClick={this.handleRun(index).bind(this)}>运行<Icon type="caret-right" /></Button>
-            </div>
-        )
-        this.setState({ columns });
     }
 
     getRunStatus = (flag) => {
@@ -276,6 +206,7 @@ class SecurityProjectView extends React.Component {
     /** 从后台请求所有项目数据，请求完成后的回调 */
     getAllProjectsCB = (data) => {
         let projects = [];
+        let projectNames = [];
         // 检查响应的payload数据是数组类型
         if (!(data.payload instanceof Array))
             return;
@@ -288,11 +219,19 @@ class SecurityProjectView extends React.Component {
             // 表格中索引列（后台接口返回数据中没有此属性）
             projectItem.index = index + 1;
             //projectItem.run_status = this.getRunStatus(project.process_flag);
+            projectItem.run_time_mode_name = runTimeModeNames[project.run_time_mode - 1].name;
+            projectItem.output_mode_name = outputModeNames[project.output_mode - 1].name;
+            projectItem.run_status = this.getRunStatus(project.process_flag);
+            projectNames.push(project.name);
             return projectItem;
         })
-
         // 更新 projects 数据源
-        this.setState({ projects });
+        this.setState({ projects, projectNames });
+        // 设置默认项目
+        if (projectNames.length > 0) {
+            this.setState({ inputValue: projectNames[0] });
+            this.onSelectProject(projectNames[0]);
+        }
     }
 
     /** 从后台请求所有项目详细数据 */
@@ -301,88 +240,78 @@ class SecurityProjectView extends React.Component {
     }
 
     /** 向后台发起删除任务数据请求的完成回调 
-     *  因调用请求函数时，默认参数只返回成功请求，所以此处不需要判断后台是否成功删除任务
     */
-    deleteProjectCB = (dataIndex) => (data) => {
-        const { projects } = this.state;
-        // rowIndex 为行索引，第二个参数 1 为一次去除几行
-        projects.splice(dataIndex, 1);
-        this.setState({ projects });
-    }
+    deleteProjectCB = (data) => {
+        const { projects, projectNames } = this.state;
+        for (let index in projects) {
+            if (data.payload.uuid === projects[index].uuid) {
+                projects.splice(index, 1);
+                projectNames.splice(index, 1);
+                break;
+            }
+        }
+        this.setState({ projects, projectNames });
 
-    /**
-     * 将数据所在页的行索引转换成整个数据列表中的索引
-     * @param {} rowIndex 数据在表格当前页的行索引
-     */
-    transferDataIndex(rowIndex) {
-        // currentPage 为 Table 中当前页码（从 1 开始）
-        const { currentPage, pageSize } = this.state;
-        let dataIndex = (currentPage - 1) * pageSize + rowIndex;
-        return dataIndex;
+        // 显示默认项目
+        if (projectNames.length > 0) {
+            this.setState({ inputValue: projectNames[0] });
+            this.onSelectProject(projectNames[0]);
+        }
     }
 
     /** 处理删除操作
-     * rowIndex 为当前页所含记录中的第几行（base:0），不是所有记录中的第几条
-     * 需要根据当前 pagination 的属性，做变换
      */
-    handleDel = (rowIndex) => (event) => {
-        // 从行索引转换成实际的数据索引
-        let dataIndex = this.transferDataIndex(rowIndex);
-
+    handleDel = (event) => {
+        const projectItem = this.props.projectStore.projectItem;
         // 向后台提交删除该项目
-        const { projects } = this.state;
-        HttpRequest.asyncPost(this.deleteProjectCB(dataIndex), '/projects/remove', { uuid: projects[dataIndex].uuid });
+        HttpRequest.asyncPost(this.deleteProjectCB, '/projects/remove', { uuid: projectItem.uuid });
     }
 
-    /** 处理编辑操作 */
-    handleEdit = (rowIndex) => (event) => {
-        // 从行索引转换成实际的数据索引
-        let dataIndex = this.transferDataIndex(rowIndex);
-
-        // 获取需要编辑的任务数据
-        const projectItem = this.state.projects[dataIndex];
-
-        // 利用仓库保存任务操作类型、操作窗口名称、任务数据
+    handleEdit = (event) => {
         const projectStore = this.props.projectStore;
+        const projectItem = this.props.projectStore.projectItem;
+        projectStore.initProjectOldItem(projectItem);
+        // 利用仓库保存任务操作类型、操作窗口名称、任务数据
         projectStore.setProjectAction(actionType.ACTION_EDIT);
         projectStore.setProjectProcName('编辑项目参数');
         projectStore.initProjectItem(projectItem);
 
-        // 保存待编辑的数据索引，并打开任务数据操作窗口
-        this.setState({ recordChangeID: dataIndex, showProjectConfig: true });
+        // 打开项目数据操作窗口
+        this.setState({ showProjectConfig: true });
     }
 
-    runProjectCB = (dataIndex) => (data) => {
-        const projectItem = this.state.projects[dataIndex];
-
+    runProjectCB = (data) => {
+        const projectItem = this.props.projectStore.projectItem;
+        projectItem.process_flag = taskRunStatus.RUNNING;
         // 重新初始化操作列，以使按钮失效
-        this.redrawActionColumn();
     }
 
     /** 处理运行项目的操作 */
-    handleRun = (rowIndex) => (event) => {
-        // 从行索引转换成实际的数据索引
-        let dataIndex = this.transferDataIndex(rowIndex);
-
+    handleRun = (event) => {
         // 向后台提交任务执行
-        const { projects } = this.state;
-        HttpRequest.asyncPost(this.runProjectCB(dataIndex), '/tasks/execute-project-task', { uuid: projects[dataIndex].uuid, tasks: projects[dataIndex].tasks, run_time_mode: projects[dataIndex].run_time_mode, process_flag: taskRunStatus.RUNNING });
-
+        const projectItem = this.props.projectStore.projectItem;
+        HttpRequest.asyncPost(this.runProjectCB(), '/tasks/execute-project-task', { uuid: projectItem.uuid, tasks: projectItem.tasks, run_time_mode: projectItem.run_time_mode, process_flag: taskRunStatus.RUNNING });
     }
 
-    /** 处理新建任务 */
+    /** 处理新建项目 */
     handleNewProject = (event) => {
         const projectStore = this.props.projectStore;
+        projectStore.initProjectOldItem(this.props.projectStore.projectItem);
         projectStore.setProjectAction(actionType.ACTION_NEW);
         projectStore.setProjectProcName('新建项目');
         let projectItem = {
             name: '新建项目',
+            run_time_mode: runTimeModeNames[0].index,
+            run_time_mode_name: runTimeModeNames[0].name,
+            output_mode: outputModeNames[0].index,
+            output_mode_name: outputModeNames[0].name,
             process_flag: taskRunStatus.IDLE,
+            run_status: '空闲状态',
         };
         projectStore.initProjectItem(projectItem);
 
         // 打开项目数据操作窗口
-        this.setState({ showProjectConfig: true });
+        this.setState({ showProjectConfig: true, });
     }
 
     /** 新建/编辑项目窗口完成的回调处理 */
@@ -394,37 +323,152 @@ class SecurityProjectView extends React.Component {
             } else if (projectStore.projectAction === actionType.ACTION_EDIT) {
                 this.editProjectParams();
             }
+            this.getTasksStatus();
+        } else {
+            const projectOldItem = this.props.projectStore.projectOldItem;
+            const projectStore = this.props.projectStore;
+            if (projectOldItem !== null && projectOldItem.uuid !== null) {
+                projectStore.initProjectItem(projectOldItem);
+                // 关闭项目数据操作窗口
+                this.setState({ showProjectCard: true, });
+            }
         }
-
-        // 关闭任务数据操作窗口
         this.setState({ showProjectConfig: false });
     }
 
-    /** 添加任务数据到前端缓存的数据列表中 */
+    /** 添加项目数据到前端显示 */
     addProjectData = () => {
-        const { projects } = this.state;
-        // 从仓库中取出新建的项目对象，设置 key 和 index 属性
+        const { projects, projectNames } = this.state;
         const projectItem = this.props.projectStore.projectItem;
-        projectItem.key = projects.length + 1;
-        projectItem.index = (projects.length + 1).toString();
-
         // 将新建项目对象添加到项目数据源中（数据源的首位）
         projects.unshift(projectItem);
+        projectNames.push(projectItem.name);
+        this.setState({ projects, projectNames });
     }
 
-    /** 确认修改项目后，在项目列表中修改指定数据 */
+    /** 确认修改项目后，更新列表 */
     editProjectParams = () => {
-        const { projects, recordChangeID } = this.state;
+        const { projects } = this.state;
+        let projectNames = [];
         const projectItem = this.props.projectStore.projectItem;
 
-        // 从仓库中取出编辑后的任务对象，深拷贝到源数据中
-        let record = projects[recordChangeID];
-        DeepCopy(record, projectItem);
+        for (let project of projects) {
+            projectNames.push(project.name);
+            if (project.uuid === projectItem.uuid) {
+                // 从仓库中取出编辑后的项目对象，深拷贝到源数据中
+                DeepCopy(project, projectItem);
+            }
+        }
+        this.setState({ projects, projectNames });
     }
 
-    /** 处理页面变化（页面跳转/切换/每页记录数变化） */
-    handlePageChange = (currentPage, pageSize) => {
-        this.setState({ currentPage, pageSize });
+    onSelectProject = (projectName) => {
+        const { projects, inputValue } = this.state;
+        for (let project of projects) {
+            if (project.name === projectName) {
+                const projectStore = this.props.projectStore;
+                projectStore.setProjectAction(actionType.ACTION_EDIT);
+                projectStore.setProjectProcName('编辑项目参数');
+                projectStore.initProjectItem(project);
+                this.setState({ inputValue });
+                this.getTasksStatus();
+                break;
+            }
+        }
+    }
+
+    getAllTasksForProject = (tasks) => {
+        let jsonTasks;
+        try {
+            jsonTasks = JSON.parse(tasks);
+        }
+        catch (err) {
+            return null;
+        }
+        return jsonTasks;
+    }
+
+    getTaskName = (uuid) => {
+        const projectItem = this.props.projectStore.projectItem;
+        let jsonTasks = this.getAllTasksForProject(projectItem.tasks);
+        for (let task of jsonTasks) {
+            if (uuid === task.uuid) {
+                return task.name;
+            }
+        }
+    }
+
+    getTasksStatus = () => {
+        //let statusList = [];
+        const projectStore = this.props.projectStore;
+        //if (projectStore.projectAction === actionType.ACTION_EDIT) {
+        const projectItem = this.props.projectStore.projectItem;
+        let jsonTasks = this.getAllTasksForProject(projectItem.tasks);
+        let taskUuidList = '';
+        if (jsonTasks instanceof Array) {
+            for (let task of jsonTasks) {
+                // let taskRunStatusItem = {};
+                // taskRunStatusItem.name = task.name;
+                // taskRunStatusItem.execute_uuid = null;
+                // taskRunStatusItem.project_uuid = projectItem.uuid
+                // taskRunStatusItem.task_uuid = task.uuid;
+                // taskRunStatusItem.run_status = taskRunStatus.IDLE;
+                // taskRunStatusItem.done_rate = 0;
+                // statusList.push(taskRunStatusItem);
+
+                taskUuidList = taskUuidList + "," + task.uuid;
+            }
+            //this.setState({ statusList });
+            HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status', { uuid_list: taskUuidList });
+        }
+        //}
+    }
+
+    getAllTasksRunStatusCB = (data) => {
+        const projectItem = this.props.projectStore.projectItem;
+        let jsonTasks = this.getAllTasksForProject(projectItem.tasks);
+        let statusList = [];
+        // 检查响应的payload数据是数组类型
+        if (!(data.payload instanceof Array))
+            return;
+
+        // 拷贝任务执行状态的数据
+        for (let status of data.payload) {
+            if (status !== null) {//&& status.execute_uuid !== null && projectItem.uuid === status.project_uuid
+                let statusItem = DeepClone(status);
+                statusItem.name = this.getTaskName(status.task_uuid);
+                statusList.push(statusItem);
+            }
+        }
+        // 部分任务可能没有执行状态
+        if (statusList.length < projectItem.task_number) {
+            if (jsonTasks instanceof Array) {
+                for (let task of jsonTasks) {
+                    let needAdded = true;
+                    if (statusList.length > 0) {
+                        for (let resultStatus of statusList) {
+                            // resultStatusList里面已经有当前任务的任务状态
+                            if (task.uuid === resultStatus.task_uuid) {
+                                needAdded = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (needAdded) {
+                        let taskRunStatusItem = {};
+                        taskRunStatusItem.name = task.name;
+                        taskRunStatusItem.execute_uuid = null;
+                        taskRunStatusItem.project_uuid = projectItem.uuid
+                        taskRunStatusItem.task_uuid = task.uuid;
+                        taskRunStatusItem.run_status = taskRunStatus.IDLE;
+                        taskRunStatusItem.done_rate = 0;
+                        statusList.push(taskRunStatusItem);
+                    }
+                }
+            }
+        }
+        // 保存运行状态，显示Card页面
+        this.setState({ statusList, showProjectConfig: false, showProjectCard: true });
     }
 
     hasModifyRight = () => {
@@ -436,36 +480,37 @@ class SecurityProjectView extends React.Component {
     }
 
     render() {
-        const { columns, projects, showProjectConfig, scrollWidth, scrollHeight } = this.state;
-        let self = this;
-
+        const { classes } = this.props;
+        const { inputValue, projectNames, showProjectConfig, showProjectCard, projectUuid, statusList } = this.state;
         return (
             <div>
                 <Skeleton loading={!this.hasModifyRight()} active avatar>
                     <Row>
-                        <Col span={8}><Typography variant="h6">项目管理</Typography></Col>
-                        <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
+                        <Col span={2}><Typography variant="h6">项目管理</Typography></Col>
+                        <Col span={3}>
+                            <AutoComplete
+                                dataSource={projectNames}
+                                onSelect={this.onSelectProject.bind(this)}
+                                defaultValue={inputValue}
+                                placeholder="输入项目管理名称"
+                                filterOption={(inputValue, option) =>
+                                    option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                }
+                            />
+                        </Col>
+                        <Col span={2} offset={1} align="left"><Button type="primary" size="large" onClick={this.handleNewProject.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
                     </Row>
-                    <Table
-                        columns={columns}
-                        dataSource={projects}
-                        bordered={true}
-                        scroll={{ x: scrollWidth, y: scrollHeight }}
-                        rowKey={record => record.uuid}
-                        pagination={{
-                            showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-                            pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
-                            defaultPageSize: DEFAULT_PAGE_SIZE,
-                            showQuickJumper: true,
-                            showSizeChanger: true,
-                            onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
-                                self.handlePageChange(current, pageSize);
-                            },
-                            onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
-                                self.handlePageChange(current, pageSize);
-                            },
-                        }}
-                    />
+                    {showProjectCard && <ProjectCard uuid={projectUuid} statusList={statusList} />}
+                    <br />
+                    {showProjectCard &&
+                        <div align="center">
+                            <Button className={classes.actionButton} type="primary" size="large" onClick={this.handleEdit.bind(this)}>编辑</Button>
+                            <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel.bind(this)} okText="确定" cancelText="取消">
+                                <Button className={classes.actionButton} type="danger" size="large">删除</Button>
+                            </Popconfirm>
+                            <Button className={classes.actionButton} disabled={this.isRunning} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
+                        </div>
+                    }
                     {showProjectConfig && <ProjectParamsConfig id="ProjectParamsConfig" actioncb={this.projectActionCB} />}
                 </Skeleton>
             </div>

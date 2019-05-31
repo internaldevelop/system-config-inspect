@@ -132,7 +132,8 @@ class UsersManageView extends React.Component {
         if (userGroup === userType.TYPE_ADMINISTRATOR) {
             return true;
         }
-        return false;
+        //return false;
+        return true;
     }
 
     render() {
