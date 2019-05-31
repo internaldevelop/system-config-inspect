@@ -7,7 +7,11 @@ import TextField from '@material-ui/core/TextField';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Select from '@material-ui/core/Select';
 import { observer, inject } from 'mobx-react'
 
 import Draggable from '../../components/window/Draggable'
@@ -53,7 +57,7 @@ class TaskParamsConfig extends React.Component {
   componentWillMount() {
     // 加载策略字典
     this.props.dictStore.loadPolicyGroups();
-}
+  }
 
   requestTaskCB = (action) => (data) => {
     let actionCB = this.props.actioncb;
@@ -174,12 +178,31 @@ class TaskParamsConfig extends React.Component {
               />
             </Col>
           </Row>
-          <TextField required fullWidth id="system-type" label="系统类型" defaultValue={asset_os_type}
+          <Row>
+            <Col span={8}>
+              <FormControl variant="outlined" margin="normal">
+                <InputLabel htmlFor="outlined-os-type-native">系统类型</InputLabel>
+                <Select native
+                  value={asset_os_type}
+                  onChange={this.handleTaskParamsChange("asset_os_type")}
+                  input={
+                    <OutlinedInput name="os_type" id="outlined-os-type-native" />
+                  }
+                >
+                  <option value={1}>Windows系统</option>
+                  <option value={2}>Linux系统</option>
+                </Select>
+              </FormControl>
+            </Col>
+            <Col span={15} offset={1}>
+              <TextField required fullWidth id="system-ver" label="系统版本" defaultValue={asset_os_ver}
+                variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_os_ver")}
+              />
+            </Col>
+          </Row>
+          {/* <TextField required fullWidth id="system-type" label="系统类型" defaultValue={asset_os_type}
             variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_os_type")}
-          />
-          <TextField required fullWidth id="system-ver" label="系统版本" defaultValue={asset_os_ver}
-            variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_os_ver")}
-          />
+          /> */}
         </form>
       </div>
     );
@@ -240,7 +263,7 @@ class TaskParamsConfig extends React.Component {
       return;
 
     // 添加本条策略到 JSON 对象中
-    jsonGroups.push( { uuid: group.uuid, code: group.code, name: group.name, baseline: group.baseline } );
+    jsonGroups.push({ uuid: group.uuid, code: group.code, name: group.name, baseline: group.baseline });
 
     // 将 JSON 对象转换成字符串，存到仓库中
     this.props.taskStore.setParam("policy_groups", JSON.stringify(jsonGroups));
@@ -266,6 +289,21 @@ class TaskParamsConfig extends React.Component {
     this.props.taskStore.setParam("policy_groups", JSON.stringify(jsonGroups));
   }
 
+  getPolicyGroupsComponents = () => {
+    const { policyGroupsArray } = this.props.dictStore;
+    const { asset_os_type } = this.props.taskStore.taskItem;
+    let compLists = [];
+    for (let policyGroup of policyGroupsArray) {
+      // 本版本采用 baseline 作为操作系统类型的判断依据
+      // baseline = 1，是指策略组对应的是Windows系统
+      // baseline = 2，是指策略组对应的是Linux系统
+      if (policyGroup.baseline === parseInt(asset_os_type)) {
+        compLists.push(this.getConfigCtrl(policyGroup.code, policyGroup.name))
+      }
+    }
+    return compLists;
+  }
+
   getConfigCtrl(code, name) {
     return (
       <FormControlLabel
@@ -288,7 +326,8 @@ class TaskParamsConfig extends React.Component {
     return (
       <div>
         <FormGroup row>
-          { policyGroupsArray.map(policyGroup => this.getConfigCtrl(policyGroup.code, policyGroup.name)) }
+          {/* { policyGroupsArray.map(policyGroup => this.getConfigCtrl(policyGroup.code, policyGroup.name)) } */}
+          {this.getPolicyGroupsComponents()}
         </FormGroup>
       </div>
     );
