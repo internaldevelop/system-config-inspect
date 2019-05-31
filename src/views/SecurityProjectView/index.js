@@ -475,7 +475,7 @@ class SecurityProjectView extends React.Component {
     hasModifyRight = () => {
         const { userGroup } = this.props.userStore.loginInfo;
         if (userGroup === userType.TYPE_NORMAL_USER) {
-            //return true;
+            return true;
         }
         return false;
     }
