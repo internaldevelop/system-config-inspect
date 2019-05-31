@@ -240,7 +240,7 @@ class TaskParamsConfig extends React.Component {
       return;
 
     // 添加本条策略到 JSON 对象中
-    jsonGroups.push( { uuid: group.uuid, code: group.code, name: group.name } );
+    jsonGroups.push( { uuid: group.uuid, code: group.code, name: group.name, baseline: group.baseline } );
 
     // 将 JSON 对象转换成字符串，存到仓库中
     this.props.taskStore.setParam("policy_groups", JSON.stringify(jsonGroups));
