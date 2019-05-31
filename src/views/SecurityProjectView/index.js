@@ -208,7 +208,7 @@ class SecurityProjectView extends React.Component {
         let projects = [];
         let projectNames = [];
         // 检查响应的payload数据是数组类型
-        if (!(data.payload instanceof Array))
+        if (!(data.payload instanceof Array) || data.payload.length <= 0)
             return;
 
         // 从响应数据生成 table 数据源
@@ -282,8 +282,13 @@ class SecurityProjectView extends React.Component {
 
     runProjectCB = (data) => {
         const projectItem = this.props.projectStore.projectItem;
-        projectItem.process_flag = taskRunStatus.RUNNING;
-        // 重新初始化操作列，以使按钮失效
+        if (projectItem.process_flag !== taskRunStatus.RUNNING) {
+            projectItem.process_flag = taskRunStatus.RUNNING;
+            projectItem.run_status = this.getRunStatus(taskRunStatus.RUNNING);
+            this.updateProjectProcessFlag();
+            // 重新刷新Card页面，以使按钮失效
+            this.setState({ showProjectCard: true });
+        }
     }
 
     /** 处理运行项目的操作 */
@@ -291,7 +296,6 @@ class SecurityProjectView extends React.Component {
         // 向后台提交任务执行
         const projectItem = this.props.projectStore.projectItem;
         HttpRequest.asyncPost(this.runProjectCB(), '/tasks/execute-project-task', { uuid: projectItem.uuid, tasks: projectItem.tasks, run_time_mode: projectItem.run_time_mode, process_flag: taskRunStatus.RUNNING });
-
     }
 
     /** 处理新建项目 */
@@ -406,7 +410,7 @@ class SecurityProjectView extends React.Component {
         const projectItem = this.props.projectStore.projectItem;
         let jsonTasks = this.getAllTasksForProject(projectItem.tasks);
         let taskUuidList = '';
-        if (jsonTasks instanceof Array) {
+        if (jsonTasks instanceof Array && jsonTasks.length > 0) {
             for (let task of jsonTasks) {
                 // let taskRunStatusItem = {};
                 // taskRunStatusItem.name = task.name;
@@ -421,8 +425,26 @@ class SecurityProjectView extends React.Component {
             }
             //this.setState({ statusList });
             HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status', { uuid_list: taskUuidList });
+        } else {
+            this.setState({ statusList: [] });
         }
         //}
+    }
+
+    requestProjectCB = (action) => (data) => {
+        //
+    }
+
+    updateProjectProcessFlag = () => {
+        const { uuid, name, tasks, run_time_mode, output_mode, task_number, process_flag } = this.props.projectStore.projectItem;
+        const { userUuid } = this.props.userStore.loginUser;
+        // 向后台发送请求，更新策略数据
+        HttpRequest.asyncPost(this.requestProjectCB('update'), '/projects/update',
+            {
+                uuid, name, code: "TODO", tasks, run_time_mode, output_mode, task_number, process_flag, create_user_uuid: userUuid,
+            },
+            false
+        );
     }
 
     getAllTasksRunStatusCB = (data) => {
@@ -430,20 +452,31 @@ class SecurityProjectView extends React.Component {
         let jsonTasks = this.getAllTasksForProject(projectItem.tasks);
         let statusList = [];
         // 检查响应的payload数据是数组类型
-        if (!(data.payload instanceof Array))
+        if (!(data.payload instanceof Array) || data.payload.length <= 0)
             return;
 
+        let taskDoneNumber = 0;
         // 拷贝任务执行状态的数据
         for (let status of data.payload) {
             if (status !== null) {//&& status.execute_uuid !== null && projectItem.uuid === status.project_uuid
                 let statusItem = DeepClone(status);
                 statusItem.name = this.getTaskName(status.task_uuid);
                 statusList.push(statusItem);
+                if (status.done_rate === 100 || status.run_status === taskRunStatus.FINISHED || status.run_status === taskRunStatus.INTERRUPTED) {
+                    taskDoneNumber++;
+                }
+            }
+        }
+        if (taskDoneNumber === projectItem.task_number) {
+            if (projectItem.process_flag !== taskRunStatus.FINISHED) {
+                projectItem.process_flag = taskRunStatus.FINISHED;
+                projectItem.run_status = this.getRunStatus(taskRunStatus.FINISHED);
+                this.updateProjectProcessFlag();
             }
         }
         // 部分任务可能没有执行状态
         if (statusList.length < projectItem.task_number) {
-            if (jsonTasks instanceof Array) {
+            if (jsonTasks instanceof Array && jsonTasks.length > 0) {
                 for (let task of jsonTasks) {
                     let needAdded = true;
                     if (statusList.length > 0) {
@@ -509,7 +542,7 @@ class SecurityProjectView extends React.Component {
                             <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel.bind(this)} okText="确定" cancelText="取消">
                                 <Button className={classes.actionButton} type="danger" size="large">删除</Button>
                             </Popconfirm>
-                            <Button className={classes.actionButton} disabled={this.isRunning} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
+                            <Button className={classes.actionButton} disabled={this.isRunning()} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
                         </div>
                     }
                     {showProjectConfig && <ProjectParamsConfig id="ProjectParamsConfig" actioncb={this.projectActionCB} />}
