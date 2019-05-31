@@ -49,11 +49,10 @@ class SecurityConfigView extends React.Component {
             scrollHeight: 300,      // 表格的 scrollHeight
             shadeState: false,
         }
-
-        this.hasModifyRight();
-
         // 设置操作列的渲染
         this.initActionColumn();
+
+        this.hasModifyRight();
 
         // 从后台获取任务数据的集合
         this.getAllPolicies();
@@ -72,7 +71,7 @@ class SecurityConfigView extends React.Component {
 
     /** 初始化操作列，定义渲染效果 */
     initActionColumn() {
-        const { columns, } = this.state;
+        const { columns } = this.state;
         const { classes } = this.props;
         if (columns.length === 0)
             return;
@@ -98,7 +97,7 @@ class SecurityConfigView extends React.Component {
         // 从行索引转换成实际的数据索引
         let dataIndex = this.transferDataIndex(rowIndex);
         const { policies } = this.state;
-        if (policies[dataIndex].type === policyType.TYPE_NORMAL) {
+        if (parseInt(policies[dataIndex].type) === policyType.TYPE_NORMAL) {
             return true;
         }
         return false;
@@ -297,7 +296,7 @@ class SecurityConfigView extends React.Component {
                         }}
                     />
                     {showConfig && <PolicyParamsConfig actioncb={this.handleCloseConfig} />}
-                    </Skeleton>
+                </Skeleton>
             </div>
         )
 

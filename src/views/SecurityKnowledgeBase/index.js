@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import { observer, inject } from 'mobx-react'
 import { policyGroup } from '../../global/enumeration/PolicyGroup';
+import { policyType } from '../../global/enumeration/PolicyType';
 import { userType } from '../../global/enumeration/UserType'
 import { Skeleton, Table, Row, Col } from 'antd'
 import { columns as Column } from './Column'
@@ -34,53 +35,8 @@ const styles = theme => ({
   },
 });
 
-const policyGroupInfo = [{
-  key: "1",
-  code: policyGroup.GROUP_WINDOWS_PATCH_INSTALL,
-  title: 'Windows系统补丁安装策略',
-}, {
-  key: "2",
-  code: policyGroup.GROUP_WINDOWS_SERVICES,
-  title: 'Windows系统服务策略',
-}, {
-  key: "3",
-  code: policyGroup.GROUP_WINDOWS_FILE_SECURITY,
-  title: 'Windows系统文件安全防护策略',
-}, {
-  key: "4",
-  code: policyGroup.GROUP_LINUX_PATCH_INSTALL,
-  title: 'Linux系统补丁安装策略',
-}, {
-  key: "5",
-  code: policyGroup.GROUP_LINUX_SERVICES,
-  title: 'Linux系统服务情况策略',
-}, {
-  key: "6",
-  code: policyGroup.GROUP_LINUX_FILE_SECURITY,
-  title: 'Linux系统文件安全防护策略',
-}, {
-  key: "7",
-  code: policyGroup.GROUP_USER_ACCOUNT_CONFIGURATION,
-  title: '用户账号配置策略',
-}, {
-  key: "8",
-  code: policyGroup.GROUP_PASSWORD_CONFIGURATION,
-  title: '口令配置策略',
-}, {
-  key: "9",
-  code: policyGroup.GROUP_NETWORK_COMMUNICATION_CONFIGURATION,
-  title: '网络通信配置策略',
-}, {
-  key: "10",
-  code: policyGroup.GROUP_LOG_AUDIT_CONFIGURATION,
-  title: '日志审计配置策略',
-}, {
-  key: "11",
-  code: policyGroup.GROUP_SECURITY_AUDIT_CONFIGURATION,
-  title: '安全审计策略',
-}];
-
 @inject('userStore')
+@inject('dictStore')
 @observer
 class SecurityKnowledgeBase extends React.Component {
   constructor(props) {
@@ -89,7 +45,13 @@ class SecurityKnowledgeBase extends React.Component {
       value: 0,
       columns: Column,    // 列定义
       policies: [],       // 策略数据集合
+      policyGroups: []    // 策略组数据集合
     };
+  }
+
+  componentWillMount() {
+    // 加载策略字典
+    this.props.dictStore.loadPolicyGroups();
   }
 
   handleChange = (event, value) => {
@@ -97,14 +59,14 @@ class SecurityKnowledgeBase extends React.Component {
   };
 
   getPoliciesCB = (data) => {
-    const { value, policies } = this.state;
+    const { value, policies, policyGroups } = this.state;
     let allPolicies = [];
-    let code = policyGroupInfo[value].code;
+    let uuid = policyGroups[value].uuid;
     let currentPolicies = [];
-    let currentGroupGolicies = [];
+    let currentGroupPolicies = [];
     // 检查响应的payload数据是数组类型
     if (!(data.payload instanceof Array)) {
-      currentGroupGolicies = { id: code, policies: currentPolicies };
+      currentGroupPolicies = { groupUuid: uuid, policies: currentPolicies };
       return;
     }
 
@@ -115,33 +77,33 @@ class SecurityKnowledgeBase extends React.Component {
       policyItem.index = index + 1;
       return policyItem;
     })
-    currentGroupGolicies = { code: code, policies: currentPolicies };
+    currentGroupPolicies = { groupUuid: uuid, policies: currentPolicies };
     for (let policy of policies) {
       allPolicies.push(policy);
     }
-    allPolicies.push(currentGroupGolicies);
+    allPolicies.push(currentGroupPolicies);
     // 更新 policies 数据源
     this.setState({ policies: allPolicies });
   }
 
-  getPoliciesByGroupCode = (groupCode) => {
+  getPolicies = (groupUuid) => {
     // 根据groupId获取所在组所有的策略
-    HttpRequest.asyncGet(this.getPoliciesCB, '/policies/get-policies-by-group-code', { groupCode });
+    HttpRequest.asyncGet(this.getPoliciesCB, '/policies/get-policies-by-group-uuid', { groupUuid: groupUuid });
   }
 
-  showPolicies = (code) => {
+  showPolicies = (groupUuid) => {
     const { columns, policies } = this.state;
     let policiesSource = [];
     let isSavedPoliciesResult = false;
     for (let policy of policies) {
-      if (code === policy.code) {
+      if (groupUuid === policy.groupUuid) {
         isSavedPoliciesResult = true;
         policiesSource = policy.policies;
         break;
       }
     }
     if (!isSavedPoliciesResult) {
-      this.getPoliciesByGroupCode(code);
+      this.getPolicies(groupUuid);
     }
     return (
       <Table
@@ -169,9 +131,27 @@ class SecurityKnowledgeBase extends React.Component {
     return true;
   }
 
+  getGroupArraysExceptSelfDefined = () => {
+    const { policyGroupsArray } = this.props.dictStore;
+    let policyGroups = this.state.policyGroups;
+    for (let group of policyGroupsArray) {
+      if (group.type === policyType.TYPE_NORMAL) {
+        let item = DeepClone(group);
+        policyGroups.push(item);
+      }
+    }
+    if (policyGroups.length > 0) {
+      this.setState({ policyGroups });
+    }
+  }
+
   render() {
     const { classes } = this.props;
     const { value } = this.state;
+    const { policyGroups } = this.state;
+    if (policyGroups.length <= 0) {
+      this.getGroupArraysExceptSelfDefined();
+    }
 
     return (
       <div>
@@ -189,10 +169,10 @@ class SecurityKnowledgeBase extends React.Component {
                 variant="scrollable"
                 scrollButtons="auto"
               >
-                {policyGroupInfo.map(item => <Tab label={item.title} />)}
+                {(policyGroups instanceof Array) && policyGroups.map(item => <Tab label={item.name} />)}
               </Tabs>
             </AppBar>
-            {policyGroupInfo.map((item, index) => (value === index && <TabContainer>{this.showPolicies(item.code)}</TabContainer>))}
+            {(policyGroups instanceof Array) && policyGroups.map((item, index) => (value === index && <TabContainer>{this.showPolicies(item.uuid)}</TabContainer>))}
           </div>
         </Skeleton>
       </div>
