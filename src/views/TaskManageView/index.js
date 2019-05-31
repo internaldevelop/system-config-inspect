@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Skeleton, Table, Icon, Button, Row, Col, Popconfirm, Progress, message } from 'antd'
+import { Skeleton, Table, Icon, Button, Row, Col, Popconfirm, Progress, message, Modal } from 'antd'
 import { columns as Column } from './Column'
 // import { TaskData } from './TaskData'
 // import IconButton from '@material-ui/core/IconButton';
@@ -24,9 +24,12 @@ import { stat } from 'fs';
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
+import TaskExecResultsView from '../SecurityStatistics/TaskExecResultsView'
 
 let timer1S = undefined;    // 1 秒的定时器
 let timer300mS = undefined;    // 300 毫秒的定时器
+
+const confirm = Modal.confirm;
 
 const styles = theme => ({
     iconButton: {
@@ -287,6 +290,19 @@ class TaskManageView extends React.Component {
         this.setState({ columns });
     }
 
+    handlePlayback = (uuid) => e => {
+        Modal.info({
+            keyboard: true,         // 是否支持键盘 esc 关闭
+            destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
+            closable: false,         // 是否显示右上角的关闭按钮
+            content: <TaskExecResultsView taskuuid={uuid}/>,
+            onOk() {
+                message.info('OK');
+            },
+        });
+        // message.info("点击了进度条");
+    }
+
     renderRunStatusColumn = () => {
         const { columns } = this.state;
         let progressSize = 40;
@@ -302,7 +318,7 @@ class TaskManageView extends React.Component {
                         {
                             runStatus.run_status === taskRunStatus.INTERRUPTED ?
                                 <Progress type="circle" width={progressSize} percent={runStatus.done_rate} status="exception" /> :
-                                <Progress type="circle" width={progressSize} percent={runStatus.done_rate} />
+                                <Progress style={{ cursor: "pointer" }} onClick={this.handlePlayback(runStatus.task_uuid)} type="circle" width={progressSize} percent={runStatus.done_rate} />
                         }
                     </div>
                 )
