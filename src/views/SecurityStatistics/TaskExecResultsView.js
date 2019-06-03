@@ -29,7 +29,7 @@ class TaskExecResultsView extends React.Component {
             runStatus: {},
             taskInfo: {},
             execBrief: {},
-            showDetails: false,
+            // showDetails: false,
         }
         const { taskuuid } = this.props;
         this.getTaskExecBrief(taskuuid);
@@ -47,7 +47,7 @@ class TaskExecResultsView extends React.Component {
             taskInfo: data.payload.task_info,
             execBrief: data.payload.exec_brief,
             riskLevelData: level,
-            showDetails: true
+            // showDetails: true
         });
     }
 
@@ -86,9 +86,25 @@ class TaskExecResultsView extends React.Component {
     }
 
     onChartClick(param, echarts) {
+        const { runStatus, } = this.state;
         console.log(param);
+        let modalFunc;
         if ((param.dataIndex <= 3) && (param.dataIndex >= 0)) {
-            this.setState({ showDetails: true })
+            if (param.dataIndex === 0)
+                modalFunc = Modal.success;
+            else 
+                modalFunc = Modal.error;
+            modalFunc({
+                keyboard: true,         // 是否支持键盘 esc 关闭
+                destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
+                closable: false,         // 是否显示右上角的关闭按钮
+                width: 520, 
+                content: <ExecResultsListView execuuid={runStatus.execute_uuid} risklevel={param.dataIndex} />,
+                onOk() {
+                    // message.info('OK');
+                },
+            });
+            // this.setState({ showDetails: true })
         }
     }
 
@@ -97,7 +113,7 @@ class TaskExecResultsView extends React.Component {
     }
 
     render() {
-        const { showDetails, runStatus, execBrief, taskInfo } = this.state;
+        const { runStatus, execBrief, taskInfo } = this.state;
         let onEvents = {
             'click': this.onChartClick.bind(this)
         }

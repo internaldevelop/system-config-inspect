@@ -43,10 +43,10 @@ class ExecResultsListView extends React.Component {
             <div>
                 <Collapse accordion>
                     {riskInfoList.map((riskItem, index) =>
-                        <Panel header={riskItem.policy_group_name + ': ' + riskItem.policy_name} key="#{index}">
-                            <p>{"风险等级：#{riskItem.risk_level}级"}</p>
-                            <p>{"风险描述：#{riskItem.risk_desc}"}</p>
-                            <p>{"解决方案：#{riskItem.solutions}"}</p>
+                        <Panel header={riskItem.policy_group_name + ': ' + riskItem.policy_name} key={index.toString()}>
+                            <p>{"风险等级：" + riskItem.risk_level + " 级"}</p>
+                            <p>{"风险描述：" + riskItem.risk_desc}</p>
+                            <p>{"解决方案：" + riskItem.solutions}</p>
                         </Panel>
                     )}
                 </Collapse>
