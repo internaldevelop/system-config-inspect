@@ -6,6 +6,7 @@ import { columns as Column } from './Column'
 // import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import ReactDOM from 'react-dom';
 
 import { observer, inject } from 'mobx-react'
 // import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
@@ -295,12 +296,15 @@ class TaskManageView extends React.Component {
             keyboard: true,         // 是否支持键盘 esc 关闭
             destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
             closable: false,         // 是否显示右上角的关闭按钮
+            width: 520, 
             content: <TaskExecResultsView taskuuid={uuid}/>,
             onOk() {
-                message.info('OK');
+                // message.info('OK');
             },
         });
+
         // message.info("点击了进度条");
+
     }
 
     renderRunStatusColumn = () => {
