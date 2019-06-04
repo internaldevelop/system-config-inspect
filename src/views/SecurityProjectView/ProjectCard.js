@@ -49,11 +49,17 @@ class ProjectCard extends React.Component {
         return false;
     }
 
-    getException = (status) => {
+    getProgressStatus = (status) => {
         if (status.run_status === taskRunStatus.INTERRUPTED) {
             return 'exception';
-        } 
-        return '';
+        } else if (status.run_status === taskRunStatus.FINISHED) {
+            return 'success';
+        } else if (status.run_status === taskRunStatus.RUNNING) {
+            return 'active';
+        } else if (status.run_status === taskRunStatus.IDLE) {
+            return 'normal';
+        }
+        return 'exception';
     }
 
     render() {
@@ -125,7 +131,7 @@ class ProjectCard extends React.Component {
                                             <div>{this.isShownExportReport(item) &&
                                                 <Button className={classes.iconButton} type="primary" size="small" onClick={this.exportTasksResults} ><Icon type="export" />导出报告 </Button>
                                             }
-                                                <Progress type="circle" percent={this.getPercentValue(item)} status={this.getException(item)} />
+                                                <Progress type="circle" percent={this.getPercentValue(item)} status={this.getProgressStatus(item)} />
                                             </div>
                                         </Card>
                                     </Col>

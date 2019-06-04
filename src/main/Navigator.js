@@ -7,9 +7,14 @@ import CustomMenu from "../components/menu/CustomMenu";
 
 const menus = [
     {
-        title: '任务管理',
+        title: '项目管理',
         icon: 'home',
-        key: '/home'
+        key: '/home',
+    },
+    {
+        title: '任务管理',
+        icon: 'project',
+        key: '/home/task-manage'
     },
     {
         title: '安全配置管理',
@@ -29,11 +34,6 @@ const menus = [
             { key: '/home/inspect-result/details', title: '详情', icon: 'table', },
             { key: '/home/sec-config/statistics', title: '任务分析', icon: 'table', },
         ]
-    },
-    {
-        title: '项目管理',
-        icon: 'project',
-        key: '/home/project-config',
     },
     {
         title: '系统管理',

@@ -32,13 +32,13 @@ class ContentMain extends React.Component {
     return (
       <div style={{padding: 16, position: 'relative'}}>
         <Switch>
-          <PrivateRoute exact path='/home' component={TaskManageView}/>
+          <PrivateRoute exact path='/home' component={SecurityProjectView}/>
+          <PrivateRoute exact path='/home/task-manage' component={TaskManageView}/>
           <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase}/>
           <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView}/>
           <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview}/>
           <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView}/>
           <PrivateRoute exact path='/home/sec-config/statistics' component={SecurityStatistics}/>
-          <PrivateRoute exact path='/home/project-config' component={SecurityProjectView}/>
 
           <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView}/>
           <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView}/>
