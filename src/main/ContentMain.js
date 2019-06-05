@@ -11,6 +11,9 @@ import SecurityProjectView from '../views/SecurityProjectView'
 import InspectResultOverview from '../views/InspectResultOverview'
 import InspectResultView from '../views/InspectResultView'
 import SecurityStatistics from '../views/SecurityStatistics'
+
+import TaskExecResultsView from '../views/TaskExecResultsView'
+
 import UsersManageView from '../views/UsersManageView'
 import UserInfoView from '../views/UsersManageView/UserInfoView'
 import AboutView from '../views/AboutView'
@@ -36,9 +39,14 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/home/task-manage' component={TaskManageView}/>
           <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase}/>
           <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView}/>
+
           <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview}/>
           <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView}/>
           <PrivateRoute exact path='/home/sec-config/statistics' component={SecurityStatistics}/>
+
+          <PrivateRoute exact path='/home/log-manage/inspect-logs' component={TaskExecResultsView}/>
+          <PrivateRoute exact path='/home/log-manage/operate-logs' component={TaskExecResultsView}/>
+          <PrivateRoute exact path='/home/log-manage/exception-logs' component={TaskExecResultsView}/>
 
           <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView}/>
           <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView}/>

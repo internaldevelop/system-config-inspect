@@ -28,3 +28,18 @@ export function GetMainViewHeight() {
     return (bodyHeight > 600) ? bodyHeight - 330 : bodyHeight;
 }
 
+/**
+ * 主窗口（或内容窗口，承载系统主要功能的界面）
+ * 最小高度
+ */
+export function GetMainViewMinHeight() {
+    return 600;
+}
+
+/**
+ * 主窗口（或内容窗口，承载系统主要功能的界面）
+ * 最小宽度
+ */
+export function GetMainViewMinWidth() {
+    return 800;
+}
