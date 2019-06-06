@@ -35,7 +35,7 @@ class ProjectCard extends React.Component {
     }
 
     // 导出
-    exportTasksResults = (status) => {
+    exportTasksResults = (status) => (e) => {
         const projectItem = this.props.projectStore.projectItem;
         const inputValue = status.name;
         const selectValue = projectItem.output_mode_name;
@@ -129,7 +129,7 @@ class ProjectCard extends React.Component {
                                     <Col span={6}>
                                         <Card title={item.name} bordered={false}>
                                             <div>{this.isShownExportReport(item) &&
-                                                <Button className={classes.iconButton} type="primary" size="small" onClick={this.exportTasksResults} ><Icon type="export" />导出报告 </Button>
+                                                <Button className={classes.iconButton} type="primary" size="small" onClick={this.exportTasksResults(item)} ><Icon type="export" />导出报告 </Button>
                                             }
                                                 <Progress type="circle" percent={this.getPercentValue(item)} status={this.getProgressStatus(item)} />
                                             </div>

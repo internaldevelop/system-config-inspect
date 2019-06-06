@@ -71,12 +71,16 @@ class SecurityKnowledgeBase extends React.Component {
     }
 
     // 把响应数据转换成 table 数据
-    currentPolicies = data.payload.map((policy, index) => {
-      let policyItem = DeepClone(policy);
-      policyItem.key = index + 1;
-      policyItem.index = index + 1;
-      return policyItem;
-    })
+    let index = 0;
+    for(let policy of data.payload) {
+      if (parseInt(policy.type) === policyType.TYPE_NORMAL) {
+        let policyItem = DeepClone(policy);
+        policyItem.key = index + 1;
+        policyItem.index = index + 1;
+        index++;
+        currentPolicies.push(policyItem);
+      }
+    }
     currentGroupPolicies = { groupUuid: uuid, policies: currentPolicies };
     for (let policy of policies) {
       allPolicies.push(policy);
@@ -133,9 +137,9 @@ class SecurityKnowledgeBase extends React.Component {
 
   getGroupArraysExceptSelfDefined = () => {
     const { policyGroupsArray } = this.props.dictStore;
-    let policyGroups = this.state.policyGroups;
+    let policyGroups = [];
     for (let group of policyGroupsArray) {
-      if (group.type === policyType.TYPE_NORMAL) {
+      if (parseInt(group.type) === policyGroup.TYPE_NORMAL) {
         let item = DeepClone(group);
         policyGroups.push(item);
       }
