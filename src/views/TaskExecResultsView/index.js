@@ -116,8 +116,11 @@ class TaskExecResultsView extends React.Component {
                 render: content => <EllipsisText content={content} width={250 * ratio}/>,
             },
             {
-                title: '扫描时间', dataIndex: 'start_time', width: 150, 
+                title: '操作员', dataIndex: 'user_name', width: 150, 
                 // render: content => content + ' 级',
+            },
+            {
+                title: '扫描时间', dataIndex: 'start_time', width: 150, 
             },
         ];
         return tableColumns;
