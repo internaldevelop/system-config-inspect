@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
+import { Modal } from 'antd'
 import ReactEcharts from 'echarts-for-react';
 // import echarts from 'echarts';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
 import HttpRequest from '../../utils/HttpRequest';
+// import PolicyResultsView from './PolicyResultsView'
+
 
 const styles = theme => ({
     root: {
@@ -44,7 +47,12 @@ class RiskTypeBar extends Component {
                 //     {product: 'Walnut Brownie', 'Centos': 72.4, 'Ubuntu': 53.9}
                 // ]
             },
-            xAxis: {type: 'category'},
+            xAxis: {
+                type: 'category',
+                // "axisLabel":{
+                //     interval: 0
+                // }
+            },
             yAxis: {},
             series: seriesBar
             // series: [
@@ -64,7 +72,13 @@ class RiskTypeBar extends Component {
         let serBar = [];
         for (let i = 0; i < result.length; i++) {
             let osType = result[i].os_type;
-            let pName = result[i].policie_name;
+            // osType 1:Windows系统; 2:Linux系统
+            if ('1' === osType) {
+                osType = 'Windows系统';
+            } else if ('2' === osType) {
+                osType = 'Linux系统';
+            }
+            let pName = result[i].policy_group_name;
             
             if (strSysType.indexOf(osType) < 0) {
                 strSysType += ',';
@@ -89,7 +103,13 @@ class RiskTypeBar extends Component {
         
         for (let i = 0; i < result.length; i++) {
             let osType = result[i].os_type;
-            let pName = result[i].policie_name;
+            // osType 1:Windows系统; 2:Linux系统
+            if ('1' === osType) {
+                osType = 'Windows系统';
+            } else if ('2' === osType) {
+                osType = 'Linux系统';
+            }
+            let pName = result[i].policy_group_name;
             let pNum = result[i].num;
             
             sourceDatas.forEach(v=>{
@@ -100,9 +120,9 @@ class RiskTypeBar extends Component {
             });
         }
 
-        console.log(sysTypeData);
-        console.log(sourceDatas);
-        console.log(serBar);
+        console.log('1111111111' + sysTypeData);
+        console.log('2222222222' + sourceDatas);
+        console.log('3333333333' + serBar);
                
         this.setState({
             dimensionsData: sysTypeData,
@@ -112,11 +132,22 @@ class RiskTypeBar extends Component {
     }
 
     getTaskStatistics() {
-        return HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/statistics');
+        return HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/statistics-group');
     }
 
     onChartClick(param,echarts){
-        console.log(param)
+        // console.log(param.seriesName);
+        // console.log(param.name);
+        // Modal.info({
+        //     keyboard: true,         // 是否支持键盘 esc 关闭
+        //     destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
+        //     closable: false,         // 是否显示右上角的关闭按钮
+        //     width: 520, 
+        //     content: <PolicyResultsView taskuuid={'e3267d8b-b737-4822-b866-4035c67ab133'}/>,
+        //     onOk() {
+        //         // message.info('OK');
+        //     },
+        // });
     }
 
     render() {

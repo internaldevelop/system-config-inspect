@@ -10,7 +10,6 @@ import { userType } from '../../global/enumeration/UserType'
 import { Skeleton, Table, Icon, Button, Row, Col, Tabs, Input, Select } from 'antd'
 
 import { columns as Column } from './Column'
-import { ResultData } from './ResultData'
 
 const TabPane = Tabs.TabPane;
 
@@ -54,7 +53,7 @@ class InspectResultView extends React.Component {
                 task_id: result[i].task_id,
                 target_name: result[i].assets_name,
                 target_ip: result[i].assets_ip,
-                risk_type: result[i].policie_name,
+                risk_type: result[i].policy_name,
                 risk_desc: result[i].description,
                 risk_level: result[i].risk_level,
                 solution: result[i].solutions,

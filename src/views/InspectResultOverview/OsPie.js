@@ -110,6 +110,12 @@ class OskPie extends Component {
 
         for (let i = 0; i < result.length; i++) {
             let sysType = result[i].os_type;
+            // osType 1:Windows系统; 2:Linux系统
+            if ('1' === sysType) {
+                sysType = 'Windows系统';
+            } else if ('2' === sysType) {
+                sysType = 'Linux系统';
+            }
             let pNum = result[i].num;
             
             let myMap = {};
