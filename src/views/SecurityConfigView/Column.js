@@ -23,15 +23,15 @@ export const columns = [
     render: content => <EllipsisText content={content} width={200}/>,
   },
   {
-    title: '安保1级', width: 200, dataIndex: 'lv1_require', key: 'lv1_require',
+    title: '等保1级', width: 200, dataIndex: 'lv1_require', key: 'lv1_require',
     render: content => <EllipsisText content={content} width={200}/>,
   },
   {
-    title: '安保2级', width: 200, dataIndex: 'lv2_require', key: 'lv2_require',
+    title: '等保2级', width: 200, dataIndex: 'lv2_require', key: 'lv2_require',
     render: content => <EllipsisText content={content} width={200}/>,
   },
   {
-    title: '安保3级', width: 200, dataIndex: 'lv3_require', key: 'lv3_require',
+    title: '等保3级', width: 200, dataIndex: 'lv3_require', key: 'lv3_require',
     render: content => <EllipsisText content={content} width={200}/>,
   },
   // {
@@ -39,7 +39,7 @@ export const columns = [
   //   sorter: (a, b) => a.run_mode.localeCompare(b.run_mode, "zh"),
   // },
   {
-    title: '安保4级', width: 200, dataIndex: 'lv4_require', key: 'lv4_require',
+    title: '等保4级', width: 200, dataIndex: 'lv4_require', key: 'lv4_require',
     render: content => <EllipsisText content={content} width={200}/>,
   },
   // {

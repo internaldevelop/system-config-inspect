@@ -283,11 +283,16 @@ class SecurityProjectView extends React.Component {
     runProjectCB = (data) => {
         const projectItem = this.props.projectStore.projectItem;
         if (projectItem.process_flag !== taskRunStatus.RUNNING) {
-            projectItem.process_flag = taskRunStatus.RUNNING;
-            projectItem.run_status = this.getRunStatus(taskRunStatus.RUNNING);
+            this.props.projectStore.setParam("process_flag", taskRunStatus.RUNNING);
+            this.props.projectStore.setParam("run_status", this.getRunStatus(taskRunStatus.RUNNING));
             this.updateProjectProcessFlag();
-            // 重新刷新Card页面，以使按钮失效
-            this.setState({ showProjectCard: true });
+            // 重新刷新Card页面，以使按钮失效以及刷新任务进度
+            let oldStatusList = this.state.statusList;
+            let statusList = [];
+            for(let status of oldStatusList) {
+                statusList.push(this.getNewTaskRunStatusItem(status.name, status.task_uuid, status.project_uuid));
+            }
+            this.setState({ statusList });
         }
     }
 
@@ -295,7 +300,7 @@ class SecurityProjectView extends React.Component {
     handleRun = (event) => {
         // 向后台提交任务执行
         const projectItem = this.props.projectStore.projectItem;
-        HttpRequest.asyncPost(this.runProjectCB(), '/tasks/execute-project-task', { uuid: projectItem.uuid, tasks: projectItem.tasks, run_time_mode: projectItem.run_time_mode, process_flag: taskRunStatus.RUNNING });
+        HttpRequest.asyncPost(this.runProjectCB, '/tasks/execute-project-task', { uuid: projectItem.uuid, tasks: projectItem.tasks, run_time_mode: projectItem.run_time_mode, process_flag: taskRunStatus.RUNNING });
     }
 
     /** 处理新建项目 */
@@ -452,13 +457,13 @@ class SecurityProjectView extends React.Component {
         let jsonTasks = this.getAllTasksForProject(projectItem.tasks);
         let statusList = [];
         // 检查响应的payload数据是数组类型
-        if (!(data.payload instanceof Array) || data.payload.length <= 0)
+        if (!(data.payload instanceof Array))
             return;
 
         let taskDoneNumber = 0;
         // 拷贝任务执行状态的数据
         for (let status of data.payload) {
-            if (status !== null) {//&& status.execute_uuid !== null && projectItem.uuid === status.project_uuid
+            if (status !== null && status.execute_uuid !== null && projectItem.uuid === status.project_uuid) {
                 let statusItem = DeepClone(status);
                 statusItem.name = this.getTaskName(status.task_uuid);
                 statusList.push(statusItem);
@@ -469,8 +474,8 @@ class SecurityProjectView extends React.Component {
         }
         if (taskDoneNumber === projectItem.task_number) {
             if (projectItem.process_flag !== taskRunStatus.FINISHED) {
-                projectItem.process_flag = taskRunStatus.FINISHED;
-                projectItem.run_status = this.getRunStatus(taskRunStatus.FINISHED);
+                this.props.projectStore.setParam("process_flag", taskRunStatus.FINISHED);
+                this.props.projectStore.setParam("run_status", this.getRunStatus(taskRunStatus.FINISHED));
                 this.updateProjectProcessFlag();
             }
         }
@@ -492,7 +497,7 @@ class SecurityProjectView extends React.Component {
                         let taskRunStatusItem = {};
                         taskRunStatusItem.name = task.name;
                         taskRunStatusItem.execute_uuid = null;
-                        taskRunStatusItem.project_uuid = projectItem.uuid
+                        taskRunStatusItem.project_uuid = projectItem.uuid;
                         taskRunStatusItem.task_uuid = task.uuid;
                         taskRunStatusItem.run_status = taskRunStatus.IDLE;
                         taskRunStatusItem.done_rate = 0;
@@ -503,6 +508,17 @@ class SecurityProjectView extends React.Component {
         }
         // 保存运行状态，显示Card页面
         this.setState({ statusList, showProjectConfig: false, showProjectCard: true });
+    }
+
+    getNewTaskRunStatusItem = (taskName, taskUuid, projectUuid) => {
+        let taskRunStatusItem = {};
+        taskRunStatusItem.name = taskName;
+        taskRunStatusItem.execute_uuid = null;
+        taskRunStatusItem.project_uuid = projectUuid;
+        taskRunStatusItem.task_uuid = taskUuid;
+        taskRunStatusItem.run_status = taskRunStatus.RUNNING;
+        taskRunStatusItem.done_rate = 0;
+        return taskRunStatusItem;
     }
 
     hasModifyRight = () => {

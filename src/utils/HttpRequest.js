@@ -39,6 +39,9 @@ class HttpRequest {
      *                        false: 不管成功与否，都通过回调函数返回 data
      */
     asyncGet(callback, path, params = {}, onlySuccess = true) {
+        // 配合后端实现固定的 session id
+        axios.defaults.withCredentials=true;
+
         axios.get(GetBackEndRootUrl() + path, { params: params })
             .then((response) => response.data)
             .then((data) => {
@@ -79,6 +82,9 @@ class HttpRequest {
      *                        false: 不管成功与否，都通过回调函数返回 data
      */
     asyncPost(callback, path, params, onlySuccess = true) {
+        // 配合后端实现固定的 session id
+        axios.defaults.withCredentials=true;
+
         axios.post(GetBackEndRootUrl() + path, Qs.stringify(params))
             .then((response) => response.data)
             .then((data) => {

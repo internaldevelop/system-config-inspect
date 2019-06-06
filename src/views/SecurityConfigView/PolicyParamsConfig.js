@@ -6,6 +6,9 @@ import Draggable from '../../components/window/Draggable'
 import { observer, inject } from 'mobx-react'
 import { Upload, Modal, Row, Col, message, AutoComplete, Icon, Button } from 'antd';
 import TextField from '@material-ui/core/TextField';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { DeepClone } from '../../utils/ObjUtils'
 
 import HttpRequest from '../../utils/HttpRequest'
@@ -60,7 +63,7 @@ class PolicyParamsConfig extends React.Component {
     }
 
     getAllPolicyGroups() {
-        HttpRequest.asyncGet(this.getAllPolicyGroupsCB, '/policy-groups/all', )
+        HttpRequest.asyncGet(this.getAllPolicyGroupsCB, '/policy-groups/all')
     }
 
     getAllPolicyGroupsCB = (data) => {
@@ -133,13 +136,13 @@ class PolicyParamsConfig extends React.Component {
     requestPolicyCB = (action) => (data) => {
         let actionCB = this.props.actioncb;
         let successInfo;
-    
+
         if (action === 'new') {
-          successInfo = "策略创建成功";
+            successInfo = "策略创建成功";
         } else if (action === 'update') {
-          successInfo = "策略更新成功";
+            successInfo = "策略更新成功";
         } else {
-          successInfo = "操作成功";
+            successInfo = "操作成功";
         }
 
         if (data.code === errorCode.ERROR_OK) {
@@ -164,7 +167,7 @@ class PolicyParamsConfig extends React.Component {
     handleOk = (e) => {
         const { uuid, name, lv1_require, lv2_require, lv3_require, lv4_require } = this.props.policyStore.policyItem;
         const { run_mode, consume_time, run_contents, os_type, type } = this.props.policyStore.policyItem;
-        const { asset_uuid, group_uuid} = this.props.policyStore.policyItem;
+        const { asset_uuid, group_uuid } = this.props.policyStore.policyItem;
         if (this.props.policyStore.policyAction === actionType.ACTION_NEW) {
             // 向后台发送请求，创建一条新的策略记录
             HttpRequest.asyncPost(this.requestPolicyCB('new'), '/policies/add',
@@ -214,7 +217,7 @@ class PolicyParamsConfig extends React.Component {
     getOsTypeName = (type) => {
         if (parseInt(type) === osType.TYPE_WINDOWS) {
             return osTypeNames[0];
-        } else if (parseInt(type)  === osType.TYPE_LINUX) {
+        } else if (parseInt(type) === osType.TYPE_LINUX) {
             return osTypeNames[1];
         }
     }
@@ -224,7 +227,7 @@ class PolicyParamsConfig extends React.Component {
         const policyStore = this.props.policyStore;
         const modalTitle = <Draggable title={policyStore.policyProcName} />;
         const { name, lv1_require, lv2_require, lv3_require, lv4_require } = this.props.policyStore.policyItem;
-        const { run_mode, consume_time, run_contents, os_type, asset_name, group_name} = this.props.policyStore.policyItem;
+        const { run_mode, consume_time, run_contents, os_type, asset_name, group_name } = this.props.policyStore.policyItem;
         const { assetNames } = this.state;
         const { groupNames } = this.state;
         const osType = this.getOsTypeName(os_type);
@@ -233,28 +236,28 @@ class PolicyParamsConfig extends React.Component {
 
         const props = {
             onRemove: file => {
-              this.setState(state => {
-                const index = state.fileList.indexOf(file);
-                const newFileList = state.fileList.slice();
-                newFileList.splice(index, 1);
-                return {
-                  fileList: newFileList,
-                };
-              });
+                this.setState(state => {
+                    const index = state.fileList.indexOf(file);
+                    const newFileList = state.fileList.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList: newFileList,
+                    };
+                });
             },
             beforeUpload: file => {
-              this.setState(state => ({
-                fileList: [...state.fileList, file],
-              }));
+                this.setState(state => ({
+                    fileList: [...state.fileList, file],
+                }));
 
-              let reader = new FileReader();
-              reader.readAsText(file, "gbk");
-              reader.onload = function(oFREvent){
-                  let pointsTxt = oFREvent.target.result;
-                  self.props.policyStore.setParam("run_contents", pointsTxt);
-              }
+                let reader = new FileReader();
+                reader.readAsText(file, "gbk");
+                reader.onload = function (oFREvent) {
+                    let pointsTxt = oFREvent.target.result;
+                    self.props.policyStore.setParam("run_contents", pointsTxt);
+                }
 
-              return false;
+                return false;
             },
             fileList,
         };
@@ -284,7 +287,7 @@ class PolicyParamsConfig extends React.Component {
                     </Row>
                     <Row>
                         <Col span={11}>
-                           <AutoComplete
+                            <AutoComplete
                                 required
                                 className={classes.searchItemStyle}
                                 dataSource={groupNames}
@@ -293,20 +296,26 @@ class PolicyParamsConfig extends React.Component {
                                 placeholder="输入分组"
                                 filterOption={(inputValue, option) =>
                                     option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                            }
+                                }
                             />
                         </Col>
                         <Col span={11} offset={2}>
-                            <AutoComplete
-                                className={classes.searchItemStyle}
-                                dataSource={assetNames}
-                                defaultValue={asset_name}
-                                onSelect={this.onSelectAsset}
-                                placeholder="输入设备"
-                                filterOption={(inputValue, option) =>
-                                    option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                            }
-                            />
+                            {/*<FormControl required variant="outlined" style={{ width: '100%' }}>
+                                <OutlinedInput
+                                    id="component-outlined">*/}
+                                    <AutoComplete
+                                        className={classes.searchItemStyle}
+                                        dataSource={assetNames}
+                                        defaultValue={asset_name}
+                                        onSelect={this.onSelectAsset}
+                                        placeholder="输入设备"
+                                        filterOption={(inputValue, option) =>
+                                            option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                        }
+                                    />
+                                {/* </OutlinedInput>
+                                <InputLabel htmlFor="outlined-group">输出格式</InputLabel>
+                            </FormControl>*/}
                         </Col>
                     </Row>
                     <Row>
@@ -343,11 +352,11 @@ class PolicyParamsConfig extends React.Component {
                     /> */}
                     <Row>
                         <Col span={11}>
-                        <Upload {...props} className={classes.searchItemStyle}>
-                        <Button>
-                            <Icon type="upload" /> 运行文件选择
+                            <Upload {...props} className={classes.searchItemStyle}>
+                                <Button>
+                                    <Icon type="upload" /> 运行文件选择
                         </Button>
-                        </Upload>
+                            </Upload>
                             {/* <TextField required fullWidth id="run_mode" label="运行模式" defaultValue={run_mode}
                                 variant="outlined" margin="normal" onChange={this.handleParamsChange("run_mode")}
                             /> */}

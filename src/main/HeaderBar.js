@@ -14,8 +14,13 @@ import FullScreenIcon from '@material-ui/icons/FullscreenOutlined';
 // import FullScreenExitIcon from '@material-ui/icons/FullscreenExitOutlined';
 import LogoutIcon from '@material-ui/icons/ExitToAppOutlined';
 import MenuIcon from '@material-ui/icons/Menu';
+
+import { Typography, Row, Col, Tag } from 'antd';
+
+import LogoImage from '../resources/image/logo.jpg'
 // import { Logout } from '../components/login/Logout';
 
+const { Title } = Typography;
 
 const styles = theme => ({
   // headerul: {
@@ -90,25 +95,17 @@ class HeaderBar extends React.Component {
 
   render() {
     const { classes } = this.props
-    // const menu = (
-    //   <Menu className='menu'>
-    //     <Menu.ItemGroup title='用户中心' className='menu-group'>
-    //       {/* <Menu.Item>你好 - {isAuthenticated()}</Menu.Item> */}
-    //       <Menu.Item>个人信息</Menu.Item>
-    //       <Menu.Item><span onClick={this.logout}>退出登录</span></Menu.Item>
-    //     </Menu.ItemGroup>
-    //     <Menu.ItemGroup title='设置中心' className='menu-group'>
-    //       <Menu.Item>个人设置</Menu.Item>
-    //       <Menu.Item>系统设置</Menu.Item>
-    //     </Menu.ItemGroup>
-    //   </Menu>
-    // )
 
     return (
-      <div id='headerbar'>
-        <IconButton className={classes.menuButton} color="primary" aria-label="Open drawer" onClick={this.toggle}>
-          <MenuIcon />
-        </IconButton>
+      <div id='headerbar' style={{ minWidth: '500px' }}>
+        <div style={{ lineHeight: '64px', float: 'left' }}>
+          <IconButton className={classes.menuButton} color="primary" aria-label="Open drawer" onClick={this.toggle}>
+            <MenuIcon />
+          </IconButton>
+          <img alt="logo-pic" src={LogoImage} />
+          <span style={{ fontSize: 28, marginLeft: '32px' }} color="#108ee9">主站系统自动化配置检测工具</span>
+        </div>
+
         <div style={{ lineHeight: '64px', float: 'right' }}>
           <table border="0">
             <tbody>

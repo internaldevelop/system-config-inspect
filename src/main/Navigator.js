@@ -7,9 +7,14 @@ import CustomMenu from "../components/menu/CustomMenu";
 
 const menus = [
     {
-        title: '任务管理',
+        title: '项目管理',
         icon: 'home',
-        key: '/home'
+        key: '/home',
+    },
+    {
+        title: '任务管理',
+        icon: 'project',
+        key: '/home/task-manage'
     },
     {
         title: '安全配置管理',
@@ -31,9 +36,14 @@ const menus = [
         ]
     },
     {
-        title: '项目管理',
-        icon: 'project',
-        key: '/home/project-config',
+        title: '日志管理',
+        icon: 'dashboard',
+        key: '/home/log-manage',
+        subs: [
+            { key: '/home/log-manage/inspect-logs', title: '扫描日志', icon: 'table', },
+            { key: '/home/log-manage/operate-logs', title: '操作日志', icon: 'table', },
+            { key: '/home/log-manage/exception-logs', title: '异常日志', icon: 'table', },
+        ]
     },
     {
         title: '系统管理',

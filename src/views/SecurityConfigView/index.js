@@ -13,6 +13,7 @@ import { userType } from '../../global/enumeration/UserType'
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
+import { osType } from '../../global/enumeration/OsType';
 
 const TabPane = Tabs.TabPane;
 
@@ -246,12 +247,24 @@ class SecurityConfigView extends React.Component {
         console.log(key);
     }
 
+    getOsTypeNames = (baseline) => {
+        if (parseInt(baseline) === osType.TYPE_WINDOWS) {
+            return 'Window系统';
+        } else {
+            return 'Linux系统';
+        }
+    }
+
+    getConsumeTimeText = (time) => {
+        return '大约需要' + time + 'ms';
+    }
+
     rowDetails = (record) => {
         return (
             <Tabs defaultActiveKey="1" onChange={this.callback} >
-                <TabPane tab="操作系统" key="1">{record.os_type}</TabPane>
+                <TabPane tab="操作系统" key="1">{this.getOsTypeNames(record.baseline)}</TabPane>
                 <TabPane tab="运行内容" key="2">{record.run_contents}</TabPane>
-                <TabPane tab="运行时间" key="3">{record.consume_time}</TabPane>
+                <TabPane tab="运行时间" key="3">{this.getConsumeTimeText(record.consume_time)}</TabPane>
             </Tabs>
         );
     }
