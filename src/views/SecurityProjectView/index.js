@@ -538,7 +538,7 @@ class SecurityProjectView extends React.Component {
                     <Row>
                         <Col span={2}><Typography variant="h6">项目管理</Typography></Col>
                         <Col span={3}>
-                            <AutoComplete
+                            <AutoComplete allowClear
                                 dataSource={projectNames}
                                 onSelect={this.onSelectProject.bind(this)}
                                 defaultValue={inputValue}
