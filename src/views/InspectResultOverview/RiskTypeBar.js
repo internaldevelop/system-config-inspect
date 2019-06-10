@@ -119,10 +119,6 @@ class RiskTypeBar extends Component {
                 }
             });
         }
-
-        console.log('1111111111' + sysTypeData);
-        console.log('2222222222' + sourceDatas);
-        console.log('3333333333' + serBar);
                
         this.setState({
             dimensionsData: sysTypeData,

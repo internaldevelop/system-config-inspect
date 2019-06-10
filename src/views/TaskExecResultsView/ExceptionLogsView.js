@@ -13,7 +13,7 @@ const styles = theme => ({
     },
 });
 
-class ExecActionsView2 extends React.Component {
+class ExceptionLogsView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -44,10 +44,10 @@ class ExecActionsView2 extends React.Component {
 
 }
 
-ExecActionsView2.propTypes = {
+ExceptionLogsView.propTypes = {
     classes: PropTypes.object,
 };
 
 
-export default withStyles(styles)(ExecActionsView2);
+export default withStyles(styles)(ExceptionLogsView);
 

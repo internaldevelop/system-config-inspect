@@ -85,42 +85,42 @@ class TaskExecResultsView extends React.Component {
     }
 
     getTableColumns() {
-        const ratio = 1; 
+        const ratio = 1;
         const tableColumns = [
             {
-                title: '策略名称', dataIndex: 'policy_name', width: 200, 
-                render: content => <EllipsisText content={content} width={200 * ratio}/>,
+                title: '策略名称', dataIndex: 'policy_name', width: 200,
+                render: content => <EllipsisText content={content} width={200 * ratio} />,
             },
             {
-                title: '主机名', dataIndex: 'asset_name', width: 200, 
-                render: content => <EllipsisText content={content} width={200 * ratio}/>,
+                title: '主机名', dataIndex: 'asset_name', width: 200,
+                render: content => <EllipsisText content={content} width={200 * ratio} />,
             },
             {
-                title: '扫描结果', dataIndex: 'risk_desc', width: 250, 
-                render: content => <EllipsisText content={content} width={250 * ratio}/>,
+                title: '扫描结果', dataIndex: 'risk_desc', width: 250,
+                render: content => <EllipsisText content={content} width={250 * ratio} />,
             },
             {
-                title: '风险等级', dataIndex: 'risk_level', width: 100, 
+                title: '风险等级', dataIndex: 'risk_level', width: 100,
                 render: content => content + ' 级',
             },
             {
-                title: '解决方案', dataIndex: 'solutions', width: 250, 
-                render: content => <EllipsisText content={content} width={250 * ratio}/>,
+                title: '解决方案', dataIndex: 'solutions', width: 250,
+                render: content => <EllipsisText content={content} width={250 * ratio} />,
             },
             {
-                title: '耗时', dataIndex: 'run_time', width: 100, 
-                render: content => parseInt(content) === 0 ? '小于 1 秒': '约' + content + '秒',
+                title: '耗时', dataIndex: 'run_time', width: 100,
+                render: content => parseInt(content) === 0 ? '小于 1 秒' : '约' + content + '秒',
             },
             {
-                title: '策略组', dataIndex: 'policy_group_name', width: 250, 
-                render: content => <EllipsisText content={content} width={250 * ratio}/>,
+                title: '策略组', dataIndex: 'policy_group_name', width: 250,
+                render: content => <EllipsisText content={content} width={250 * ratio} />,
             },
             {
-                title: '操作员', dataIndex: 'user_name', width: 150, 
+                title: '操作员', dataIndex: 'user_name', width: 150,
                 // render: content => content + ' 级',
             },
             {
-                title: '扫描时间', dataIndex: 'start_time', width: 150, 
+                title: '扫描时间', dataIndex: 'start_time', width: 150,
             },
         ];
         return tableColumns;
@@ -176,11 +176,11 @@ class TaskExecResultsView extends React.Component {
         const { beginTime, endTime, selectedPolicies, scanResult } = this.state;
         let policyUuidList = "";
         for (let uuid of selectedPolicies)
-        policyUuidList += uuid + ",";
+            policyUuidList += uuid + ",";
         let params = {
             begin_time: beginTime,
-            end_time: endTime, 
-            policy_uuid_list: policyUuidList, 
+            end_time: endTime,
+            policy_uuid_list: policyUuidList,
             scan_result: scanResult
         };
 
@@ -188,7 +188,7 @@ class TaskExecResultsView extends React.Component {
     }
 
     queryPoliciesCB = (data) => {
-        let policyList = data.payload.map( (item) => <Option key={item.uuid}>{item.name}</Option>);
+        let policyList = data.payload.map((item) => <Option key={item.uuid}>{item.name}</Option>);
         this.setState({ policyList });
     }
     queryPolicies = () => {
@@ -202,24 +202,22 @@ class TaskExecResultsView extends React.Component {
                     extra={<Button type="primary" icon="search" loading={this.state.loading} onClick={this.queryResultHistory}>查询</Button>}
                 >
                     <Col xs={10}>
-                    {/* <Card type="inner" bordered={false} style={{ width: 300 }}> */}
+                        {/* <Card type="inner" bordered={false} style={{ width: 300 }}> */}
                         <div>选择时间（起止时间段）</div>
                         <RangePicker {...this.getRangePickerProps()} />
-                    {/* </Card>
+                        {/* </Card>
                     <Card type="inner" bordered={false} style={{ width: '100%' }}> */}
-                        </Col>
+                    </Col>
                     <Col span={12} offset={2}>
                         <div>需要查询的扫描结果</div>
                         <Input allowClear onChange={this.handleScanResultChange} />
-                        </Col>
-                    {/* </Card>
-                    <Card type="inner" bordered={false} style={{ width: '100%' }}> */}
-                        <div>选择策略（可多选）</div>
-                        <Select {...this.getPolicySelectProps()} allowClear>
-                            {this.state.policyList}
-                        </Select>
-                        <br/><br/>
-                        <Table {...this.getTableProps()} />
+                    </Col>
+                    <div>选择策略（可多选）</div>
+                    <Select {...this.getPolicySelectProps()} allowClear>
+                        {this.state.policyList}
+                    </Select>
+                    <br /><br />
+                    <Table {...this.getTableProps()} />
                 </Card>
             </div >
         );
