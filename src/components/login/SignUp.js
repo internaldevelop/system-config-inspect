@@ -122,7 +122,7 @@ class SignUp extends React.Component {
       return;
     }
 
-    HttpRequest.asyncPost(this.addUserCB, '/users/add', { account: userName, name: userName, password }, false);
+    HttpRequest.asyncPost(this.addUserCB, '/users/add', { account: userName, name: userName, password, user_group: 1 }, false);
 
     // console.log("用户名：" + userName + "\t密码：" + password);
     // let history = this.context.router.history;

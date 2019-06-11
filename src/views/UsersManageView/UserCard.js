@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Card, Form, Select, Input, Tooltip, Icon, message, Row, Col } from 'antd';
+import { observer, inject } from 'mobx-react'
 
 import ChangePwdDlg from '../../components/ChangePwdDlg';
 import HttpRequest from '../../utils/HttpRequest';
@@ -28,6 +29,8 @@ const styles = theme => ({
     },
 });
 
+@inject('userStore')
+@observer
 @Form.create()
 class UserCard extends React.Component {
     constructor(props) {
@@ -37,12 +40,13 @@ class UserCard extends React.Component {
             showChangePwd: false,
             userUuid: this.props.uuid,
             userInfo: {}, // 临时保存修改但未提交的用户信息，实际的用户信息保存在 this.props.user
+            userInfoReady: false,
         };
         this.fetchUser();
     }
 
     fetchUserCB = (data) => {
-        this.setState({ userUuid: this.props.uuid, userInfo: data.payload });
+        this.setState({ userUuid: this.props.uuid, userInfo: data.payload, userInfoReady: true });
         const { resetFields } = this.props.form;
         resetFields();
     }
@@ -54,14 +58,6 @@ class UserCard extends React.Component {
         const { resetFields } = this.props.form;
         resetFields();
         this.setState({ isModifyDetails: !this.state.isModifyDetails });
-    }
-
-    testHttpPostCB(payload) {
-        console.log('testHttpPostCB post data, return:');
-        console.log(payload);//输出返回的数据
-    }
-    testHttpPost() {
-
     }
 
     modifyDetails = () => {
@@ -100,6 +96,27 @@ class UserCard extends React.Component {
         HttpRequest.asyncPost(this.activateUserCB, '/users/activate', { uuid: this.props.uuid });
     }
 
+    changeUserGroupCB = (data) => {
+    }
+
+    handleUserGroupChange = (value) => {
+        HttpRequest.asyncPost(this.changeUserGroupCB, '/users/change-user-group', { uuid: this.props.uuid, user_group: value });
+    }
+
+    userGroupSelect() {
+        const { userInfo, userInfoReady } = this.state;
+        const userStore = this.props.userStore;
+        return (
+            (this.props.manage === 1) && userInfoReady && 
+            userStore.loginUser.userUuid !== userInfo.uuid && 
+            <Select value={userInfo.user_group} style={{ width: 120 }} onChange={this.handleUserGroupChange.bind(this)}>
+                <Option value={99}>系统管理员</Option>
+                <Option value={2}>系统审计员</Option>
+                <Option value={1}>普通用户</Option>
+            </Select>
+        );
+    }
+
     render() {
         const { userInfo } = this.state;
         const { classes } = this.props;
@@ -132,7 +149,7 @@ class UserCard extends React.Component {
         // but still need the element to resemble a link, use a button and change it with appropriate styles.
         return (
             <div>
-                <Card title={userInfo.name}>
+                <Card title={userInfo.name} extra={this.userGroupSelect()}>
                     <Card
                         type="inner"
                         title='基本信息'
@@ -195,7 +212,7 @@ class UserCard extends React.Component {
                                             )
                                         }
                                     </FormItem>
-                                    <FormItem {...formItemLayout} label={(
+                                    <FormItem {...formItemLayout} required label={(
                                         <span>
                                             昵称&nbsp;
                                         <Tooltip title='请输入您的昵称'>
@@ -209,17 +226,6 @@ class UserCard extends React.Component {
                                                 rules: []
                                             })(
                                                 <Input allowClear />
-                                            )
-                                        }
-                                    </FormItem>
-                                    <FormItem label='居住地' {...formItemLayout} required>
-                                        {
-                                            getFieldDecorator('address', {
-                                                initialValue: userInfo.address,
-                                                rules: []
-                                            })(
-                                                <Input allowClear />
-                                                // <Cascader options={options} expandTrigger="hover" placeholder='' />
                                             )
                                         }
                                     </FormItem>
@@ -237,6 +243,16 @@ class UserCard extends React.Component {
                                                 ]
                                             })(
                                                 <Input addonBefore={prefixSelector} allowClear />
+                                            )
+                                        }
+                                    </FormItem>
+                                    <FormItem label='居住地' {...formItemLayout}>
+                                        {
+                                            getFieldDecorator('address', {
+                                                initialValue: userInfo.address,
+                                                rules: []
+                                            })(
+                                                <Input allowClear />
                                             )
                                         }
                                     </FormItem>
