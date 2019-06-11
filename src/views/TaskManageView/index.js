@@ -504,22 +504,15 @@ class TaskManageView extends React.Component {
         this.setState({ currentPage, pageSize });
     }
 
-    hasModifyRight = () => {
-        const { userGroup } = this.props.userStore.loginInfo;
-        if (userGroup === userType.TYPE_NORMAL_USER) {
-            return true;
-        }
-        return false;
-    }
-
     render() {
         const { columns, tasks, showTaskConfig, scrollWidth, scrollHeight } = this.state;
+        const userStore = this.props.userStore;
         let self = this;
 
         // var taskParamsConfig = new TaskParamsConfig;
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar>
+                <Skeleton loading={!userStore.isNormalUser} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">任务管理</Typography></Col>
                         <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewTask.bind(this)}><Icon type="plus-circle-o" />新建任务</Button></Col>

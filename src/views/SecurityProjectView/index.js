@@ -521,20 +521,13 @@ class SecurityProjectView extends React.Component {
         return taskRunStatusItem;
     }
 
-    hasModifyRight = () => {
-        const { userGroup } = this.props.userStore.loginInfo;
-        if (userGroup === userType.TYPE_NORMAL_USER) {
-            return true;
-        }
-        return false;
-    }
-
     render() {
         const { classes } = this.props;
         const { inputValue, projectNames, showProjectConfig, showProjectCard, projectUuid, statusList } = this.state;
+        const userStore = this.props.userStore;
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar>
+                <Skeleton loading={!userStore.isNormalUser} active avatar>
                     <Row>
                         <Col span={2}><Typography variant="h6">项目管理</Typography></Col>
                         <Col span={3}>

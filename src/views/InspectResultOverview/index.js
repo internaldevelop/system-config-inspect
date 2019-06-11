@@ -28,19 +28,12 @@ class InspectResultOverview extends React.Component {
         }
     }
 
-    hasModifyRight = () => {
-        const { userGroup } = this.props.userStore.loginInfo;
-        if (userGroup !== userType.TYPE_ADMINISTRATOR) {
-            return true;
-        }
-        return false;
-    }
-
     render() {
         const { classes } = this.props;
+        const userStore = this.props.userStore;
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar>
+                <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Row>
                         <Col span={24}>
                             <RiskTypeBar />

@@ -112,13 +112,6 @@ class LogIn extends React.Component {
             showVerifyError: false,
             verifyError: '',
         };
-        // userStore.initLogin();
-        // const { user, password } = userStore.loginInfo;
-        // this.state = {
-        //     userName: user,
-        //     password: password,
-        //     verifyCode: '',
-        // };
 
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -205,16 +198,6 @@ class LogIn extends React.Component {
         this.props.form.validateFields((err, values) => {
             HttpRequest.asyncPost(this.verifyPasswordCB, '/users/verify-pwd', { account, password }, false);
         });
-
-        // const userStore = this.props.userStore;
-        // console.log("用户名：" + account + "\t密码：" + password);
-        // let history = this.props.history;
-        // if (password === "123456") {
-        //     userStore.saveUser(account, '', password, 10);
-        //     history.push('/home');
-        // } else {
-        //     alert("密码错误")
-        // }
     }
 
     handleAccountChange = event => {

@@ -114,20 +114,13 @@ class InspectResultView extends React.Component {
         );
     }
 
-    hasModifyRight = () => {
-        const { userGroup } = this.props.userStore.loginInfo;
-        if (userGroup !== userType.TYPE_ADMINISTRATOR) {
-            return true;
-        }
-        return false;
-    }
-
     render() {
         const { columns, resultRecordData } = this.state;
         const { classes } = this.props;
+        const userStore = this.props.userStore;
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar>
+                <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
                         <Col span={7} offset={5} align="right">

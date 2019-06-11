@@ -51,28 +51,19 @@ class UserInfoView extends React.Component {
         HttpRequest.asyncGet(this.getLoginUserCB, '/users/user-by-uuid', { uuid: userUuid });
     }
 
-    hasModifyRight = () => {
-        const { userGroup } = this.props.userStore.loginInfo;
-        if (userGroup !== userType.TYPE_AUDITOR) {
-            return true;
-        }
-        return false;
-    }
-
     render() {
         const { user, userDataReady } = this.state;
+        const userStore = this.props.userStore;
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar>
-                    {
-                        userDataReady &&
-                        <Row>
-                            <Col span={16} offset={4}>
-                                <UserCard uuid={user.uuid} manage={0} />
-                            </Col>
-                        </Row>
-                    }
-                </Skeleton>
+                {
+                    userDataReady &&
+                    <Row>
+                        <Col span={16} offset={4}>
+                            <UserCard uuid={user.uuid} manage={0} />
+                        </Col>
+                    </Row>
+                }
             </div>
         );
     }

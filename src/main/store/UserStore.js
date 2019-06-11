@@ -4,7 +4,7 @@ import { GetExpireTimeGMTStr } from '../../utils/TimeUtils'
 import { GetCookie, SetCookieExpireDays } from '../../utils/CookieUtils'
 import { userType } from '../../global/enumeration/UserType'
 
-configure({enforceActions: 'observed'})
+configure({ enforceActions: 'observed' })
 
 const loginInfoName = 'loginInfo'
 
@@ -52,57 +52,20 @@ class UserStore {
         Object.assign(this.loginUser, cachedUser);
     }
 
-    @computed get isUserExpired(){
+    @computed get isUserExpired() {
         return IsEmptyString(this.loginUser.account);
     }
 
-    @observable isLogin = false;
-    @observable userUuid = '';
-    @observable user = '';
-    @observable password = '';
-    @observable isExpired = true;
-    @observable userGroup = userType.TYPE_NORMAL_USER;
-
-    @computed get loginInfo() {
-        return ({
-            user: this.user,
-            userUuid: this.initLogin.userUuid,
-            password: this.password,
-            isLogin: this.isLogin,
-            userGroup: this.userGroup,
-        });
+    @computed get isAdminUser() {
+        return this.loginUser.userGroup === userType.TYPE_ADMINISTRATOR;
     }
 
-    @action initLogin = () => {
-        const { user, userUuid, password, userGroup } = LoadUserLoginInfo();
-        this.isLogin = false;
-        this.user = user;
-        this.userUuid = userUuid;
-        this.password = password;
-        // this.isExpired = IsNowExpired(expire);
-        this.isExpired = IsEmptyString(user);
-        this.userGroup = userGroup;
+    @computed get isAuditUser() {
+        return this.loginUser.userGroup === userType.TYPE_AUDITOR;
     }
 
-    @action setLogin = (user, userUuid, password, bLogin, userGroup) => {
-        this.user = user;
-        this.userUuid = userUuid;
-        this.password = password;
-        this.isLogin = bLogin;
-        this.userGroup = userGroup;
-    }
-
-    @action saveUser = (user, userUuid, password, expireDays) => {
-        this.user = user;
-        this.userUuid = userUuid;
-        this.password = password;
-        this.isLogin = true;
-        let info = JSON.stringify({
-            user: user,
-            password: password,
-            expire: GetExpireTimeGMTStr(expireDays),
-        });
-        SetCookieExpireDays(loginInfoName, info, expireDays);
+    @computed get isNormalUser() {
+        return this.loginUser.userGroup === userType.TYPE_NORMAL_USER;
     }
 }
 

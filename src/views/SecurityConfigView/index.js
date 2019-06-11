@@ -53,8 +53,6 @@ class SecurityConfigView extends React.Component {
         // 设置操作列的渲染
         this.initActionColumn();
 
-        this.hasModifyRight();
-
         // 从后台获取任务数据的集合
         this.getAllPolicies();
     }
@@ -269,21 +267,14 @@ class SecurityConfigView extends React.Component {
         );
     }
 
-    hasModifyRight = () => {
-        const { userGroup } = this.props.userStore.loginInfo;
-        if (userGroup === userType.TYPE_NORMAL_USER) {
-            return true;
-        }
-        return false;
-    }
-
     render() {
         const { columns, showConfig, policies, scrollWidth, scrollHeight } = this.state;
         let self = this;
         const { classes } = this.props;
+        const userStore = this.props.userStore;
         return (
             <div>
-                <Skeleton loading={!this.hasModifyRight()} active avatar>
+                <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">安全策略管理</Typography></Col>
                         <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>

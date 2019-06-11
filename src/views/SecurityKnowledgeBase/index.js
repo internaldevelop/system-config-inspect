@@ -127,14 +127,6 @@ class SecurityKnowledgeBase extends React.Component {
     );
   }
 
-  hasModifyRight = () => {
-    const { userGroup } = this.props.userStore.loginInfo;
-    if (userGroup === userType.TYPE_ADMINISTRATOR) {
-      return false;
-    }
-    return true;
-  }
-
   getGroupArraysExceptSelfDefined = () => {
     const { policyGroupsArray } = this.props.dictStore;
     let policyGroups = [];
@@ -153,13 +145,14 @@ class SecurityKnowledgeBase extends React.Component {
     const { classes } = this.props;
     const { value } = this.state;
     const { policyGroups } = this.state;
+    const userStore = this.props.userStore;
     if (policyGroups.length <= 0) {
       this.getGroupArraysExceptSelfDefined();
     }
 
     return (
       <div>
-        <Skeleton loading={!this.hasModifyRight()} active avatar>
+        <Skeleton loading={userStore.isAdminUser} active avatar>
           <Row>
             <Col span={8}><Typography variant="h6">安全策略知识库</Typography></Col>
           </Row>
