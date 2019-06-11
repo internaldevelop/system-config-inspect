@@ -62,27 +62,43 @@ class ProjectCard extends React.Component {
         return 'exception';
     }
 
+    getExtras = (status) => {
+        const { classes } = this.props;
+        if (this.isShownExportReport(status)) {
+            return (<Button className={classes.iconButton} type="primary" size="small" onClick={this.exportTasksResults(status)} ><Icon type="export" />导出报告 </Button>);
+        }
+    }
+
     render() {
         const projectItem = this.props.projectStore.projectItem;
-        const { classes } = this.props;
         const { statusList } = this.props;
 
         return (
             <div>
                 <Card title={projectItem.name}>
-                    <Row>
-                        <Col span={11}>
-                            <Card
-                                style={{ marginTop: 16 }}
-                                type="inner"
-                                title="运行时间模式"
-                            >
-                                <div>
-                                    {projectItem.run_time_mode_name}
-                                </div>
-                            </Card>
+                <Row>
+                        <Col span={16}>
+                        <Card
+                        style={{ marginTop: 16 }}
+                        type="inner"
+                        title="任务进度"
+                    >
+                        <div>
+                            <Row>
+                                {statusList.map((item, index) => (
+                                    <Col span={6}>
+                                        <Card title={item.name} bordered={false} style={{ marginRight: 16}} extra={this.getExtras(item)}>
+                                            <div>
+                                                <Progress type="circle" percent={this.getPercentValue(item)} status={this.getProgressStatus(item)} />
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+                        </div>
+                    </Card>
                         </Col>
-                        <Col span={11} offset={2}>
+                        <Col span={7} offset={1}>
                             <Card
                                 style={{ marginTop: 16 }}
                                 type="inner"
@@ -92,10 +108,15 @@ class ProjectCard extends React.Component {
                                     {projectItem.output_mode_name}
                                 </div>
                             </Card>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={11}>
+                            <Card
+                                style={{ marginTop: 16 }}
+                                type="inner"
+                                title="运行时间模式"
+                            >
+                                <div>
+                                    {projectItem.run_time_mode_name}
+                                </div>
+                            </Card>
                             <Card
                                 style={{ marginTop: 16 }}
                                 type="inner"
@@ -105,8 +126,6 @@ class ProjectCard extends React.Component {
                                     {projectItem.run_status}
                                 </div>
                             </Card>
-                        </Col>
-                        <Col span={11} offset={2}>
                             <Card
                                 style={{ marginTop: 16 }}
                                 type="inner"
@@ -118,27 +137,6 @@ class ProjectCard extends React.Component {
                             </Card>
                         </Col>
                     </Row>
-                    <Card
-                        style={{ marginTop: 16 }}
-                        type="inner"
-                        title="任务进度"
-                    >
-                        <div>
-                            <Row>
-                                {statusList.map((item, index) => (
-                                    <Col span={6}>
-                                        <Card title={item.name} bordered={false}>
-                                            <div>{this.isShownExportReport(item) &&
-                                                <Button className={classes.iconButton} type="primary" size="small" onClick={this.exportTasksResults(item)} ><Icon type="export" />导出报告 </Button>
-                                            }
-                                                <Progress type="circle" percent={this.getPercentValue(item)} status={this.getProgressStatus(item)} />
-                                            </div>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </div>
-                    </Card>
                 </Card>
             </div>
         );

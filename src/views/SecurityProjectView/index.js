@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { AutoComplete, Skeleton, Table, Icon, Button, Row, Col, Popconfirm, message } from 'antd'
+import { Select, Skeleton, Table, Icon, Button, Row, Col, Popconfirm, message } from 'antd'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -41,6 +41,8 @@ const styles = theme => ({
     },
 });
 
+const Option = Select.Option;
+
 @inject('projectStore')
 @inject('userStore')
 @observer
@@ -50,7 +52,7 @@ class SecurityProjectView extends React.Component {
         super(props);
         this.state = {
             projects: [],          // 本页面的项目数据集合
-            projectNames: [],
+            //projectNames: [],
             showProjectConfig: false,  // 是否显示项目数据编辑窗口
             showProjectCard: false,    // 显示项目Card页面
             statusList: [],     // 含多个执行中任务的状态数组
@@ -206,7 +208,7 @@ class SecurityProjectView extends React.Component {
     /** 从后台请求所有项目数据，请求完成后的回调 */
     getAllProjectsCB = (data) => {
         let projects = [];
-        let projectNames = [];
+        //let projectNames = [];
         // 检查响应的payload数据是数组类型
         if (!(data.payload instanceof Array) || data.payload.length <= 0)
             return;
@@ -222,15 +224,15 @@ class SecurityProjectView extends React.Component {
             projectItem.run_time_mode_name = runTimeModeNames[project.run_time_mode - 1].name;
             projectItem.output_mode_name = outputModeNames[project.output_mode - 1].name;
             projectItem.run_status = this.getRunStatus(project.process_flag);
-            projectNames.push(project.name);
+            //projectNames.push(project.name);
             return projectItem;
         })
         // 更新 projects 数据源
-        this.setState({ projects, projectNames });
+        this.setState({ projects });
         // 设置默认项目
-        if (projectNames.length > 0) {
-            this.setState({ inputValue: projectNames[0] });
-            this.onSelectProject(projectNames[0]);
+        if (projects.length > 0) {
+            this.setState({ inputValue: projects[0].uuid });
+            this.onSelectProject(projects[0].uuid);
         }
     }
 
@@ -242,20 +244,20 @@ class SecurityProjectView extends React.Component {
     /** 向后台发起删除任务数据请求的完成回调 
     */
     deleteProjectCB = (data) => {
-        const { projects, projectNames } = this.state;
+        const { projects } = this.state;
         for (let index in projects) {
             if (data.payload.uuid === projects[index].uuid) {
                 projects.splice(index, 1);
-                projectNames.splice(index, 1);
+                //projectNames.splice(index, 1);
                 break;
             }
         }
-        this.setState({ projects, projectNames });
+        this.setState({ projects });
 
         // 显示默认项目
-        if (projectNames.length > 0) {
-            this.setState({ inputValue: projectNames[0] });
-            this.onSelectProject(projectNames[0]);
+        if (projects.length > 0) {
+            this.setState({ inputValue: projects[0].uuid });
+            this.onSelectProject(projects[0].uuid);
         }
     }
 
@@ -289,7 +291,7 @@ class SecurityProjectView extends React.Component {
             // 重新刷新Card页面，以使按钮失效以及刷新任务进度
             let oldStatusList = this.state.statusList;
             let statusList = [];
-            for(let status of oldStatusList) {
+            for (let status of oldStatusList) {
                 statusList.push(this.getNewTaskRunStatusItem(status.name, status.task_uuid, status.project_uuid));
             }
             this.setState({ statusList });
@@ -348,39 +350,39 @@ class SecurityProjectView extends React.Component {
 
     /** 添加项目数据到前端显示 */
     addProjectData = () => {
-        const { projects, projectNames } = this.state;
+        const { projects } = this.state;
         const projectItem = this.props.projectStore.projectItem;
         // 将新建项目对象添加到项目数据源中（数据源的首位）
         projects.unshift(projectItem);
-        projectNames.push(projectItem.name);
-        this.setState({ projects, projectNames });
+        //projectNames.push(projectItem.name);
+        this.setState({ projects });
     }
 
     /** 确认修改项目后，更新列表 */
     editProjectParams = () => {
         const { projects } = this.state;
-        let projectNames = [];
+        //let projectNames = [];
         const projectItem = this.props.projectStore.projectItem;
 
         for (let project of projects) {
-            projectNames.push(project.name);
+            //projectNames.push(project.name);
             if (project.uuid === projectItem.uuid) {
                 // 从仓库中取出编辑后的项目对象，深拷贝到源数据中
                 DeepCopy(project, projectItem);
             }
         }
-        this.setState({ projects, projectNames });
+        this.setState({ projects });
     }
 
-    onSelectProject = (projectName) => {
-        const { projects, inputValue } = this.state;
+    onSelectProject = (value) => {
+        const { projects } = this.state;
         for (let project of projects) {
-            if (project.name === projectName) {
+            if (project.uuid === value) {
                 const projectStore = this.props.projectStore;
                 projectStore.setProjectAction(actionType.ACTION_EDIT);
                 projectStore.setProjectProcName('编辑项目参数');
                 projectStore.initProjectItem(project);
-                this.setState({ inputValue });
+                this.setState({ inputValue: value });
                 this.getTasksStatus();
                 break;
             }
@@ -523,7 +525,7 @@ class SecurityProjectView extends React.Component {
 
     render() {
         const { classes } = this.props;
-        const { inputValue, projectNames, showProjectConfig, showProjectCard, projectUuid, statusList } = this.state;
+        const { inputValue, projects, showProjectConfig, showProjectCard, projectUuid, statusList } = this.state;
         const userStore = this.props.userStore;
         return (
             <div>
@@ -531,15 +533,11 @@ class SecurityProjectView extends React.Component {
                     <Row>
                         <Col span={2}><Typography variant="h6">项目管理</Typography></Col>
                         <Col span={3}>
-                            <AutoComplete allowClear
-                                dataSource={projectNames}
-                                onSelect={this.onSelectProject.bind(this)}
-                                defaultValue={inputValue}
-                                placeholder="输入项目管理名称"
-                                filterOption={(inputValue, option) =>
-                                    option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                                }
-                            />
+                            <Select value={inputValue} style={{ width: 200 }} onChange={this.onSelectProject}>
+                                {projects.map(project => (
+                                    <Option value={project.uuid}>{project.name}</Option>
+                                ))}
+                            </Select>
                         </Col>
                         <Col span={2} offset={1} align="left"><Button type="primary" size="large" onClick={this.handleNewProject.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
                     </Row>
