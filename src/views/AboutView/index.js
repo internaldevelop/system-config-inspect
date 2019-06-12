@@ -73,7 +73,7 @@ class AboutView extends React.Component {
                     <Row type="flex" justify="space-between">
                         <Col span={8} offset={8}>
                             <Card
-                                style={{ width: 400, margin: 8 }}
+                                style={{ width: 450, margin: 8 }}
                                 cover={<span style={{ textAlign: 'center' }}><img alt="systemicon" style={{ width: '40%', height: '40%' }} src={SystemImage} /></span>}
                             >
                                 {/* <Meta
@@ -81,7 +81,8 @@ class AboutView extends React.Component {
                                 description={ sysInfo.desc }
                             /> */}
                                 <Card.Grid style={gridStyle}>
-                                    <span style={{ color: 'blue', fontSize: '24px' }}>{sysInfo.sysName} <br /></span>
+                                    {/* <span style={{ color: 'blue', fontSize: '24px' }}>{sysInfo.sysName} <br /></span> */}
+                                    <span style={{ color: 'blue', fontSize: '24px' }}>{"主站系统自动化配置检测工具"} <br /></span>
                                     <span style={{ textAlign: 'left' }}>{sysInfo.desc} <br /></span>
                                     <Divider dashed />
                                     {"系统版本: " + sysInfo.sysVer} <br />

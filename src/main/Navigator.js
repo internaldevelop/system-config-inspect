@@ -37,12 +37,12 @@ const menus = [
     },
     {
         title: '日志管理',
-        icon: 'dashboard',
+        icon: 'read',
         key: '/home/log-manage',
         subs: [
             { key: '/home/log-manage/inspect-logs', title: '扫描日志', icon: 'table', },
-            { key: '/home/log-manage/operate-logs', title: '操作日志', icon: 'table', },
-            { key: '/home/log-manage/exception-logs', title: '异常日志', icon: 'table', },
+            { key: '/home/log-manage/operate-logs', title: '操作日志', icon: 'thunderbolt', },
+            { key: '/home/log-manage/exception-logs', title: '异常日志', icon: 'alert', },
         ]
     },
     {

@@ -6,7 +6,7 @@ import compose from 'recompose/compose';
 import { withStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import Typography from '../../modules/components/Typography';
-import { email, required } from '../../modules/form/validation';
+import { required } from '../../modules/form/validation';
 import { CssBaseline } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -74,6 +74,7 @@ class SignUp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      account: '',
       userName: '',
       password: '',
       showVerifyError: false,
@@ -87,24 +88,17 @@ class SignUp extends React.Component {
   }
 
   validate = values => {
-    const errors = required(['email', 'password'], values, this.props);
-
-    if (!errors.email) {
-      const emailError = email(values.email, values, this.props);
-      if (emailError) {
-        errors.email = email(values.email, values, this.props);
-      }
-    }
+    const errors = required(['account', 'username', 'password'], values, this.props);
 
     return errors;
   };
 
   addUserCB = (data) => {
-    if (data.code === errorCode.ERROR_USERNAME_USED) {
+    if (data.code === errorCode.ERROR_USER_REGISTERED) {
       // 用户已存在，已注册过
       this.setState({
         showVerifyError: true,
-        verifyError: '用户已存在，请用其它账号注册',
+        verifyError: '用户账号已存在，请用其它账号注册',
       });
       return;
     } 
@@ -115,20 +109,17 @@ class SignUp extends React.Component {
   }
 
   handleSubmit = event => {
+    const { account, userName, password } = this.state;
     event.preventDefault();
-    let userName = this.state.userName;
-    let password = this.state.password;
-    if ((userName.length === 0) || (password.length === 0)) {
+    if ((account.length === 0) || (userName.length === 0) || (password.length === 0)) {
       return;
     }
 
-    HttpRequest.asyncPost(this.addUserCB, '/users/add', { account: userName, name: userName, password, user_group: 1 }, false);
+    HttpRequest.asyncPost(this.addUserCB, '/users/add', { account: account, name: userName, password, user_group: 1 }, false);
+  }
 
-    // console.log("用户名：" + userName + "\t密码：" + password);
-    // let history = this.context.router.history;
-    // if ((userName !== "") && (password !== "")) {
-    //   history.push('/login');
-    // }
+  handleAccountChange = event => {
+    this.setState({ account: event.target.value });
   }
 
   handleUserNameChange = event => {
@@ -155,8 +146,12 @@ class SignUp extends React.Component {
           </Typography>
           <form className={classes.form} onSubmit={this.handleSubmit.bind(this)} >
             <FormControl margin="normal" required fullWidth>
-              <InputLabel htmlFor="email">电子邮件（用户名）</InputLabel>
-              <Input id="email" name="email" autoComplete="email" autoFocus value={this.state.userName} onChange={this.handleUserNameChange.bind(this)} />
+              <InputLabel htmlFor="account">账号</InputLabel>
+              <Input id="account" name="account" autoFocus value={this.state.account} onChange={this.handleAccountChange.bind(this)} />
+            </FormControl>
+            <FormControl margin="normal" required fullWidth>
+              <InputLabel htmlFor="username">姓名</InputLabel>
+              <Input id="username" name="username" autoFocus value={this.state.userName} onChange={this.handleUserNameChange.bind(this)} />
             </FormControl>
             <FormControl margin="normal" required fullWidth>
               <InputLabel htmlFor="password">密码</InputLabel>
