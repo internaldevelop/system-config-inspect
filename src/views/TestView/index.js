@@ -7,6 +7,8 @@ import { Button, Row, Col, Input, message, Checkbox } from 'antd';
 // import io from 'socket.io-client';
 
 import HttpRequest from '../../utils/HttpRequest';
+import { GetWebSocketUrl } from '../../global/environment';
+import { generateUuidStr } from '../../utils/tools'
 
 // let SockJS = require('sockjs');
 // let Stomp = require('stomp-client');
@@ -44,7 +46,7 @@ class TestView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket("ws://localhost:8090/websocket/20");
+            socket = new WebSocket(GetWebSocketUrl() + generateUuidStr());
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");

@@ -6,18 +6,18 @@ import EllipsisText from '../../components/widgets/EllipsisText';
 export const columns = [
   {
     // fixed: 'left',
-    title: '序号', width: 100, dataIndex: 'index', key: 'index',
+    title: '序号', width: 100, dataIndex: 'index', key: 'key',
     sorter: (a, b) => a.index - b.index,
     render: content => <div>{content}</div>,
   },
   {
     // fixed: 'left',
-    title: '任务名称', width: 220, dataIndex: 'name', key: 'name',
+    title: '任务名称', width: 220, dataIndex: 'name', 
     sorter: (a, b) => a.name.localeCompare(b.name, "zh"),
     render: content => <EllipsisText content={content} width={220}/>,
   },
   {
-    title: '运行状态', width: 120, dataIndex: 'status', key: 'run_status',
+    title: '运行状态', width: 120, dataIndex: 'status', 
     render: status => {
       let color;
       let cellText;
@@ -38,36 +38,38 @@ export const columns = [
     },
   },
   {
-    title: '主机名称', width: 120, dataIndex: 'asset_name', key: 'asset_name',
+    title: '主机名称', width: 120, dataIndex: 'asset_name', 
     sorter: (a, b) => a.asset_name.localeCompare(b.asset_name, "zh"),
     render: content => <EllipsisText content={content} width={120}/>,
   },
   {
-    title: 'IP', width: 200, dataIndex: 'asset_ip', key: 'asset_ip',
+    title: 'IP', width: 200, dataIndex: 'asset_ip', 
     render: content => <EllipsisText content={content} width={180}/>,
   },
   {
-    title: '端口', width: 100, dataIndex: 'asset_port', key: 'asset_port',
+    title: '端口', width: 100, dataIndex: 'asset_port', 
     // sorter: (a, b) => a.asset_port.localeCompare(b.asset_port, "zh"),
   },
   {
-    title: '系统类型', width: 150, dataIndex: 'asset_os_type', key: 'asset_os_type',
+    title: '系统类型', width: 150, dataIndex: 'asset_os_type', 
     sorter: (a, b) => a.asset_os_type.localeCompare(b.asset_os_type, "zh"),
     render: content => <EllipsisText content={content} width={150}/>,
   },
   {
-    title: '系统版本', width: 120, dataIndex: 'asset_os_ver', key: 'asset_os_ver',
+    title: '系统版本', width: 120, dataIndex: 'asset_os_ver', 
     sorter: (a, b) => a.asset_os_ver.localeCompare(b.asset_os_ver, "zh"),
     render: content => <EllipsisText content={content} width={120}/>,
   },
   {
-    title: '创建时间', width: 160, dataIndex: 'create_time', key: 'create_time',
+    title: '创建时间', width: 160, dataIndex: 'create_time', 
     sorter: (a, b) => a.create_time.localeCompare(b.create_time, "zh"),
     render: content => <EllipsisText content={content} width={160}/>,
   },
   {
+    title: '定时启动', width: 120, dataIndex: 'run_timer_cfg', 
+  },
+  {
     title: '',
-    key: 'operation',
     width: 250,
     fixed: 'right',
     render: () => (

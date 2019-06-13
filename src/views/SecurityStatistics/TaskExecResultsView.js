@@ -31,8 +31,8 @@ class TaskExecResultsView extends React.Component {
             execBrief: {},
             // showDetails: false,
         }
-        const { taskuuid } = this.props;
-        this.getTaskExecBrief(taskuuid);
+        const { taskuuid, projectuuid } = this.props;
+        this.getTaskExecBrief(taskuuid, projectuuid);
 
     }
 
@@ -51,8 +51,10 @@ class TaskExecResultsView extends React.Component {
         });
     }
 
-    getTaskExecBrief = (taskUuid) => {
-        return HttpRequest.asyncGet(this.getTaskExecBriefCB, '/tasks/results/brief', { task_uuid: taskUuid });
+    getTaskExecBrief = (taskUuid, projectUuid) => {
+        if (typeof projectUuid === "undefined")
+            projectUuid = '';
+        return HttpRequest.asyncGet(this.getTaskExecBriefCB, '/tasks/results/brief', { task_uuid: taskUuid, project_uuid: projectUuid });
     }
 
     getOption() {

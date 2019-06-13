@@ -23,9 +23,13 @@ import { GetMainViewHeight } from '../../utils/PageUtils'
 import { PushNew, DeleteElements } from '../../utils/ObjUtils'
 import { stat } from 'fs';
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
+import { timerStatus } from '../../global/enumeration/TaskStatus'
+import { DefaultValues } from '../../global/enumeration/DefaultValues';
+import { GetWebSocketUrl } from '../../global/environment';
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
 import TaskExecResultsView from '../SecurityStatistics/TaskExecResultsView'
+
 
 let timer1S = undefined;    // 1 秒的定时器
 let timer300mS = undefined;    // 300 毫秒的定时器
@@ -139,7 +143,7 @@ class TaskManageView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket("ws://localhost:8090/websocket/" + generateUuidStr());
+            socket = new WebSocket(GetWebSocketUrl() + generateUuidStr());
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");
@@ -196,6 +200,31 @@ class TaskManageView extends React.Component {
                 return statusList[index];
         }
         return null;
+    }
+
+    /** 获取定时运行设置的JSON对象 */
+    getRunTimerConfigFromRowIndex = (rowIndex) => {
+        const { tasks } = this.state;
+        let dataIndex = this.transferDataIndex(rowIndex);
+        let timerConfig = tasks[dataIndex].timer_config;
+        return this.parseRunTimerConfig(timerConfig);
+    }
+
+    /** 转化定时运行设置为JSON对象，如果输入的定时设置无效，使用缺省值 */
+    parseRunTimerConfig(timerConfig) {
+        if ((timerConfig === null) || (timerConfig.length === 0))
+            timerConfig = DefaultValues.TIMER_CFG;
+        return JSON.parse(timerConfig);
+    }
+
+    getRunTimerCfgDesc(timerConfig) {
+        let jsonTimerConfig = this.parseRunTimerConfig(timerConfig);
+        if (jsonTimerConfig.mode === timerStatus.NONE)
+            return '未设置';
+        else if (jsonTimerConfig.mode === timerStatus.ONCE_DAY)
+            return jsonTimerConfig.runtime;
+        else
+            return '';
     }
 
     processSingleTaskRunStatusInfo = (payload) => {
@@ -296,8 +325,8 @@ class TaskManageView extends React.Component {
             keyboard: true,         // 是否支持键盘 esc 关闭
             destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
             closable: false,         // 是否显示右上角的关闭按钮
-            width: 520, 
-            content: <TaskExecResultsView taskuuid={uuid}/>,
+            width: 520,
+            content: <TaskExecResultsView taskuuid={uuid} />,
             onOk() {
                 // message.info('OK');
             },
@@ -346,6 +375,7 @@ class TaskManageView extends React.Component {
             taskItem.key = index + 1;
             // 表格中索引列（后台接口返回数据中没有此属性）
             taskItem.index = index + 1;
+            taskItem.run_timer_cfg = this.getRunTimerCfgDesc(task.timer_config);
             // taskItem.status = [task.status];
             return taskItem;
         })
@@ -452,8 +482,9 @@ class TaskManageView extends React.Component {
             asset_port: '8192',
             asset_login_user: 'root',
             asset_login_pwd: 'root',
-            asset_os_type: 'Ubuntu',
+            asset_os_type: '1',
             asset_os_ver: 'V16.0',
+            timer_config: DefaultValues.TIMER_CFG,
             policy_groups: [],
         };
         taskStore.initTaskItem(taskItem);

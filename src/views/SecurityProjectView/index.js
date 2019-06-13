@@ -16,6 +16,7 @@ import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
 import { runTimeModeNames } from '../../global/enumeration/RumTimeMode';
 import { outputModeNames } from '../../global/enumeration/OutputMode';
+import { GetWebSocketUrl } from '../../global/environment';
 import { errorCode } from '../../global/error';
 import { eng2chn } from '../../utils/StringUtils'
 import ProjectCard from './ProjectCard'
@@ -165,7 +166,7 @@ class SecurityProjectView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket("ws://localhost:8090/websocket/");// + generateUuidStr()
+            socket = new WebSocket(GetWebSocketUrl() + generateUuidStr());
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");
@@ -431,7 +432,7 @@ class SecurityProjectView extends React.Component {
                 taskUuidList = taskUuidList + "," + task.uuid;
             }
             //this.setState({ statusList });
-            HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status', { uuid_list: taskUuidList });
+            HttpRequest.asyncGet(this.getAllTasksRunStatusCB, '/tasks/run-status', { uuid_list: taskUuidList, project_uuid: projectItem.uuid });
         } else {
             this.setState({ statusList: [] });
         }

@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Modal, Steps, Button, Row, Col, message } from 'antd';
+import { Modal, Steps, Button, Row, Col, message, TimePicker, Switch, Card } from 'antd';
+import moment from 'moment';
 
 import TextField from '@material-ui/core/TextField';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -18,6 +19,7 @@ import Draggable from '../../components/window/Draggable'
 
 import HttpRequest from '../../utils/HttpRequest';
 import { errorCode } from '../../global/error';
+import { DefaultValues } from '../../global/enumeration/DefaultValues';
 import { actionType } from '../../global/enumeration/ActionType';
 import { eng2chn } from '../../utils/StringUtils'
 
@@ -91,14 +93,14 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleOk = (e) => {
-    const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;
+    const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver, timer_config } = this.props.taskStore.taskItem;
     const { uuid, name, description, policy_groups } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
     if (this.props.taskStore.taskAction === actionType.ACTION_NEW) {
       // 向后台发送请求，创建一条新的任务记录
       HttpRequest.asyncPost(this.requestTaskCB('new'), '/tasks/add-task-details',
         {
-          name, code: "TODO", description, policy_groups, create_user_uuid: userUuid,
+          name, code: "TODO", description, policy_groups, create_user_uuid: userUuid, timer_config,
           asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd,
         },
         false
@@ -107,7 +109,7 @@ class TaskParamsConfig extends React.Component {
       // 向后台发送请求，更新任务数据
       HttpRequest.asyncPost(this.requestTaskCB('update'), '/tasks/update-task-details',
         {
-          uuid, name, code: "TODO", description, policy_groups, create_user_uuid: userUuid,
+          uuid, name, code: "TODO", description, policy_groups, create_user_uuid: userUuid, timer_config,
           asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd,
         },
         false
@@ -130,8 +132,29 @@ class TaskParamsConfig extends React.Component {
     this.props.taskStore.setParam(name, event.target.value);
   };
 
+  handleRunTimerChange = (time, timeString) => {
+    let jsonTimerCfg = JSON.parse(this.getCachedTimerConfig());
+    jsonTimerCfg.runtime = timeString;
+    this.props.taskStore.setParam("timer_config", JSON.stringify(jsonTimerCfg));
+  }
+
+  handleSwitchTimerConfig = (checked, event) => {
+    let jsonTimerCfg = JSON.parse(this.getCachedTimerConfig());
+    jsonTimerCfg.mode = checked ? 1 : 0;
+    this.props.taskStore.setParam("timer_config", JSON.stringify(jsonTimerCfg));
+  }
+
+  getCachedTimerConfig() {
+    let timerConfig = this.props.taskStore.taskItem.timer_config;
+    if ((timerConfig === null) || (timerConfig.length === 0))
+      timerConfig = DefaultValues.TIMER_CFG;
+    return timerConfig;
+  }
+
   StepBaseInfo = () => {
     const { name, description } = this.props.taskStore.taskItem;
+    let timerConfig = this.getCachedTimerConfig();
+    let jsonTimerCfg = JSON.parse(timerConfig);
     return (
       <form>
         <TextField required fullWidth autoFocus margin="normal"
@@ -142,6 +165,19 @@ class TaskParamsConfig extends React.Component {
           id="task-desc" label="任务描述" defaultValue={description} variant="outlined" rows="4"
           onChange={this.handleTaskParamsChange("description")}
         />
+        <Card title={'定时运行设置'} style={{ width: '100%' }}
+          extra={<Switch checkedChildren="开" unCheckedChildren="关" onChange={this.handleSwitchTimerConfig} defaultChecked={jsonTimerCfg.mode !== 0} />}
+        >
+          <span>每日定时执行时间：</span>
+          <TimePicker id="run-timer" onChange={this.handleRunTimerChange}
+            defaultValue={moment(jsonTimerCfg.runtime, 'HH:mm:ss')} allowClear={false}
+            disabled={jsonTimerCfg.mode === 0}
+          />
+        </Card>
+        {/* <FormControl variant="outlined" margin="normal">
+          <InputLabel htmlFor="outlined-timer">定时启动</InputLabel>
+          <TimePicker id="outlined-timer" onChange={this.handleRunTimerChange} defaultValue={moment(jsonTimerCfg.runtime, 'HH:mm:ss')} />
+        </FormControl> */}
       </form>
     );
   }
