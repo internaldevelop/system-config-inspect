@@ -78,7 +78,7 @@ class ProjectCard extends React.Component {
     }
 
     getExtras = (status) => {
-        return (<Button type="primary" size="small" onClick={this.getTaskInfo(status)} ><Icon type="info" />查看参数</Button>);
+        return (<Button type="secondary" size="small" onClick={this.getTaskInfo(status)} ><Icon type="more" /></Button>);
     }
 
     /** 从后台请求任务数据，请求完成后的回调 */
@@ -87,7 +87,7 @@ class ProjectCard extends React.Component {
         const taskItem = data.payload;
         // 利用仓库保存任务操作类型、操作窗口名称、任务数据
         const taskStore = this.props.taskStore;
-        taskStore.setTaskAction(actionType.ACTION_EDIT);
+        taskStore.setTaskAction(actionType.ACTION_INFO);
         taskStore.setTaskProcName('查看任务参数');
         taskStore.initTaskItem(taskItem);
 
@@ -98,17 +98,13 @@ class ProjectCard extends React.Component {
     /** 从后台请求任务数据 */
     getTaskInfo = (status) => (e) => {
         // 从后台获取任务的详细信息
-        HttpRequest.asyncGet(this.getTaksCB, '/tasks/get-task', { uuid: status.task_uuid });
+        HttpRequest.asyncGet(this.getTaksCB, '/tasks/get-taskinfo', { uuid: status.task_uuid });
     }
 
     taskActionCB = (isOk, task) => {
-        const taskStore = this.props.taskStore;
+        //const taskStore = this.props.taskStore;
         if (isOk) {
-            if (taskStore.taskAction === actionType.ACTION_NEW) {
-                //this.addTaskData();
-            } else if (taskStore.taskAction === actionType.ACTION_EDIT) {
-                //this.editTaskParams();
-            }
+            //
         }
 
         // 关闭任务数据操作窗口

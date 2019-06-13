@@ -37,6 +37,17 @@ const styles = theme => ({
   stepsAction: {
     marginTop: theme.spacing.unit,
   },
+  shade: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    zIndex: 10,
+    width: '100%',
+    backgroundColor: '#000',
+    opacity: 0.01,
+    display: 'block',
+    minHeight: '400px',
+},
 });
 
 const Step = Steps.Step;
@@ -96,6 +107,7 @@ class TaskParamsConfig extends React.Component {
     const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver, timer_config } = this.props.taskStore.taskItem;
     const { uuid, name, description, policy_groups } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
+    let actionCB = this.props.actioncb;
     if (this.props.taskStore.taskAction === actionType.ACTION_NEW) {
       // 向后台发送请求，创建一条新的任务记录
       HttpRequest.asyncPost(this.requestTaskCB('new'), '/tasks/add-task-details',
@@ -114,6 +126,8 @@ class TaskParamsConfig extends React.Component {
         },
         false
       );
+    } else {
+      actionCB(true, {});
     }
   }
 
@@ -406,7 +420,10 @@ class TaskParamsConfig extends React.Component {
           <Steps current={current}>
             {steps.map(item => <Step key={item.title} title={item.title} />)}
           </Steps>
+          <div>
+          {taskStore.taskAction === actionType.ACTION_INFO && <div className={classes.shade}></div>}
           <div className={classes.stepsContent}>{steps[current].content}</div>
+          </div>
           <div className={classes.stepsAction}>
             <Row gutter={16}>
               <Col span={6}>
@@ -423,12 +440,18 @@ class TaskParamsConfig extends React.Component {
                   && <Button style={{ marginLeft: 8 }} type="secondary" onClick={() => this.moveStep(1)}>下一步</Button>
                 }
               </Col>
+              {taskStore.taskAction !== actionType.ACTION_INFO &&               
               <Col span={6}>
                 {<Button type="secondary" style={{ marginLeft: 8 }} onClick={this.handleCancel}>取消</Button>}
-              </Col>
+              </Col>}
+              {taskStore.taskAction === actionType.ACTION_INFO &&               
+              <Col span={6}>
+                {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>确定</Button>}
+              </Col>}
+              {taskStore.taskAction !== actionType.ACTION_INFO &&               
               <Col span={6}>
                 {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>完成</Button>}
-              </Col>
+              </Col>}
             </Row>
           </div>
         </div>
