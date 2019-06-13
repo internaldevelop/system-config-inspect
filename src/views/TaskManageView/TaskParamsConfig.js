@@ -72,6 +72,19 @@ class TaskParamsConfig extends React.Component {
     this.props.dictStore.loadPolicyGroups();
   }
 
+  scheduleTaskCB = (data) => {
+  }
+
+  scheduleTask = (taskUuid) => {
+    const { timer_config } = this.props.taskStore.taskItem;
+    let jsonTimerCfg = JSON.parse(timer_config);
+    if (jsonTimerCfg.mode === 1) {
+      HttpRequest.asyncGet(this.scheduleTaskCB, '/tasks/set-task-schedule', { task_uuid: taskUuid, run_time: jsonTimerCfg.runtime });
+    } else if (jsonTimerCfg.mode === 0) {
+      HttpRequest.asyncGet(this.scheduleTaskCB, '/tasks/stop-scheduler', { task_uuid: taskUuid });
+    }
+  }
+
   requestTaskCB = (action) => (data) => {
     let actionCB = this.props.actioncb;
     let successInfo;
@@ -84,6 +97,10 @@ class TaskParamsConfig extends React.Component {
       successInfo = "操作成功";
     }
 
+    // 通知后台修改任务计划
+    this.scheduleTask(data.payload.uuid);
+
+    // 回调父组件的接口函数
     if (data.code === errorCode.ERROR_OK) {
       message.info(successInfo);
       this.props.taskStore.setParam("uuid", data.payload.uuid);
