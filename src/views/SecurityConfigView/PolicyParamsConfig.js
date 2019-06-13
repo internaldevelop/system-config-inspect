@@ -287,7 +287,7 @@ class PolicyParamsConfig extends React.Component {
                     </Row>
                     <Row>
                         <Col span={11}>
-                            <AutoComplete
+                            <AutoComplete allowClear
                                 required
                                 className={classes.searchItemStyle}
                                 dataSource={groupNames}
@@ -303,7 +303,7 @@ class PolicyParamsConfig extends React.Component {
                             {/*<FormControl required variant="outlined" style={{ width: '100%' }}>
                                 <OutlinedInput
                                     id="component-outlined">*/}
-                                    <AutoComplete
+                                    <AutoComplete allowClear
                                         className={classes.searchItemStyle}
                                         dataSource={assetNames}
                                         defaultValue={asset_name}

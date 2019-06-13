@@ -541,18 +541,16 @@ class SecurityProjectView extends React.Component {
                             </Select>
                         </Col>
                         <Col span={2} offset={1} align="left"><Button type="primary" size="large" onClick={this.handleNewProject.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
-                    </Row>
-                    {showProjectCard && <ProjectCard uuid={projectUuid} statusList={statusList} />}
-                    <br />
-                    {showProjectCard &&
-                        <div align="center">
-                            <Button className={classes.actionButton} type="primary" size="large" onClick={this.handleEdit.bind(this)}>编辑</Button>
+                        {showProjectCard && <Col span={2} offset={1} align="left">
+                            <Button className={classes.actionButton} type="primary" size="large" onClick={this.handleEdit.bind(this)}><Icon type="edit" />编辑</Button></Col>}
+                        {showProjectCard && <Col span={2} align="left">
                             <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel.bind(this)} okText="确定" cancelText="取消">
-                                <Button className={classes.actionButton} type="danger" size="large">删除</Button>
-                            </Popconfirm>
-                            <Button className={classes.actionButton} disabled={this.isRunning()} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button>
-                        </div>
-                    }
+                                <Button className={classes.actionButton} type="danger" size="large"><Icon type="delete" />删除</Button></Popconfirm></Col>}
+                        {showProjectCard && <Col span={2} align="left">
+                            <Button className={classes.actionButton} disabled={this.isRunning()} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行<Icon type="caret-right" /></Button></Col>}
+                    </Row>
+                    <br />
+                    {showProjectCard && <ProjectCard uuid={projectUuid} statusList={statusList} />}
                     {showProjectConfig && <ProjectParamsConfig id="ProjectParamsConfig" actioncb={this.projectActionCB} />}
                 </Skeleton>
             </div>
