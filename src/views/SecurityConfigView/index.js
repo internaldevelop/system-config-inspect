@@ -190,7 +190,6 @@ class SecurityConfigView extends React.Component {
         policyStore.setPolicyProcName('新建策略');
         let policyItem = {
             name: '新建策略',
-            group: '',
             type: policyType.TYPE_SELF_DEFINITION,//目前只有自定义策略可以新建
         };
         policyStore.initPolicyItem(policyItem);

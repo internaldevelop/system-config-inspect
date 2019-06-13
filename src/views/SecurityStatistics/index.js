@@ -9,6 +9,8 @@ import { userType } from '../../global/enumeration/UserType'
 
 import PolicyStatisticsBar from './PolicyStatisticsBar'
 import PolicyStatisticsData from './PolicyStatisticsData'
+import { DeepClone } from '../../utils/ObjUtils'
+import { policyGroup } from '../../global/enumeration/PolicyGroup';
 
 const styles = theme => ({
     iconButton: {
@@ -21,11 +23,32 @@ const Option = Select.Option;
 
 @observer
 @inject('userStore')
+@inject('dictStore')
 class SecurityStatistics extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            selVal: 1,
+            selVal: '',
+            policyGroups: [],    // 策略组数据集合
+        }
+    }
+
+    componentWillMount() {
+        // 加载策略字典
+        this.props.dictStore.loadPolicyGroups();
+    }
+
+    getGroupArraysExceptSelfDefined = () => {
+        const { policyGroupsArray } = this.props.dictStore;
+        let policyGroups = [];
+        for (let group of policyGroupsArray) {
+          if (parseInt(group.type) === policyGroup.TYPE_NORMAL) {
+            let item = DeepClone(group);
+            policyGroups.push(item);
+          }
+        }
+        if (policyGroups.length > 0) {
+          this.setState({ policyGroups, selVal: policyGroups[0].code });
         }
     }
 
@@ -38,14 +61,18 @@ class SecurityStatistics extends React.Component {
     }
 
     render() {
-        const { columns, resultRecordData } = this.state;
+        const { policyGroups, selVal } = this.state;
         const userStore = this.props.userStore;
+        if (policyGroups.length <= 0) {
+            this.getGroupArraysExceptSelfDefined();
+        }
+
         return (
             <div>
                 <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Row>
                         <Col span={24}>
-                            <Select defaultValue='1' style={{ width: 200 }} onChange={this.handleChange}>
+                            {/*<Select defaultValue='1' style={{ width: 200 }} onChange={this.handleChange}>
                                 <Option value='1'>系统补丁安装统计</Option>
                                 <Option value='2'>系统服务分析统计</Option>
                                 <Option value='3'>系统文件安全防护分析统计</Option>
@@ -53,6 +80,12 @@ class SecurityStatistics extends React.Component {
                                 <Option value='5'>口令策略配置分析统计</Option>
                                 <Option value='6'>网络通信配置分析统计</Option>
                                 <Option value='7'>日志审计统计</Option>
+                            </Select>*/}
+
+                            <Select value={selVal} style={{ width: 200 }} onChange={this.handleChange}>
+                                {policyGroups.map(projectGroup => (
+                                    <Option value={projectGroup.code}>{projectGroup.name}</Option>
+                                ))}
                             </Select>
                         </Col>
                     </Row>

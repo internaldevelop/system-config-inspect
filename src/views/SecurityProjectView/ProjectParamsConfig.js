@@ -313,7 +313,7 @@ class ProjectParamsConfig extends React.Component {
                         variant="outlined" margin="normal" onChange={this.handleParamsChange("name")}
                     />
                     <Row style={{ height: 80 }}>
-                        <Col span={11}>
+                        {/* <Col span={11}>
                             <FormControl required variant="outlined" style={{ width: '100%' }}>
                                 <Select
                                     value={run_time_mode}
@@ -331,8 +331,8 @@ class ProjectParamsConfig extends React.Component {
                                 </Select>
                                 <InputLabel htmlFor="outlined-group">运行时间模式</InputLabel>
                             </FormControl>
-                        </Col>
-                        <Col span={11} offset={2}>
+                        </Col> */}
+                        <Col>{/*span={11} offset={2} */}
                             <FormControl required variant="outlined" style={{ width: '100%' }}>
                                 <Select
                                     value={output_mode}
