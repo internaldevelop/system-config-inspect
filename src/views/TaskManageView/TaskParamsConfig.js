@@ -189,8 +189,8 @@ class TaskParamsConfig extends React.Component {
                     <OutlinedInput name="os_type" id="outlined-os-type-native" />
                   }
                 >
-                  <option value={1}>Windows系统</option>
-                  <option value={2}>Linux系统</option>
+                  <option value="1">Windows系统</option>
+                  <option value="2">Linux系统</option>
                 </Select>
               </FormControl>
             </Col>
