@@ -2,11 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { Skeleton, Table, Icon, Button, Row, Col, Popconfirm, Progress, message, Modal } from 'antd'
 import { columns as Column } from './Column'
-// import { TaskData } from './TaskData'
-// import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import ReactDOM from 'react-dom';
 
 import { observer, inject } from 'mobx-react'
 // import DeleteIcon from '@material-ui/icons/DeleteForeverOutlined'
@@ -21,14 +18,13 @@ import { actionType } from '../../global/enumeration/ActionType';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
 import { PushNew, DeleteElements } from '../../utils/ObjUtils'
-import { stat } from 'fs';
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
-import { timerStatus } from '../../global/enumeration/TaskStatus'
 import { DefaultValues } from '../../global/enumeration/DefaultValues';
-import { GetWebSocketUrl } from '../../global/environment';
+
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
 import TaskExecResultsView from '../SecurityStatistics/TaskExecResultsView'
+import { GetWebSocketUrl } from '../../global/environment';
 
 
 let timer1S = undefined;    // 1 秒的定时器
@@ -202,31 +198,6 @@ class TaskManageView extends React.Component {
         return null;
     }
 
-    /** 获取定时运行设置的JSON对象 */
-    getRunTimerConfigFromRowIndex = (rowIndex) => {
-        const { tasks } = this.state;
-        let dataIndex = this.transferDataIndex(rowIndex);
-        let timerConfig = tasks[dataIndex].timer_config;
-        return this.parseRunTimerConfig(timerConfig);
-    }
-
-    /** 转化定时运行设置为JSON对象，如果输入的定时设置无效，使用缺省值 */
-    parseRunTimerConfig(timerConfig) {
-        if ((timerConfig === null) || (timerConfig.length === 0))
-            timerConfig = DefaultValues.TIMER_CFG;
-        return JSON.parse(timerConfig);
-    }
-
-    getRunTimerCfgDesc(timerConfig) {
-        let jsonTimerConfig = this.parseRunTimerConfig(timerConfig);
-        if (jsonTimerConfig.mode === timerStatus.NONE)
-            return '未设置';
-        else if (jsonTimerConfig.mode === timerStatus.ONCE_DAY)
-            return jsonTimerConfig.runtime;
-        else
-            return '';
-    }
-
     processSingleTaskRunStatusInfo = (payload) => {
         let status = payload;
         let runList = this.state.runList;
@@ -375,7 +346,7 @@ class TaskManageView extends React.Component {
             taskItem.key = index + 1;
             // 表格中索引列（后台接口返回数据中没有此属性）
             taskItem.index = index + 1;
-            taskItem.run_timer_cfg = this.getRunTimerCfgDesc(task.timer_config);
+            // taskItem.run_timer_cfg = this.getRunTimerCfgDesc(task.timer_config);
             // taskItem.status = [task.status];
             return taskItem;
         })
