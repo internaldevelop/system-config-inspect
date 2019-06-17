@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Modal, Steps, Button, Row, Col, message, TimePicker, Switch, Card } from 'antd';
+import { Modal, Steps, Button, Row, Col, message, TimePicker, Switch, Card, Typography } from 'antd';
 import moment from 'moment';
 
 import TextField from '@material-ui/core/TextField';
@@ -22,7 +22,9 @@ import { errorCode } from '../../global/error';
 import { DefaultValues } from '../../global/enumeration/DefaultValues';
 import { actionType } from '../../global/enumeration/ActionType';
 import { eng2chn } from '../../utils/StringUtils'
+import { Popover } from '@material-ui/core';
 
+const { Text } = Typography;
 
 const styles = theme => ({
   stepsContent: {
@@ -47,7 +49,7 @@ const styles = theme => ({
     opacity: 0.01,
     display: 'block',
     minHeight: '400px',
-},
+  },
 });
 
 const Step = Steps.Step;
@@ -63,6 +65,8 @@ class TaskParamsConfig extends React.Component {
     // const taskItem = this.props.taskStore.taskItem;
     this.state = {
       current: 0,
+      assetNameExist: false,
+      taskNameExist: false,
       // taskItem: taskItem,
     };
   }
@@ -70,6 +74,11 @@ class TaskParamsConfig extends React.Component {
   componentWillMount() {
     // 加载策略字典
     this.props.dictStore.loadPolicyGroups();
+    if ((this.props.taskStore.taskAction === actionType.ACTION_NEW) ||
+      (this.props.taskStore.taskAction === actionType.ACTION_EDIT)) {
+      this.checkAssetName();
+      this.checkTaskName();
+    }
   }
 
   scheduleTaskCB = (data) => {
@@ -77,6 +86,9 @@ class TaskParamsConfig extends React.Component {
 
   scheduleTask = (taskUuid) => {
     const { timer_config } = this.props.taskStore.taskItem;
+    if ((timer_config === null) || (timer_config.length === 0))
+      return;
+
     let jsonTimerCfg = JSON.parse(timer_config);
     if (jsonTimerCfg.mode === 1) {
       HttpRequest.asyncGet(this.scheduleTaskCB, '/tasks/set-task-schedule', { task_uuid: taskUuid, run_time: jsonTimerCfg.runtime });
@@ -89,27 +101,31 @@ class TaskParamsConfig extends React.Component {
     let actionCB = this.props.actioncb;
     let successInfo;
 
-    if (action === 'new') {
-      successInfo = "任务创建成功";
-    } else if (action === 'update') {
-      successInfo = "任务资料更新成功";
-    } else {
-      successInfo = "操作成功";
-    }
-
-    // 通知后台修改任务计划
-    this.scheduleTask(data.payload.uuid);
-
     // 回调父组件的接口函数
     if (data.code === errorCode.ERROR_OK) {
+      // 通知后台修改任务计划
+      this.scheduleTask(data.payload.uuid);
+
+      if (action === 'new') {
+        successInfo = "任务创建成功";
+      } else if (action === 'update') {
+        successInfo = "任务资料更新成功";
+      } else {
+        successInfo = "操作成功";
+      }
+
       message.info(successInfo);
       this.props.taskStore.setParam("uuid", data.payload.uuid);
       // 调用父组件传入的回调函数，第一个参数 true 表示本组件的参数设置已确认，且任务记录已在后台创建或更新
       actionCB(true, {});
     } else {
-      message.error(eng2chn(data.error));
+      Modal.error({
+        title: '数据更新失败',
+        content: eng2chn(data.error),
+      });
+      // message.error(eng2chn(data.error));
       // 后台创建任务记录失败，则用参数 false 通知父组件不更新页面
-      actionCB(false, {});
+      // actionCB(false, {});
     }
   }
 
@@ -121,7 +137,7 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleOk = (e) => {
-    const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver, timer_config } = this.props.taskStore.taskItem;
+    const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver, timer_config, asset_uuid } = this.props.taskStore.taskItem;
     const { uuid, name, description, policy_groups } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
     let actionCB = this.props.actioncb;
@@ -130,7 +146,7 @@ class TaskParamsConfig extends React.Component {
       HttpRequest.asyncPost(this.requestTaskCB('new'), '/tasks/add-task-details',
         {
           name, code: "TODO", description, policy_groups, create_user_uuid: userUuid, timer_config,
-          asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd,
+          asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd, asset_uuid,
         },
         false
       );
@@ -139,7 +155,7 @@ class TaskParamsConfig extends React.Component {
       HttpRequest.asyncPost(this.requestTaskCB('update'), '/tasks/update-task-details',
         {
           uuid, name, code: "TODO", description, policy_groups, create_user_uuid: userUuid, timer_config,
-          asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd,
+          asset_name, asset_ip, asset_port, asset_os_type, asset_os_ver, asset_login_user, asset_login_pwd, asset_uuid,
         },
         false
       );
@@ -184,14 +200,17 @@ class TaskParamsConfig extends React.Component {
 
   StepBaseInfo = () => {
     const { name, description } = this.props.taskStore.taskItem;
+    const { taskNameExist } = this.state;
     let timerConfig = this.getCachedTimerConfig();
     let jsonTimerCfg = JSON.parse(timerConfig);
     return (
       <form>
         <TextField required fullWidth autoFocus margin="normal"
           id="task-name" label="任务名称" defaultValue={name} variant="outlined"
-          onChange={this.handleTaskParamsChange("name")}
+          onChange={this.handleTaskNameChange}
         />
+        {taskNameExist ? <Text type="danger"><br />任务名称已存在，请使用其它名称</Text> :
+          <Text styles={{ color: '#4caf50' }}><br />任务名称可用</Text>}
         <TextField fullWidth margin="normal" multiline
           id="task-desc" label="任务描述" defaultValue={description} variant="outlined" rows="4"
           onChange={this.handleTaskParamsChange("description")}
@@ -213,14 +232,53 @@ class TaskParamsConfig extends React.Component {
     );
   }
 
+  checkAssetNameCB = (data) => {
+    this.setState({ assetNameExist: data.payload.exist !== 0 });
+  }
+
+  checkAssetName = () => {
+    const { asset_name, asset_uuid } = this.props.taskStore.taskItem;
+    let params = {};
+    params.asset_name = asset_name;
+    if (this.props.taskStore.taskAction === actionType.ACTION_EDIT)
+      params.asset_uuid = asset_uuid;
+    HttpRequest.asyncGet(this.checkAssetNameCB, '/assets/check-unique-name', params);
+  }
+
+  handleAssetNameChange = (event) => {
+    this.props.taskStore.setParam("asset_name", event.target.value);
+    this.checkAssetName();
+  }
+
+  checkTaskNameCB = (data) => {
+    this.setState({ taskNameExist: data.payload.exist !== 0 });
+  }
+
+  checkTaskName = () => {
+    const { name, uuid } = this.props.taskStore.taskItem;
+    let params = {};
+    params.task_name = name;
+    if (this.props.taskStore.taskAction === actionType.ACTION_EDIT)
+      params.task_uuid = uuid;
+    HttpRequest.asyncGet(this.checkTaskNameCB, '/tasks/check-unique-name', params);
+  }
+
+  handleTaskNameChange = (event) => {
+    this.props.taskStore.setParam("name", event.target.value);
+    this.checkTaskName();
+  }
+
   StepAssetInfo = () => {
     const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;
+    const { assetNameExist } = this.state;
     return (
       <div>
         <form>
           <TextField required fullWidth autoFocus id="host-name" label="主机名称" defaultValue={asset_name}
-            variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_name")}
+            variant="outlined" margin="normal" onChange={this.handleAssetNameChange}
           />
+          {assetNameExist ? <Text type="danger"><br />资产主机名称已存在，请使用其它名称</Text> :
+            <Text styles={{ color: '#4caf50' }}><br />资产主机名称可用</Text>}
           <Row>
             <Col span={11}>
               <TextField required id="host-ip" label="主机IP" defaultValue={asset_ip}
@@ -438,8 +496,8 @@ class TaskParamsConfig extends React.Component {
             {steps.map(item => <Step key={item.title} title={item.title} />)}
           </Steps>
           <div>
-          {taskStore.taskAction === actionType.ACTION_INFO && <div className={classes.shade}></div>}
-          <div className={classes.stepsContent}>{steps[current].content}</div>
+            {taskStore.taskAction === actionType.ACTION_INFO && <div className={classes.shade}></div>}
+            <div className={classes.stepsContent}>{steps[current].content}</div>
           </div>
           <div className={classes.stepsAction}>
             <Row gutter={16}>
@@ -457,18 +515,18 @@ class TaskParamsConfig extends React.Component {
                   && <Button style={{ marginLeft: 8 }} type="secondary" onClick={() => this.moveStep(1)}>下一步</Button>
                 }
               </Col>
-              {taskStore.taskAction !== actionType.ACTION_INFO &&               
-              <Col span={6}>
-                {<Button type="secondary" style={{ marginLeft: 8 }} onClick={this.handleCancel}>取消</Button>}
-              </Col>}
-              {taskStore.taskAction === actionType.ACTION_INFO &&               
-              <Col span={6}>
-                {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>确定</Button>}
-              </Col>}
-              {taskStore.taskAction !== actionType.ACTION_INFO &&               
-              <Col span={6}>
-                {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>完成</Button>}
-              </Col>}
+              {taskStore.taskAction !== actionType.ACTION_INFO &&
+                <Col span={6}>
+                  {<Button type="secondary" style={{ marginLeft: 8 }} onClick={this.handleCancel}>取消</Button>}
+                </Col>}
+              {taskStore.taskAction === actionType.ACTION_INFO &&
+                <Col span={6}>
+                  {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>确定</Button>}
+                </Col>}
+              {taskStore.taskAction !== actionType.ACTION_INFO &&
+                <Col span={6}>
+                  {<Button type="primary" style={{ marginLeft: 8 }} onClick={this.handleOk}>完成</Button>}
+                </Col>}
             </Row>
           </div>
         </div>
