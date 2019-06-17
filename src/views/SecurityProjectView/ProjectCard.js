@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Progress, Card, Form, Icon, Button, Row, Col, Modal } from 'antd';
+import { Progress, Card, Form, Icon, Button, Row, Col, Modal, Popconfirm } from 'antd';
 import { inject } from 'mobx-react'
 import { GetBackEndRootUrl } from '../../global/environment'
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
@@ -53,7 +53,7 @@ class ProjectCard extends React.Component {
     isShownExportReport = (status) => {
         if (status.run_status === taskRunStatus.FINISHED) {
             return true;
-        } 
+        }
         return false;
     }
 
@@ -72,13 +72,13 @@ class ProjectCard extends React.Component {
 
     getExportTasksResultsButton = (status) => {
         const { classes } = this.props;
-        if (true) {//this.isShownExportReport(status)
+        if (this.isShownExportReport(status)) {
             return (<Button className={classes.iconButton} type="primary" size="small" onClick={this.exportTasksResults(status)} ><Icon type="export" />导出报告 </Button>);
         }
     }
 
-    getExtras = (status) => {
-        return (<Button type="secondary" size="small" onClick={this.getTaskInfo(status)} ><Icon type="more" /></Button>);
+    getTaskInfoButton = (status) => {
+        return (<Button type="primary" size="small" onClick={this.getTaskInfo(status)} ><Icon type="info-circle" /></Button>);
     }
 
     /** 从后台请求任务数据，请求完成后的回调 */
@@ -117,8 +117,8 @@ class ProjectCard extends React.Component {
             keyboard: true,         // 是否支持键盘 esc 关闭
             destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
             closable: false,         // 是否显示右上角的关闭按钮
-            width: 520, 
-            content: <TaskExecResultsView taskuuid={uuid} projectuuid={projectItem.uuid}/>,
+            width: 520,
+            content: <TaskExecResultsView taskuuid={uuid} projectuuid={projectItem.uuid} />,
             onOk() {
                 // message.info('OK');
             },
@@ -135,33 +135,20 @@ class ProjectCard extends React.Component {
 
         return (
             <div>
-                <Card title={projectItem.name}>
                 <Row>
-                        <Col>{/*span={16} */}
-                        <Card
-                        style={{ marginTop: 16 }}
-                        type="inner"
-                        title="任务进度"
-                    >
-                        <div>
-                            <Row>
-                                {statusList.map((item, index) => (
-                                    <Col span={4}>
-                                        <Card title={item.name} bordered={false} style={{ marginRight: 16}} extra={this.getExtras(item)}>
-                                            <div>
-                                                <Progress type="circle" percent={this.getPercentValue(item)} onClick={this.handlePlayback(item.task_uuid)}  status={this.getProgressStatus(item)} />
-                                            </div>
-                                            <dr />
-                                            <div>{this.getExportTasksResultsButton(item)}
-                                            </div>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </div>
-                    </Card>
+                    {statusList.map((item, index) => (
+                        <Col span={4}>
+                            <Card title={item.name} bordered={true} style={{ marginRight: 16 }} extra={this.getTaskInfoButton(item)}>
+                                <div>
+                                    <Progress type="circle" percent={this.getPercentValue(item)} onClick={this.handlePlayback(item.task_uuid)} status={this.getProgressStatus(item)} />
+                                </div>
+                                <dr />
+                                <div>{this.getExportTasksResultsButton(item)}
+                                </div>
+                            </Card>
                         </Col>
-                        {/* <Col span={7} offset={1}>
+                    ))}
+                    {/* <Col span={7} offset={1}>
                             <Card
                                 style={{ marginTop: 16 }}
                                 type="inner"
@@ -199,9 +186,8 @@ class ProjectCard extends React.Component {
                                 </div>
                             </Card>
                         </Col> */}
-                    </Row>
-                </Card>
-                {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB}/>}
+                </Row>
+                {showTaskConfig && <TaskParamsConfig id="TaskParamsConfig" actioncb={this.taskActionCB} />}
             </div>
         );
     }

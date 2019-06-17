@@ -301,7 +301,7 @@ class ProjectParamsConfig extends React.Component {
         return (
             <Modal
                 title={modalTitle}
-                style={{ top: 200, minWidth: 800 }}
+                style={{ top: 100, minWidth: 800 }}
                 maskClosable={false}
                 destroyOnClose={true}
                 visible={true}

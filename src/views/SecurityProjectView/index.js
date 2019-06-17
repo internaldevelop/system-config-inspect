@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Select, Skeleton, Table, Icon, Button, Row, Col, Popconfirm, message } from 'antd'
+import { Select, Card, Skeleton, Table, Icon, Button, Row, Col, Popconfirm, message } from 'antd'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -524,33 +524,40 @@ class SecurityProjectView extends React.Component {
         return taskRunStatusItem;
     }
 
-    render() {
+    getProjectButtons = () => {
         const { classes } = this.props;
+        return (<div><Button className={classes.actionButton} type="primary" size="large" onClick={this.handleEdit.bind(this)}><Icon type="edit" />编辑参数</Button>
+            <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel.bind(this)} okText="确定" cancelText="取消">
+                <Button className={classes.actionButton} type="danger" size="large"><Icon type="delete" />删除项目</Button></Popconfirm>
+            <Button className={classes.actionButton} disabled={this.isRunning()} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行项目<Icon type="caret-right" /></Button>
+        </div>);
+    }
+
+    render() {
         const { inputValue, projects, showProjectConfig, showProjectCard, projectUuid, statusList } = this.state;
         const userStore = this.props.userStore;
+        const projectItem = this.props.projectStore.projectItem;
+
         return (
             <div>
                 <Skeleton loading={!userStore.isNormalUser} active avatar>
                     <Row>
                         <Col span={2}><Typography variant="h6">项目管理</Typography></Col>
-                        <Col span={3}>
+                        <Col span={3} >
                             <Select value={inputValue} style={{ width: 200 }} onChange={this.onSelectProject}>
                                 {projects.map(project => (
                                     <Option value={project.uuid}>{project.name}</Option>
                                 ))}
                             </Select>
                         </Col>
-                        <Col span={2} offset={1} align="left"><Button type="primary" size="large" onClick={this.handleNewProject.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
-                        {showProjectCard && <Col span={2} align="left">
-                            <Button className={classes.actionButton} type="primary" size="large" onClick={this.handleEdit.bind(this)}><Icon type="edit" />编辑参数</Button></Col>}
-                        {showProjectCard && <Col span={2} align="left">
-                            <Popconfirm title="确定要删除该项目吗？" onConfirm={this.handleDel.bind(this)} okText="确定" cancelText="取消">
-                                <Button className={classes.actionButton} type="danger" size="large"><Icon type="delete" />删除项目</Button></Popconfirm></Col>}
-                        {showProjectCard && <Col span={2} align="left">
-                            <Button className={classes.actionButton} disabled={this.isRunning()} type="primary" size="large" onClick={this.handleRun.bind(this)}>运行项目<Icon type="caret-right" /></Button></Col>}
+                        <Col span={3} offset={2} align="left"><Button type="primary" size="large" onClick={this.handleNewProject.bind(this)}><Icon type="plus-circle-o" />新建项目</Button></Col>
                     </Row>
                     <br />
-                    {showProjectCard && <ProjectCard uuid={projectUuid} statusList={statusList} />}
+                    {showProjectCard && <div>
+                        <Card title={projectItem.name} extra={this.getProjectButtons()}>
+                            <ProjectCard uuid={projectUuid} statusList={statusList} />
+                        </Card>
+                    </div>}
                     {showProjectConfig && <ProjectParamsConfig id="ProjectParamsConfig" actioncb={this.projectActionCB} />}
                 </Skeleton>
             </div>
