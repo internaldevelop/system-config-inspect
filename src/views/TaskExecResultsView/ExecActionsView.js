@@ -2,14 +2,16 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Card, Table, message, Modal } from 'antd';
+import { Card, Table, Skeleton, Modal } from 'antd';
 import moment from 'moment';
+import { observer, inject } from 'mobx-react'
 
 import { GetMainViewHeight, GetMainViewMinHeight, GetMainViewMinWidth } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
 import { GetNowTimeMyStr } from '../../utils/TimeUtils'
 import EllipsisText from '../../components/widgets/EllipsisText';
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
+import { GetTableColumnFilters } from '../../utils/tools'
 import { errorCode } from '../../global/error'
 
 import ExecCountPieChart from './ExecCountPieChart'
@@ -22,6 +24,8 @@ const styles = theme => ({
     },
 });
 
+@observer
+@inject('userStore')
 class ExecActionsView extends React.Component {
     constructor(props) {
         super(props);
@@ -57,16 +61,6 @@ class ExecActionsView extends React.Component {
             }
         }
         return values;
-    }
-
-    getFilters = (dataList, key) => {
-        let values = [];
-        for (let item of dataList) {
-            if ((item[key].length > 0) && (values.indexOf(item[key]) < 0)) {
-                values.push(item[key]);
-            }
-        }
-        return values.map(item => { return { text: item, value: item }; });
     }
 
     popupPieChart(title, source) {
@@ -152,7 +146,7 @@ class ExecActionsView extends React.Component {
                     onclick={this.handleClickTaskName(content)}
                     content={content} width={200 * ratio} />,
                 // 添加过滤器用于审计
-                filters: this.getFilters(resultData, "task_name"),
+                filters: GetTableColumnFilters(resultData, "task_name"),
                 filterMultiple: true,
                 onFilter: (value, record) => record.task_name.indexOf(value) === 0,
             },
@@ -162,7 +156,7 @@ class ExecActionsView extends React.Component {
                     onclick={this.handleClickOperatorName(content)}
                     content={content} width={150 * ratio} />,
                 // 添加过滤器用于审计
-                filters: this.getFilters(resultData, "operator_name"),
+                filters: GetTableColumnFilters(resultData, "operator_name"),
                 filterMultiple: true,
                 onFilter: (value, record) => record.operator_name.indexOf(value) === 0,
             },
@@ -175,7 +169,7 @@ class ExecActionsView extends React.Component {
                     onclick={this.handleClickAssetName(content)}
                     content={content} width={150 * ratio} />,
                 // 添加过滤器用于审计
-                filters: this.getFilters(resultData, "asset_name"),
+                filters: GetTableColumnFilters(resultData, "asset_name"),
                 filterMultiple: true,
                 onFilter: (value, record) => record.asset_name.indexOf(value) === 0,
             },
@@ -185,7 +179,7 @@ class ExecActionsView extends React.Component {
                     onclick={this.handleClickProjectName(content)}
                     content={content} width={150 * ratio} />,
                 // 添加过滤器用于审计
-                filters: this.getFilters(resultData, "project_name"),
+                filters: GetTableColumnFilters(resultData, "project_name"),
                 filterMultiple: true,
                 onFilter: (value, record) => record.project_name.indexOf(value) === 0,
             },
@@ -232,14 +226,17 @@ class ExecActionsView extends React.Component {
     }
 
     render() {
+        const userStore = this.props.userStore;
         return (
-            <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
-                <Card title={'操作日志'} style={{ width: '100%', height: '100%' }}
-                >
-                    <Table {...this.getTableProps()} />
-                </Card>
+            <Skeleton loading={userStore.isAdminUser} active avatar paragraph={{ rows: 12 }}>
+                <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
+                    <Card title={'操作日志'} style={{ width: '100%', height: '100%' }}
+                    >
+                        <Table {...this.getTableProps()} />
+                    </Card>
 
-            </div>
+                </div>
+            </Skeleton>
         );
     }
 

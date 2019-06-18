@@ -2,8 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Card, Select, Col, Row, Table, Layout, Input, Button } from 'antd';
+import { Card, Select, Col, Row, Table, Skeleton, Input, Button } from 'antd';
 import moment from 'moment';
+import { observer, inject } from 'mobx-react'
 
 import HttpRequest from '../../utils/HttpRequest';
 import EllipsisText from '../../components/widgets/EllipsisText';
@@ -20,6 +21,8 @@ const styles = theme => ({
     },
 });
 
+@observer
+@inject('userStore')
 class ExceptionLogsView extends React.Component {
     constructor(props) {
         super(props);
@@ -53,17 +56,6 @@ class ExceptionLogsView extends React.Component {
     handleResize = e => {
         this.setState({ scrollHeight: GetMainViewHeight() });
     }
-
-    getFilters = (dataList, key) => {
-        // let values = [];
-        // for (let item of dataList) {
-        //     if ((item[key].length > 0) && (values.indexOf(item[key]) < 0)) {
-        //         values.push(item[key]);
-        //     }
-        // }
-        // return values.map(item => { return { text: item, value: item }; });
-    }
-
 
     getTableColumns() {
         const ratio = 1;
@@ -120,7 +112,7 @@ class ExceptionLogsView extends React.Component {
     }
 
     handleRiskLevelChange = (value) => {
-        this.setState({ riskLevel: parseInt(value)});
+        this.setState({ riskLevel: parseInt(value) });
         this.getTaskExecRiskInfo(parseInt(value));
     }
 
@@ -137,7 +129,7 @@ class ExceptionLogsView extends React.Component {
     }
 
     getTaskExecRiskInfo = (riskLevel) => {
-        HttpRequest.asyncGet(this.getTaskExecRiskInfoCB, 
+        HttpRequest.asyncGet(this.getTaskExecRiskInfoCB,
             '/tasks/results/risks',
             { exec_action_uuid: '', risk_level: riskLevel });
     }
@@ -154,15 +146,18 @@ class ExceptionLogsView extends React.Component {
     }
 
     render() {
+        const userStore = this.props.userStore;
         return (
-            <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
-                <Card title={'异常日志'} style={{ width: '100%', height: '100%' }}
-                    extra={this.riskLevelSelect()}
-                >
-                    <Table {...this.getTableProps()} />
-                </Card>
+            <Skeleton loading={userStore.isAdminUser} active avatar paragraph={{ rows: 12 }}>
+                <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
+                    <Card title={'异常日志'} style={{ width: '100%', height: '100%' }}
+                        extra={this.riskLevelSelect()}
+                    >
+                        <Table {...this.getTableProps()} />
+                    </Card>
 
-            </div>
+                </div>
+            </Skeleton>
         );
     }
 

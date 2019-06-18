@@ -17,3 +17,13 @@ export function generateUuidStr() {
     }
     return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
 }
+
+export function GetTableColumnFilters(dataList, key) {
+    let values = [];
+    for (let item of dataList) {
+        if ((item[key].length > 0) && (values.indexOf(item[key]) < 0)) {
+            values.push(item[key]);
+        }
+    }
+    return values.map(item => { return { text: item, value: item }; });
+}

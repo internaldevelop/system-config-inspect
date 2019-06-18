@@ -2,8 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Card, DatePicker, Col, Row, Table, Layout, Select, Input, Button } from 'antd';
+import { Card, DatePicker, Col, Skeleton, Table, Layout, Select, Input, Button } from 'antd';
 import moment from 'moment';
+import { observer, inject } from 'mobx-react'
 
 import { GetMainViewHeight, GetMainViewMinHeight, GetMainViewMinWidth } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
@@ -23,6 +24,8 @@ const styles = theme => ({
     },
 });
 
+@observer
+@inject('userStore')
 class TaskExecResultsView extends React.Component {
     constructor(props) {
         super(props);
@@ -196,30 +199,33 @@ class TaskExecResultsView extends React.Component {
     }
 
     render() {
+        const userStore = this.props.userStore;
         return (
-            <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
-                <Card title={'主站扫描日志'} style={{ width: '100%', height: '100%' }}
-                    extra={<Button type="primary" icon="search" loading={this.state.loading} onClick={this.queryResultHistory}>查询</Button>}
-                >
-                    <Col xs={10}>
-                        {/* <Card type="inner" bordered={false} style={{ width: 300 }}> */}
-                        <div>选择时间（起止时间段）</div>
-                        <RangePicker {...this.getRangePickerProps()} />
-                        {/* </Card>
+            <Skeleton loading={userStore.isAdminUser} active avatar paragraph={{ rows: 12 }}>
+                <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
+                    <Card title={'主站扫描日志'} style={{ width: '100%', height: '100%' }}
+                        extra={<Button type="primary" icon="search" loading={this.state.loading} onClick={this.queryResultHistory}>查询</Button>}
+                    >
+                        <Col xs={10}>
+                            {/* <Card type="inner" bordered={false} style={{ width: 300 }}> */}
+                            <div>选择时间（起止时间段）</div>
+                            <RangePicker {...this.getRangePickerProps()} />
+                            {/* </Card>
                     <Card type="inner" bordered={false} style={{ width: '100%' }}> */}
-                    </Col>
-                    <Col span={12} offset={2}>
-                        <div>需要查询的扫描结果</div>
-                        <Input allowClear onChange={this.handleScanResultChange} />
-                    </Col>
-                    <div>选择策略（可多选）</div>
-                    <Select {...this.getPolicySelectProps()} allowClear>
-                        {this.state.policyList}
-                    </Select>
-                    <br /><br />
-                    <Table {...this.getTableProps()} />
-                </Card>
-            </div >
+                        </Col>
+                        <Col span={12} offset={2}>
+                            <div>需要查询的扫描结果</div>
+                            <Input allowClear onChange={this.handleScanResultChange} />
+                        </Col>
+                        <div>选择策略（可多选）</div>
+                        <Select {...this.getPolicySelectProps()} allowClear>
+                            {this.state.policyList}
+                        </Select>
+                        <br /><br />
+                        <Table {...this.getTableProps()} />
+                    </Card>
+                </div >
+            </Skeleton>
         );
     }
 };

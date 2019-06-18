@@ -18,6 +18,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { Typography, Row, Col, Tag } from 'antd';
 
 import LogoImage from '../resources/image/logo.jpg'
+import HttpRequest from '../utils/HttpRequest';
 // import { Logout } from '../components/login/Logout';
 
 const { Title } = Typography;
@@ -85,7 +86,12 @@ class HeaderBar extends React.Component {
       screenfull.toggle()
     }
   }
+
+  logoutCB = (data) => {
+  }
   logout = () => {
+    const { userUuid } = this.props.userStore.loginUser;
+    HttpRequest.asyncGet(this.logoutCB, '/users/logout', {user_uuid: userUuid});
     // this.props.appStore.toggleLogin(false)
     // this.props.history.push(this.props.location.pathname)
     let history = this.props.history;
