@@ -56,6 +56,7 @@ const styles = theme => ({
 
 //withRouter一定要写在前面，不然路由变化不会反映到props中去
 @withRouter @observer @inject('userStore')
+@inject("userStore")
 class HeaderBar extends React.Component {
   state = {
     title: '',
@@ -94,9 +95,10 @@ class HeaderBar extends React.Component {
     HttpRequest.asyncGet(this.logoutCB, '/users/logout', {user_uuid: userUuid});
     // this.props.appStore.toggleLogin(false)
     // this.props.history.push(this.props.location.pathname)
+    const userStore = this.props.userStore;
+    userStore.loginUser.isLogin = false;
     let history = this.props.history;
     history.push('/login');
-
   }
 
   render() {
