@@ -189,7 +189,7 @@ class ProjectParamsConfig extends React.Component {
             // 向后台发送请求，创建一条新的策略记录
             HttpRequest.asyncPost(this.requestProjectCB('new'), '/projects/add',
                 {
-                    name, code: "TODO", tasks, run_time_mode, output_mode, task_number, process_flag, create_user_uuid: userUuid,
+                    name, code: "TODO", tasks, run_time_mode: 1, output_mode, task_number, process_flag, create_user_uuid: userUuid,
                 },
                 false
             );
@@ -197,7 +197,7 @@ class ProjectParamsConfig extends React.Component {
             // 向后台发送请求，更新策略数据
             HttpRequest.asyncPost(this.requestProjectCB('update'), '/projects/update',
                 {
-                    uuid, name, code: "TODO", tasks, run_time_mode, output_mode, task_number, process_flag, create_user_uuid: userUuid,
+                    uuid, name, code: "TODO", tasks, run_time_mode: 1, output_mode, task_number, process_flag, create_user_uuid: userUuid,
                 },
                 false
             );
