@@ -44,6 +44,7 @@ const osTypeNames = ['Windows', 'Linux'];
 
 @inject('policyStore')
 @inject('dictStore')
+@inject('userStore')
 @observer
 class PolicyParamsConfig extends React.Component {
     constructor(props) {
@@ -168,11 +169,12 @@ class PolicyParamsConfig extends React.Component {
         const { uuid, name, lv1_require, lv2_require, lv3_require, lv4_require } = this.props.policyStore.policyItem;
         const { run_mode, consume_time, run_contents, os_type, type } = this.props.policyStore.policyItem;
         const { asset_uuid, group_uuid } = this.props.policyStore.policyItem;
+        const { userUuid } = this.props.userStore.loginUser;
         if (this.props.policyStore.policyAction === actionType.ACTION_NEW) {
             // 向后台发送请求，创建一条新的策略记录
             HttpRequest.asyncPost(this.requestPolicyCB('new'), '/policies/add',
                 {
-                    name, code: "TODO", asset_uuid, group_uuid, lv1_require, lv2_require, lv3_require, lv4_require, run_mode: 1, consume_time, run_contents, os_type, type: policyType.TYPE_SELF_DEFINITION,
+                    name, code: "TODO", asset_uuid, group_uuid, create_user_uuid: userUuid, lv1_require, lv2_require, lv3_require, lv4_require, run_mode: 1, consume_time, run_contents, os_type, type: policyType.TYPE_SELF_DEFINITION,
                 },
                 false
             );
@@ -180,7 +182,7 @@ class PolicyParamsConfig extends React.Component {
             // 向后台发送请求，更新策略数据
             HttpRequest.asyncPost(this.requestPolicyCB('update'), '/policies/update',
                 {
-                    uuid, name, code: "TODO", asset_uuid, group_uuid, lv1_require, lv2_require, lv3_require, lv4_require, run_mode: 1, consume_time, run_contents, os_type, type,
+                    uuid, name, code: "TODO", asset_uuid, group_uuid, create_user_uuid: userUuid, lv1_require, lv2_require, lv3_require, lv4_require, run_mode: 1, consume_time, run_contents, os_type, type,
                 },
                 false
             );
