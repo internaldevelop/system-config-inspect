@@ -78,7 +78,8 @@ class ProjectCard extends React.Component {
     }
 
     getTaskInfoButton = (status) => {
-        return (<Button type="primary" size="small" onClick={this.getTaskInfo(status)} ><Icon type="info-circle" /></Button>);
+        // return (<Button type="primary" size="small" onClick={this.getTaskInfo(status)} ><Icon type="info-circle" /></Button>);
+        return (<Button type="link" size="small" onClick={this.getTaskInfo(status)} ><Icon type="caret-down" /></Button>);
     }
 
     /** 从后台请求任务数据，请求完成后的回调 */
@@ -139,9 +140,13 @@ class ProjectCard extends React.Component {
                     {statusList.map((item, index) => (
                         <Col span={4}>
                             <Card title={item.name} bordered={true} style={{ marginRight: 16 }} extra={this.getTaskInfoButton(item)}>
-                                <div>
+                                {(item === null || item.run_status === taskRunStatus.IDLE) && <Progress type="circle" percent={0} format={() => '空闲'} />}
+                                {item.run_status === taskRunStatus.INTERRUPTED && <Progress type="circle" percent={item.done_rate} status="exception" />}
+                                {(item.run_status === taskRunStatus.RUNNING || item.run_status === taskRunStatus.FINISHED) && 
+                                    <Progress style={{ cursor: "pointer" }} type="circle" percent={this.getPercentValue(item)} onClick={this.handlePlayback(item.task_uuid)} status={this.getProgressStatus(item)} />}
+                                {/* <div>
                                     <Progress type="circle" percent={this.getPercentValue(item)} onClick={this.handlePlayback(item.task_uuid)} status={this.getProgressStatus(item)} />
-                                </div>
+                                </div> */}
                                 <dr />
                                 <div>{this.getExportTasksResultsButton(item)}
                                 </div>
