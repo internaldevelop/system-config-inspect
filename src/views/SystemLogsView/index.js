@@ -106,8 +106,8 @@ class SystemLogsView extends React.Component {
                 onFilter: (value, record) => record.title.indexOf(value) === 0,
             },
             {
-                title: '日志内容', dataIndex: 'contents', width: 180,
-                render: content => <EllipsisText content={content} width={180 * ratio} />,
+                title: '日志内容', dataIndex: 'contents', width: 300,
+                render: content => <EllipsisText content={content} width={300 * ratio} />,
             },
             {
                 title: '用户名', dataIndex: 'create_user_name', width: 100,

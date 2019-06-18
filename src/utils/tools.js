@@ -21,8 +21,9 @@ export function generateUuidStr() {
 export function GetTableColumnFilters(dataList, key) {
     let values = [];
     for (let item of dataList) {
-        if ((item[key].length > 0) && (values.indexOf(item[key]) < 0)) {
-            values.push(item[key]);
+        let value = item[key];
+        if (value !== null && (value.length > 0) && (values.indexOf(value) < 0)) {
+            values.push(value);
         }
     }
     return values.map(item => { return { text: item, value: item }; });
