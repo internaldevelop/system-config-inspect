@@ -3,7 +3,7 @@ import EllipsisText from '../../components/widgets/EllipsisText';
 
 export const columns = [
   {
-    title: '序号', width: 100, dataIndex: 'index', key: 'key',
+    title: '序号', width: 150, dataIndex: 'index', key: 'key',
     sorter: (a, b) => a.index - b.index,
     render: content => <div>{content}</div>,
   },
@@ -38,13 +38,13 @@ export const columns = [
     title: '等保4级', width: 200, dataIndex: 'lv4_require', 
     render: content => <EllipsisText content={content} width={200}/>,
   },
-  {
-    title: '',
-    fixed: 'right',
-    width: 150,
-    render: () => (
-      <span>
-      </span>
-    ),
-  },
+  // {
+  //   title: '',
+  //   fixed: 'right',
+  //   width: 150,
+  //   render: () => (
+  //     <span>
+  //     </span>
+  //   ),
+  // },
 ];

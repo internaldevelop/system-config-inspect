@@ -429,7 +429,6 @@ class TaskManageView extends React.Component {
 
     /** 处理运行任务的操作 */
     handleRun = (rowIndex) => (event) => {
-        console.log("===> handleRun", this.state.runList);
         // 从行索引转换成实际的数据索引
         let dataIndex = this.transferDataIndex(rowIndex);
 

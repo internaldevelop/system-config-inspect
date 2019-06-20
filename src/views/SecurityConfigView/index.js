@@ -68,6 +68,12 @@ class SecurityConfigView extends React.Component {
         this.setState({ scrollHeight: GetMainViewHeight() });
     }
 
+    componentWillUnmount() {
+        // 组件卸装前，一定要移除监听器
+        window.removeEventListener('resize', this.handleResize.bind(this));
+    }
+
+
     /** 初始化操作列，定义渲染效果 */
     initActionColumn() {
         const { columns } = this.state;
@@ -75,17 +81,17 @@ class SecurityConfigView extends React.Component {
         if (columns.length === 0)
             return;
 
-        // 操作列默认为最后一列
-        columns[columns.length - 1].render = (text, record, index) => {
+
+        columns[0].render = (text, record, index) => {
             return (
                 <div>
-                    {this.isDisableEditPolicy(index) ?
-                        <Button disabled={true} className={classes.actionButton} type="danger" size="small">删除</Button> :
+                    <span>{text}</span>
+                    <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
+                    {!this.isDisableEditPolicy(index) &&
                         <Popconfirm title="确定要删除该策略吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
                             <Button className={classes.actionButton} type="danger" size="small">删除</Button>
                         </Popconfirm>
                     }
-                    <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
                 </div>
             )
         }
@@ -282,11 +288,13 @@ class SecurityConfigView extends React.Component {
                         <Col span={8} offset={8} align="right"><Button type="primary" size="large" onClick={this.handleNewPolicy.bind(this)}><Icon type="plus-circle-o" />新建策略</Button></Col>
                     </Row>
                     <Table
+                        id="tasksListTable"
                         columns={columns}
                         dataSource={policies}
                         bordered={true}
                         scroll={{ x: scrollWidth, y: scrollHeight }}
                         expandedRowRender={record => this.rowDetails(record)}
+                        rowKey={record => record.uuid}
                         pagination={{
                             showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
                             pageSizeOptions: [DEFAULT_PAGE_SIZE.toString(), '20', '30', '40'],
