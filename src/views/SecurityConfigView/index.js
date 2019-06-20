@@ -79,9 +79,12 @@ class SecurityConfigView extends React.Component {
         columns[columns.length - 1].render = (text, record, index) => {
             return (
                 <div>
-                    <Popconfirm title="确定要删除该策略吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                        <Button disabled={this.isDisableEditPolicy(index)} className={classes.actionButton} type="danger" size="small">删除</Button>
-                    </Popconfirm>
+                    {this.isDisableEditPolicy(index) ?
+                        <Button disabled={true} className={classes.actionButton} type="danger" size="small">删除</Button> :
+                        <Popconfirm title="确定要删除该策略吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
+                            <Button className={classes.actionButton} type="danger" size="small">删除</Button>
+                        </Popconfirm>
+                    }
                     <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
                 </div>
             )
