@@ -41,6 +41,9 @@ const styles = theme => ({
 });
 
 const osTypeNames = ['Windows', 'Linux'];
+let groupChangedValue = '';
+let assetChangedValue = '';
+
 
 @inject('policyStore')
 @inject('dictStore')
@@ -170,6 +173,9 @@ class PolicyParamsConfig extends React.Component {
         const { run_mode, consume_time, run_contents, os_type, type } = this.props.policyStore.policyItem;
         const { asset_uuid, group_uuid } = this.props.policyStore.policyItem;
         const { userUuid } = this.props.userStore.loginUser;
+        if (!this.checkData()) {
+            return false;
+        }
         if (this.props.policyStore.policyAction === actionType.ACTION_NEW) {
             // 向后台发送请求，创建一条新的策略记录
             HttpRequest.asyncPost(this.requestPolicyCB('new'), '/policies/add',
@@ -187,6 +193,67 @@ class PolicyParamsConfig extends React.Component {
                 false
             );
         }
+    }
+
+    checkData() {
+        let name = document.getElementById('name').value;
+        let lv1_require = document.getElementById('lv1_require').value;
+        let lv2_require = document.getElementById('lv2_require').value;
+        let lv3_require = document.getElementById('lv3_require').value;
+        let lv4_require = document.getElementById('lv4_require').value;
+        let consume_time = document.getElementById('consume_time').value;
+        let run_contents = document.getElementById('run_contents').value;
+        
+        if (name === null || name === '') {
+            message.info('策略名称不能为空，请重新输入');
+            document.getElementById('name').value = '';
+            return false;
+        } else if (name.length > 20) {
+            message.info('策略名称长度不能超过20，请重新输入');
+            document.getElementById('name').value = '';
+            return false;
+        } else if (groupChangedValue === null || groupChangedValue === '') {
+            message.info('策略分组不能为空，请重新输入');
+            return false;
+        } else if (groupChangedValue.length > 20) {
+            message.info('策略组长度不能超过20，请重新输入');
+            return false;
+        } else if (assetChangedValue === null || assetChangedValue === '') {
+            message.info('资产不能为空，请重新输入');
+            return false;
+        } else if (assetChangedValue.length > 20) {
+            message.info('资产长度不能超过20，请重新输入');
+            return false;
+        } else if ((lv1_require !== '' && lv1_require.length > 100)) {
+            message.info('等保长度不能超过100，请重新输入');
+            document.getElementById('lv1_require').value = '';
+            return false;
+        } else if ((lv2_require !== '' && lv2_require.length > 100)) {
+            message.info('等保长度不能超过100，请重新输入');
+            document.getElementById('lv2_require').value = '';
+            return false;
+        } else if ((lv3_require !== '' && lv3_require.length > 100)) {
+            message.info('等保长度不能超过100，请重新输入');
+            document.getElementById('lv3_require').value = '';
+            return false;
+        } else if ((lv4_require !== '' && lv4_require.length > 100)) {
+            message.info('等保长度不能超过100，请重新输入');
+            document.getElementById('lv4_require').value = '';
+            return false;
+        } else if (consume_time === '' || consume_time === 0) {
+            message.info('运行时间不能0，请重新输入');
+            document.getElementById('consume_time').value = '';
+            return false;
+        } else if ((consume_time !== '' && consume_time !== 0) && isNaN(consume_time) === true) {
+            message.info('运行时间必须为数字，请重新输入');
+            document.getElementById('consume_time').value = '';
+            return false;
+        } else if (run_contents === '' || run_contents === null) {
+            message.info('运行内容不能空，请重新输入');
+            document.getElementById('run_contents').value = '';
+            return false;
+        }
+        return true;
     }
 
     handleParamsChange = name => (event) => {
@@ -216,6 +283,14 @@ class PolicyParamsConfig extends React.Component {
         }
     }
 
+    onGroupChanged = (value, option) => {
+        groupChangedValue = value;
+    }
+
+    onAssetChanged = (value, option) => {
+        assetChangedValue = value;
+    }
+
     getOsTypeName = (type) => {
         if (parseInt(type) === osType.TYPE_WINDOWS) {
             return osTypeNames[0];
@@ -230,6 +305,8 @@ class PolicyParamsConfig extends React.Component {
         const modalTitle = <Draggable title={policyStore.policyProcName} />;
         const { name, lv1_require, lv2_require, lv3_require, lv4_require } = this.props.policyStore.policyItem;
         const { run_mode, consume_time, run_contents, os_type, asset_name, group_name } = this.props.policyStore.policyItem;
+        groupChangedValue = group_name;
+        assetChangedValue = asset_name;
         const { assetNames } = this.state;
         const { groupNames } = this.state;
         const osType = this.getOsTypeName(os_type);
@@ -291,10 +368,12 @@ class PolicyParamsConfig extends React.Component {
                         <Col span={11}>
                             <AutoComplete allowClear
                                 required
+                                id="policy_group"
                                 className={classes.searchItemStyle}
                                 dataSource={groupNames}
                                 defaultValue={group_name}
                                 onSelect={this.onSelectGroup}
+                                onChange={this.onGroupChanged}
                                 placeholder="输入分组"
                                 filterOption={(inputValue, option) =>
                                     option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
@@ -306,10 +385,12 @@ class PolicyParamsConfig extends React.Component {
                                 <OutlinedInput
                                     id="component-outlined">*/}
                                     <AutoComplete allowClear
+                                        id="asset_name"
                                         className={classes.searchItemStyle}
                                         dataSource={assetNames}
                                         defaultValue={asset_name}
                                         onSelect={this.onSelectAsset}
+                                        onChange={this.onAssetChanged}
                                         placeholder="输入设备"
                                         filterOption={(inputValue, option) =>
                                             option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1

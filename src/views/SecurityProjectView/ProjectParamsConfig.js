@@ -183,6 +183,9 @@ class ProjectParamsConfig extends React.Component {
 
     handleOk = (e) => {
         this.getJsonTasks();
+        if (!this.checkData()) {
+            return false;
+        }
         const { uuid, name, tasks, run_time_mode, output_mode, task_number, process_flag } = this.props.projectStore.projectItem;
         const { userUuid } = this.props.userStore.loginUser;
         if (this.props.projectStore.projectAction === actionType.ACTION_NEW) {
@@ -202,6 +205,20 @@ class ProjectParamsConfig extends React.Component {
                 false
             );
         }
+    }
+
+    checkData() {
+        let name = document.getElementById('name').value;  
+        if (name === null || name === '') {
+            message.info('策略名称不能为空，请重新输入');
+            document.getElementById('name').value = '';
+            return false;
+        } else if (name.length > 20) {
+            message.info('策略名称长度不能超过20，请重新输入');
+            document.getElementById('name').value = '';
+            return false;
+        }
+        return true;
     }
 
     getOutputModeNames() {
