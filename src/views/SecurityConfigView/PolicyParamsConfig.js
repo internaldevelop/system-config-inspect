@@ -218,12 +218,12 @@ class PolicyParamsConfig extends React.Component {
         } else if (groupChangedValue.length > 20) {
             message.info('策略组长度不能超过20，请重新输入');
             return false;
-        } else if (assetChangedValue === null || assetChangedValue === '') {
-            message.info('资产不能为空，请重新输入');
-            return false;
-        } else if (assetChangedValue.length > 20) {
-            message.info('资产长度不能超过20，请重新输入');
-            return false;
+        // } else if (assetChangedValue === null || assetChangedValue === '') {
+        //     message.info('资产不能为空，请重新输入');
+        //     return false;
+        // } else if (assetChangedValue.length > 20) {
+        //     message.info('资产长度不能超过20，请重新输入');
+        //     return false;
         } else if ((lv1_require !== '' && lv1_require.length > 100)) {
             message.info('等保长度不能超过100，请重新输入');
             document.getElementById('lv1_require').value = '';
