@@ -172,7 +172,7 @@ class UserCard extends React.Component {
                         style={{ marginTop: 16 }}
                         type="inner"
                         title="密码"
-                        extra={(userInfo.status !== 1) && <a onClick={this.changePassword.bind(this)}>修改密码</a>}
+                        extra={(userInfo.status !== 1 || this.props.manage !== 1) && <a onClick={this.changePassword.bind(this)}>修改密码</a>}
                     >
                         <div>
                             { "密码有效期截止到：   " + userInfo.expire_time }

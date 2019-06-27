@@ -87,7 +87,7 @@ class SecurityConfigView extends React.Component {
                 <div>
                     <span>{text}</span>
                     <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEdit(index).bind(this)}>编辑</Button>
-                    {this.isDisableEditPolicy(index) ? <Button className={classes.actionButton} disabled={true} type="danger" size="small">删除</Button> :
+                    {!this.isDisableEditPolicy(index) &&
                         <Popconfirm title="确定要删除该策略吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
                             <Button className={classes.actionButton} type="danger" size="small">删除</Button>
                         </Popconfirm>
