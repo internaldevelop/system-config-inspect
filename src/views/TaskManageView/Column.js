@@ -4,6 +4,7 @@ import { taskStatus } from '../../global/enumeration/TaskStatus';
 import EllipsisText from '../../components/widgets/EllipsisText';
 import { timerStatus } from '../../global/enumeration/TaskStatus'
 import { DefaultValues } from '../../global/enumeration/DefaultValues';
+import { osType } from '../../global/enumeration/OsType';
 
 /** 转化定时运行设置为JSON对象，如果输入的定时设置无效，使用缺省值 */
 function parseRunTimerConfig(timerConfig) {
@@ -73,7 +74,11 @@ export const columns = [
   {
     title: '系统类型', width: 150, dataIndex: 'asset_os_type',
     sorter: (a, b) => a.asset_os_type.localeCompare(b.asset_os_type, "zh"),
-    render: content => <EllipsisText content={content} width={150} />,
+    render: content => {
+      let cellText = content === '1' ? "Windows" : "Linux";
+      let color = content === '1' ? "green" : "geekblue";
+      return <Tag style={{ fontSize: 18 }} color={color} key={content}>{cellText}</Tag>
+    },
   },
   {
     title: '系统版本', width: 120, dataIndex: 'asset_os_ver',
