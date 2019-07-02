@@ -65,18 +65,18 @@ const menus = [
     //     icon: 'home',
     //     key: '/home'
     // },
-    // {
-    //     title: '其它',
-    //     icon: 'bulb',
-    //     key: '/home/other',
-    //     subs: [
-    //         { key: '/home/other/test1', title: '测试（保留）-1', icon: '' },
-    //         { key: '/home/other/ref1', title: '参考页面1', icon: '', },
-    //         { key: '/home/other/ref2', title: '参考页面2', icon: '', },
-    //         { key: '/home/other/ref3', title: '参考页面3', icon: '' },
-    //         { key: '/home/other/oldtask', title: '旧任务页面', icon: '' },
-    //     ]
-    // },
+    {
+        title: '其它',
+        icon: 'bulb',
+        key: '/home/other',
+        subs: [
+            { key: '/home/other/test1', title: '测试（保留）-1', icon: '' },
+            // { key: '/home/other/ref1', title: '参考页面1', icon: '', },
+            // { key: '/home/other/ref2', title: '参考页面2', icon: '', },
+            // { key: '/home/other/ref3', title: '参考页面3', icon: '' },
+            // { key: '/home/other/oldtask', title: '旧任务页面', icon: '' },
+        ]
+    },
     {
         title: '关于',
         icon: 'info-circle-o',

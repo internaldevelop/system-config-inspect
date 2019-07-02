@@ -2,13 +2,16 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Button, Row, Col, Input, message, Checkbox } from 'antd';
+import { Button, Row, Col, Input, message, Checkbox, Collapse } from 'antd';
+import axios from 'axios';
 //import SockJsClient from 'react-stomp';
 // import io from 'socket.io-client';
 
 import HttpRequest from '../../utils/HttpRequest';
 import { GetWebSocketUrl } from '../../global/environment';
 import { generateUuidStr } from '../../utils/tools'
+import { errorCode } from '../../global/error'
+
 
 // let SockJS = require('sockjs');
 // let Stomp = require('stomp-client');
@@ -26,6 +29,7 @@ const styles = theme => ({
 });
 
 const { TextArea } = Input;
+const { Panel } = Collapse;
 
 class TestView extends React.Component {
     constructor(props) {
@@ -34,6 +38,7 @@ class TestView extends React.Component {
             response: '',
             receiveWsMsg: true,
             wsMsg: '',
+            nodeResp: '',
         };
     }
 
@@ -175,6 +180,25 @@ class TestView extends React.Component {
         HttpRequest.asyncGet(this.getPayloadCB, '/users/user-by-account', { account });
     }
 
+    getAssetInfo() {
+        let self = this;
+        let url = document.getElementById('node-url').value;
+        let paramStr = document.getElementById('test-params-2').value;
+        if (url.length === 0) {
+            message.error("请输入节点服务接口的URL");
+            return;
+        }
+
+        axios.get(url, { params: JSON.parse(paramStr) })
+            .then((response) => response.data)
+            .then((data) => {
+                self.setState({ nodeResp: JSON.stringify(data.payload) });
+            })
+            .catch(error => {
+                self.setState({ nodeResp: error.message });
+            })
+    }
+
     onChangeCheckReceiveMQ = (e) => {
         this.setState({ receiveWsMsg: e.target.checked });
     }
@@ -188,37 +212,42 @@ class TestView extends React.Component {
 
     render() {
         const { classes } = this.props;
-        const { response, wsMsg, receiveWsMsg } = this.state;
+        const { response, wsMsg, receiveWsMsg, nodeResp } = this.state;
         const wsSourceUrl = window.location.protocol + "//" + window.location.host + "/websocket";
         return (
-            <div>
-                <Row>
-                    <Input addonBefore="参数" placeholder="请输入参数" id="test-params" />
-                </Row>
-                <Row>
-                    <Button className={classes.actionButton} onClick={this.getAllUsers.bind(this)}>所有用户</Button>
-                    <Button className={classes.actionButton} onClick={this.getUserByUuid.bind(this)}>UUID ==> 用户</Button>
-                    <Button className={classes.actionButton} onClick={this.getUserByAccount.bind(this)}>账号 ==> UUID</Button>
-                    {/* <Button onClick={this.getAllUsers.bind(this)}>所有用户</Button> */}
-                </Row>
-                <Row>
-                    <TextArea value={response} rows={6}></TextArea>
-                </Row>
-                <Row>
-                    {/* <SockJsClient url={wsSourceUrl} topics={[]}
-                        onMessage={this.onMessageReceive} 
-                        // ref={(client) => { this.clientRef = client }}
-                        onConnect={this.onMqConnect}
-                        onDisconnect={() => { this.setState({ clientConnected: false }) }}
-                        debug={false} /> */}
-                    {/* <SockJsClient url='http://localhost:8090/websocket' topics={['/111']}
-                        onConnect={this.onMqConnect} 
-                        onMessage={this.onMqMessage}
-                        // onMessage={(msg) => { console.log(msg); }}
-                        ref={(client) => { this.clientRef = client }} /> */}
-                    <Checkbox checked={receiveWsMsg} onChange={this.onChangeCheckReceiveMQ}>接收MQ消息</Checkbox>
-                    <TextArea value={wsMsg} rows={6}></TextArea>
-                </Row>
+            <Collapse>
+                <Panel header="服务器接口" key="1">
+                    <Row>
+                        <Input addonBefore="参数" placeholder="请输入参数" id="test-params" />
+                    </Row>
+                    <Row>
+                        <Button className={classes.actionButton} onClick={this.getAllUsers.bind(this)}>所有用户</Button>
+                        <Button className={classes.actionButton} onClick={this.getUserByUuid.bind(this)}>UUID ==> 用户</Button>
+                        <Button className={classes.actionButton} onClick={this.getUserByAccount.bind(this)}>账号 ==> UUID</Button>
+                        {/* <Button onClick={this.getAllUsers.bind(this)}>所有用户</Button> */}
+                    </Row>
+                    <Row>
+                        <TextArea value={response} rows={6}></TextArea>
+                    </Row>
+                </Panel>
+                <Panel header="WebSocket消息" key="2">
+                    <Row>
+                        <Checkbox checked={receiveWsMsg} onChange={this.onChangeCheckReceiveMQ}>接收MQ消息</Checkbox>
+                        <TextArea value={wsMsg} rows={6}></TextArea>
+                    </Row>
+                </Panel>
+                <Panel header="节点Agent接口" key="3">
+                    <Row>
+                        <Input addonBefore="节点" placeholder="请输入接口url" id="node-url" defaultValue='http://127.0.0.1:8191/asset-info/acquire' />
+                        <Input addonBefore="参数" placeholder="请输入参数" id="test-params-2" defaultValue='{"types":"FS"}' />
+                    </Row>
+                    <Row>
+                        <Button className={classes.actionButton} onClick={this.getAssetInfo.bind(this)}>资产信息</Button>
+                    </Row>
+                    <Row>
+                        <TextArea value={nodeResp} rows={6}></TextArea>
+                    </Row>
+                </Panel>
                 {/* <Row>
                     <Col span={6}>
                         <Button onClick={this.getUserByUuid.bind(this)}>UUID ==> 用户</Button>
@@ -227,7 +256,7 @@ class TestView extends React.Component {
                     </Col>
                     <TextArea value={this.state.response} rows={4}></TextArea>
                 </Row> */}
-            </div>
+            </Collapse>
         );
     }
 }
