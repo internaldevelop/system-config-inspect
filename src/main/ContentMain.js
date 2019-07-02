@@ -28,6 +28,7 @@ import TestView from '../views/TestView'
 import OldResultPage from '../unused/pages/inspect-result/InspectResults'
 import OldPolicyPage from '../unused/pages/security-manage/ConfigTable'
 import OldTaskPage from '../unused/pages/task-manage/TaskTable'
+import AssetManageView from '../views/AssetManageView';
 // import TaskManageViewOld from '../views/TaskManageViewOld'
 // import TEST1 from '../unused/pages/SysConfigInspectMain1'
 
@@ -54,6 +55,7 @@ class ContentMain extends React.Component {
 
           <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView}/>
           <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView}/>
+          <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView}/>
 
           <PrivateRoute exact path='/home/about' component={AboutView}/>
 

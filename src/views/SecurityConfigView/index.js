@@ -2,14 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { Skeleton, Table, Icon, Button, Row, Col, Tabs, Popconfirm } from 'antd'
 import { columns as Column } from './Column'
-// import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { observer, inject } from 'mobx-react'
 import PolicyParamsConfig from './PolicyParamsConfig'
 import { actionType } from '../../global/enumeration/ActionType';
 import { policyType } from '../../global/enumeration/PolicyType';
-import { userType } from '../../global/enumeration/UserType'
 import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';

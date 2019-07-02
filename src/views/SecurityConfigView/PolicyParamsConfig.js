@@ -6,9 +6,6 @@ import Draggable from '../../components/window/Draggable'
 import { observer, inject } from 'mobx-react'
 import { Upload, Modal, Row, Col, message, AutoComplete, Icon, Button } from 'antd';
 import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { DeepClone } from '../../utils/ObjUtils'
 
 import HttpRequest from '../../utils/HttpRequest'

@@ -64,7 +64,7 @@ export const columns = [
     render: content => <EllipsisText content={content} width={120} />,
   },
   {
-    title: 'IP', width: 200, dataIndex: 'asset_ip',
+    title: 'IP', width: 180, dataIndex: 'asset_ip',
     render: content => <EllipsisText content={content} width={180} />,
   },
   {
