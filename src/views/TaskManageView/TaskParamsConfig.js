@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Modal, Steps, Button, Row, Col, message, TimePicker, Switch, Card, Typography } from 'antd';
+import { Modal, Steps, Button, Row, Col, message, TimePicker, AutoComplete, Switch, Card, Typography } from 'antd';
 import moment from 'moment';
 
 import TextField from '@material-ui/core/TextField';
@@ -14,6 +14,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
 import { observer, inject } from 'mobx-react'
+import { DeepClone } from '../../utils/ObjUtils'
 
 import Draggable from '../../components/window/Draggable'
 
@@ -50,6 +51,10 @@ const styles = theme => ({
     display: 'block',
     minHeight: '400px',
   },
+  searchItemStyle: {
+    marginTop: 20,
+    //minHeight: 100,
+  },
 });
 
 const Step = Steps.Step;
@@ -67,8 +72,12 @@ class TaskParamsConfig extends React.Component {
       current: 0,
       assetNameExist: false,
       taskNameExist: false,
+      assetNames: [],
+      assets: [],
       // taskItem: taskItem,
     };
+    // 从后台获取所有设备列表
+    this.getAllAssets();
   }
 
   componentWillMount() {
@@ -268,48 +277,113 @@ class TaskParamsConfig extends React.Component {
     this.checkTaskName();
   }
 
+  /** 从后台请求所有设备数据，请求完成后的回调 */
+  getAllAssetsCB = (data) => {
+    const { asset_uuid } = this.props.taskStore.taskItem;
+    const taskStore = this.props.taskStore;
+    let asset_name;
+    let assets = [];
+    let assetNames = [];
+    // 检查响应的payload数据是数组类型
+    if (!(data.payload instanceof Array))
+      return;
+
+    // 从响应数据生成 table 数据源
+    assets = data.payload.map((asset, index) => {
+      let assetItem = DeepClone(asset);
+      // antd 表格需要数据源中含 key 属性
+      assetItem.key = index + 1;
+      // 表格中索引列（后台接口返回数据中没有此属性）
+      assetItem.index = index + 1;
+      assetNames.push(asset.name);
+      return assetItem;
+    })
+
+    // 更新 assets 数据源
+    this.setState({ assets });
+    this.setState({ assetNames });
+  }
+
+  /** 从后台请求所有设备数据 */
+  getAllAssets = () => {
+    // 从后台获取任务的详细信息，含任务表的数据和关联表的数据
+    HttpRequest.asyncGet(this.getAllAssetsCB, '/assets/all');
+  }
+
+  onSelectAsset = (value, option) => {
+    const { assets } = this.state;
+    for (let asset of assets) {
+        if (asset.name === value) {
+          this.props.taskStore.setParam("asset_uuid", asset.uuid);
+          this.props.taskStore.setParam("asset_os_ver", asset.os_ver);
+          this.props.taskStore.setParam("asset_name", asset.name);
+          this.props.taskStore.setParam("asset_os_type", asset.os_type);
+          this.props.taskStore.setParam("asset_ip", asset.ip);
+          this.props.taskStore.setParam("asset_port", asset.port);
+          break;
+        }
+    }
+}
+
+onAssetChanged = (value, option) => {
+  //
+}
+
   StepAssetInfo = () => {
     const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;
     const { assetNameExist } = this.state;
+    const { assetNames } = this.state;
+    const { classes } = this.props;
     return (
       <div>
         <form>
-          <TextField required fullWidth autoFocus id="host-name" label="主机名称" defaultValue={asset_name}
+          {/* <TextField required fullWidth autoFocus id="host-name" label="主机名称" defaultValue={asset_name}
             variant="outlined" margin="normal" onChange={this.handleAssetNameChange}
           />
           {assetNameExist ? <Text type="danger"><br />资产主机名称已存在，请使用其它名称</Text> :
-            <Text styles={{ color: '#4caf50' }}><br />资产主机名称可用</Text>}
+            <Text styles={{ color: '#4caf50' }}><br />资产主机名称可用</Text>} */}
+          <AutoComplete allowClear
+            id="host-name"
+            className={classes.searchItemStyle}
+            dataSource={assetNames}
+            defaultValue={asset_name}
+            onSelect={this.onSelectAsset}
+            onChange={this.onAssetChanged}
+            placeholder="输入设备"
+            filterOption={(inputValue, option) =>
+              option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+            }
+          />
           <Row>
             <Col span={11}>
-              <TextField required id="host-ip" label="主机IP" defaultValue={asset_ip}
-                variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_ip")}
+              <TextField disabled required id="host-ip" label="主机IP" value={asset_ip}
+                variant="outlined" margin="normal"
               />
             </Col>
             <Col span={11} offset={2}>
-              <TextField required id="host-port" label="端口" defaultValue={asset_port}
-                variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_port")}
+              <TextField disabled required id="host-port" label="端口" value={asset_port}
+                variant="outlined" margin="normal"
               />
             </Col>
           </Row>
-          <Row>
+          {/* <Row>
             <Col span={11}>
-              <TextField required fullWidth id="login-user" label="用户名" defaultValue={asset_login_user}
-                variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_login_user")}
+              <TextField disabled required fullWidth id="login-user" label="用户名" value={asset_login_user}
+                variant="outlined" margin="normal"
               />
             </Col>
             <Col span={11} offset={2}>
-              <TextField required fullWidth id="login-pwd" label="登录密码" defaultValue={asset_login_pwd} type="password"
-                variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_login_pwd")}
+              <TextField disabled required fullWidth id="login-pwd" label="登录密码" value={asset_login_pwd} type="password"
+                variant="outlined" margin="normal"
               />
             </Col>
-          </Row>
+          </Row> */}
           <Row>
             <Col span={8}>
-              <FormControl variant="outlined" margin="normal">
+              <FormControl disabled variant="outlined" margin="normal">
                 <InputLabel htmlFor="outlined-os-type-native">系统类型</InputLabel>
                 <Select native
                   value={asset_os_type}
-                  onChange={this.handleTaskParamsChange("asset_os_type")}
                   input={
                     <OutlinedInput name="os_type" id="outlined-os-type-native" />
                   }
@@ -320,8 +394,8 @@ class TaskParamsConfig extends React.Component {
               </FormControl>
             </Col>
             <Col span={15} offset={1}>
-              <TextField required fullWidth id="system-ver" label="系统版本" defaultValue={asset_os_ver}
-                variant="outlined" margin="normal" onChange={this.handleTaskParamsChange("asset_os_ver")}
+              <TextField disabled required fullWidth id="system-ver" label="系统版本" value={asset_os_ver}
+                variant="outlined" margin="normal"
               />
             </Col>
           </Row>

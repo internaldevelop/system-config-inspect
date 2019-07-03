@@ -200,13 +200,14 @@ class AssetParamsConfig extends React.Component {
             return;
         }
         this.props.assetStore.setParam("ip", document.getElementById('host-ip').value);
-        let osType = data.payload.System.os_name;
+        let osType = data.payload.System["os.name"];
         if (osType.indexOf("Windows") >= 0) {
             this.props.assetStore.setParam("os_type", "1");
         } else {
             this.props.assetStore.setParam("os_type", "2");
         }
-        let osVersion = data.payload.System.os_version;
+        // let osVersion = data.payload.System.os_version;
+        let osVersion = data.payload.System["os.version"];
         this.props.assetStore.setParam("os_ver", osVersion);
     }
 
