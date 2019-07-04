@@ -86,6 +86,44 @@ class TaskExecResultsView extends React.Component {
             }]
         };
     }
+    
+    getOptionPie() {
+        const { riskLevelData } = this.state;
+
+        return {
+            title: { text: '操作系统分布' },
+            legend: {
+                bottom: 2,
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b}: {c} ({d}%)"
+            },
+            series: [
+                {
+                    name:'问题等级',
+                    type:'pie',
+                    selectedMode: 'single',
+                    radius: ['40%', '60%'],
+        
+                    label: {
+                        normal: {
+                            show: false,
+                            position: 'center'
+                        }
+                    },
+                    data:[
+                        {value: riskLevelData[0], name:'测试通过'},
+                        {value: riskLevelData[1], name:'一级问题'},
+                        {value: riskLevelData[2], name:'二级问题'},
+                        {value: riskLevelData[3], name:'三级问题'},
+                    ]
+                },
+
+            ]
+
+        };
+    }
 
     onChartClick(param, echarts) {
         const { runStatus, } = this.state;
@@ -126,7 +164,7 @@ class TaskExecResultsView extends React.Component {
             // <Col span={showDetails ? 6 : 14}>
             <div>
                 <Col>
-                    <Card title={taskInfo.name} style={{ width: 400, height: 460 }}>
+                    <Card title={taskInfo.name} style={{ width: 600, height: 460 }}>
                         <Col span={15}>
                             <Row>
                                 <Statistic
@@ -153,13 +191,24 @@ class TaskExecResultsView extends React.Component {
                                 format={percent => `${percent} %`}
                             />
                         </Col>
-                        <ReactEcharts
-                            option={this.getOption()}
-                            notMerge={true}
-                            lazyUpdate={true}
-                            onEvents={onEvents}
-                            style={{ width: '100%', height: '260px' }}
-                        />
+                        <Col span={14}>
+                            <ReactEcharts
+                                option={this.getOption()}
+                                notMerge={true}
+                                lazyUpdate={true}
+                                onEvents={onEvents}
+                                style={{ width: '100%', height: '260px' }}
+                            />
+                        </Col>
+                        <Col span={10}>
+                            <ReactEcharts
+                                option={this.getOptionPie()}
+                                notMerge={true}
+                                lazyUpdate={true}
+                                onEvents={onEvents}
+                                style={{ width: '100%', height: '260px' }}
+                            />
+                        </Col>
                     </Card>
                 </Col>
                 {/* <Col span={showDetails ? 6 : 0}>

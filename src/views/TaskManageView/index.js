@@ -296,7 +296,7 @@ class TaskManageView extends React.Component {
             keyboard: true,         // 是否支持键盘 esc 关闭
             destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
             closable: false,         // 是否显示右上角的关闭按钮
-            width: 520,
+            width: 730,
             content: <TaskExecResultsView taskuuid={uuid} />,
             onOk() {
                 // message.info('OK');
