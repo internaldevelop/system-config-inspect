@@ -158,6 +158,7 @@ class LogIn extends React.Component {
                 userUuid: data.payload.user_uuid,
                 password,
                 userGroup: data.payload.user_group,
+                email: data.payload.email,
             });
 
             let remember = document.getElementById('remember').checked;
@@ -173,6 +174,10 @@ class LogIn extends React.Component {
                 showVerifyError: true,
                 verifyError: '密码已锁定，请联系管理员解锁密码',
             });
+            let subject = '密码已锁定';
+            let content = '您在主站系统自动化配置检测工具系统中的密码已锁定，请联系管理员解锁密码';
+            let toWho = data.payload.email;
+            HttpRequest.asyncGet(this.sendMailCB, '/emails/send', {subject, content, toWho});
         } else if (data.code === errorCode.ERROR_INVALID_PASSWORD) {
             // 密码校验失败，提示剩余尝试次数
             this.setState({
@@ -186,6 +191,10 @@ class LogIn extends React.Component {
                 verifyError: '没有找到该用户，请注册账户，并联系管理员激活账户',
             });
         }
+    }
+
+    sendMailCB = (data) => {
+        //
     }
 
     handleSubmit = event => {

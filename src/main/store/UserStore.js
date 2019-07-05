@@ -19,6 +19,7 @@ const LoadUserLoginInfo = () => {
             password: '',
             expire: '',
             userGroup: userType.TYPE_NORMAL_USER,
+            email: '',
         });
     }
     var value = JSON.parse(login);
@@ -33,6 +34,7 @@ class UserStore {
         password: '',
         expire: '',
         userGroup: userType.TYPE_NORMAL_USER,
+        email: '',
     };
     @action setLoginUser = (user) => {
         Object.assign(this.loginUser, user);
@@ -43,6 +45,7 @@ class UserStore {
             userUuid: this.loginUser.uuid,
             password: this.loginUser.password,
             expire: GetExpireTimeGMTStr(expireDays),
+            email: this.loginUser.email,
         });
         SetCookieExpireDays(loginInfoName, info, expireDays);
     }
