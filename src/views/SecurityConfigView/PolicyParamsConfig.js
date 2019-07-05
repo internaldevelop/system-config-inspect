@@ -12,6 +12,7 @@ import HttpRequest from '../../utils/HttpRequest'
 import { errorCode } from '../../global/error';
 import { actionType } from '../../global/enumeration/ActionType';
 import { policyType } from '../../global/enumeration/PolicyType';
+import { policyGroup } from '../../global/enumeration/PolicyGroup';
 import { osType } from '../../global/enumeration/OsType';
 import { eng2chn } from '../../utils/StringUtils'
 
@@ -84,7 +85,9 @@ class PolicyParamsConfig extends React.Component {
             groupItem.key = index + 1;
             // 表格中索引列（后台接口返回数据中没有此属性）
             groupItem.index = index + 1;
-            groupNames.push(group.name);
+            if (group.type != policyGroup.TYPE_NORMAL) {
+                groupNames.push(group.name);
+            }
             if (policyStore.policyAction === actionType.ACTION_EDIT && group.uuid === group_uuid) {
                 group_name = group.name;
             }
@@ -221,19 +224,19 @@ class PolicyParamsConfig extends React.Component {
         // } else if (assetChangedValue.length > 20) {
         //     message.info('资产长度不能超过20，请重新输入');
         //     return false;
-        } else if ((lv1_require !== '' && lv1_require.length > 100)) {
+        } else if ((lv1_require !== null && lv1_require !== '' && lv1_require.length > 100)) {
             message.info('等保长度不能超过100，请重新输入');
             document.getElementById('lv1_require').value = '';
             return false;
-        } else if ((lv2_require !== '' && lv2_require.length > 100)) {
+        } else if ((lv2_require !== null && lv2_require !== '' && lv2_require.length > 100)) {
             message.info('等保长度不能超过100，请重新输入');
             document.getElementById('lv2_require').value = '';
             return false;
-        } else if ((lv3_require !== '' && lv3_require.length > 100)) {
+        } else if ((lv3_require !== null && lv3_require !== '' && lv3_require.length > 100)) {
             message.info('等保长度不能超过100，请重新输入');
             document.getElementById('lv3_require').value = '';
             return false;
-        } else if ((lv4_require !== '' && lv4_require.length > 100)) {
+        } else if ((lv4_require !== null && lv4_require !== '' && lv4_require.length > 100)) {
             message.info('等保长度不能超过100，请重新输入');
             document.getElementById('lv4_require').value = '';
             return false;
