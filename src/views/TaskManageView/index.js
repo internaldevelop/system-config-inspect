@@ -29,6 +29,7 @@ import { GetWebSocketUrl } from '../../global/environment';
 
 let timer1S = undefined;    // 1 秒的定时器
 let timer300mS = undefined;    // 300 毫秒的定时器
+let socket = null;
 
 const confirm = Modal.confirm;
 
@@ -83,6 +84,7 @@ class TaskManageView extends React.Component {
 
         // 从后台获取任务数据的集合
         this.getAllTasks();
+
     }
 
     componentDidMount() {
@@ -109,6 +111,8 @@ class TaskManageView extends React.Component {
 
         // 清除定时器
         // clearInterval(timer300mS);
+        if (socket != null)
+            socket.close();
     }
 
     isRunning = (rowIndex) => {
@@ -131,7 +135,8 @@ class TaskManageView extends React.Component {
     }
 
     openWebsocket = () => {
-        var socket;
+        // var socket;
+
         let self = this;
         if (typeof (WebSocket) == "undefined") {
             console.log("您的浏览器不支持WebSocket");
@@ -154,6 +159,8 @@ class TaskManageView extends React.Component {
             //关闭事件  
             socket.onclose = function () {
                 console.log("Socket已关闭");
+                socket.close();
+                socket = null;
             };
             //发生了错误事件  
             socket.onerror = function () {
@@ -199,6 +206,9 @@ class TaskManageView extends React.Component {
     }
 
     processSingleTaskRunStatusInfo = (payload) => {
+        console.log("Entering processSingleTaskRunStatusInfo ...");
+        // 因为服务器端和节点的MQ机制还存在缺陷，有时消息会被其他开发/测试环境的服务器截获，
+        // 从而造成部分消息不会被websocket发送到前端APP
         let status = payload;
         let runList = this.state.runList;
         let statusList = this.state.statusList;
@@ -222,6 +232,17 @@ class TaskManageView extends React.Component {
         this.setState({ statusList });
 
         this.renderRunStatusColumn();
+
+        // 提示错误
+        let tips = "运行策略失败：" + status.fail_policy_name + "，请检查策略脚本。";
+        if (status.run_status === taskRunStatus.INTERRUPTED) {
+            Modal.error({
+                keyboard: true,         // 是否支持键盘 esc 关闭
+                content: tips,
+                onOk() {
+                },
+            });
+        }
     }
 
     processMultipleTaskRunStatusInfo = (payload) => {
