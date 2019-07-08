@@ -20,6 +20,7 @@ import { Typography, Row, Col, Tag } from 'antd';
 import LogoImage from '../resources/image/logo.jpg'
 import HttpRequest from '../utils/HttpRequest';
 // import { Logout } from '../components/login/Logout';
+import { GetSystemName } from "../global/environment"
 
 const { Title } = Typography;
 
@@ -111,7 +112,7 @@ class HeaderBar extends React.Component {
             <MenuIcon />
           </IconButton>
           <img alt="logo-pic" src={LogoImage} />
-          <span style={{ fontSize: 28, marginLeft: '32px' }} color="#108ee9">主站系统自动化配置检测工具</span>
+          <span style={{ fontSize: 28, marginLeft: '32px' }} color="#108ee9">{GetSystemName()}</span>
         </div>
 
         <div style={{ lineHeight: '64px', float: 'right' }}>

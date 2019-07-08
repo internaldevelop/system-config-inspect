@@ -3,6 +3,8 @@ import { withRouter, Switch, Redirect } from 'react-router-dom'
 // import LoadableComponent from '../utils/LoadableComponent'
 import PrivateRoute from './AppRouter/PrivateRoute'
 
+import { GetSystemType } from "../global/environment"
+
 import TaskManageView from '../views/TaskManageView'
 import SecurityKnowledgeBase from '../views/SecurityKnowledgeBase'
 import SecurityConfigView from '../views/SecurityConfigView'
@@ -22,6 +24,8 @@ import UserInfoView from '../views/UsersManageView/UserInfoView'
 import AboutView from '../views/AboutView'
 import TestView from '../views/TestView'
 
+import AssetAnalysisView from '../views/AssetAnalysisView'
+
 
 //====================================================================
 // old pages, just for reference
@@ -35,40 +39,90 @@ import AssetManageView from '../views/AssetManageView';
 
 @withRouter
 class ContentMain extends React.Component {
-  render () {
+  render() {
     return (
-      <div style={{padding: 16, position: 'relative'}}>
-        <Switch>
-          <PrivateRoute exact path='/home' component={SecurityProjectView}/>
-          <PrivateRoute exact path='/home/task-manage' component={TaskManageView}/>
-          <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase}/>
-          <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView}/>
+      <div style={{ padding: 16, position: 'relative' }}>
+      {GetSystemType() === 1 && this.getHostSystemRoute()}   
+      {GetSystemType() === 2 && this.getTerminalSystemRoute()}   
+        {/* <Switch>
+          <PrivateRoute exact path='/home' component={SecurityProjectView} />
+          <PrivateRoute exact path='/home/task-manage' component={TaskManageView} />
+          <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase} />
+          <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView} />
 
-          <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview}/>
-          <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView}/>
-          <PrivateRoute exact path='/home/sec-config/statistics' component={SecurityStatistics}/>
+          <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview} />
+          <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView} />
+          <PrivateRoute exact path='/home/sec-config/statistics' component={SecurityStatistics} />
 
-          <PrivateRoute exact path='/home/log-manage/inspect-logs' component={TaskExecResultsView}/>
-          <PrivateRoute exact path='/home/log-manage/operate-logs' component={ExecActionsView}/>
-          <PrivateRoute exact path='/home/log-manage/exception-logs' component={ExceptionLogsView}/>
-          <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView}/>
+          <PrivateRoute exact path='/home/log-manage/inspect-logs' component={TaskExecResultsView} />
+          <PrivateRoute exact path='/home/log-manage/operate-logs' component={ExecActionsView} />
+          <PrivateRoute exact path='/home/log-manage/exception-logs' component={ExceptionLogsView} />
+          <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
 
-          <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView}/>
-          <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView}/>
-          <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView}/>
+          <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
+          <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
+          <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
 
-          <PrivateRoute exact path='/home/about' component={AboutView}/>
+          <PrivateRoute exact path='/home/about' component={AboutView} />
 
-          <PrivateRoute exact path='/home/other/test1' component={TestView}/>
-          <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage}/>
-          <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage}/>
-          <PrivateRoute exact path='/home/other/ref3' component={OldResultPage}/>
-          {/* <PrivateRoute exact path='/home/other/oldtask' component={TaskManageViewOld}/> */}
+          <PrivateRoute exact path='/home/other/test1' component={TestView} />
+          <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage} />
+          <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage} />
+          <PrivateRoute exact path='/home/other/ref3' component={OldResultPage} />
 
-          <Redirect exact from='/' to='/home'/>
-        </Switch>
+          <Redirect exact from='/' to='/home' />
+        </Switch> */}
       </div>
     )
+  }
+
+  getHostSystemRoute() {
+    return (
+      <Switch>
+        <PrivateRoute exact path='/home' component={SecurityProjectView} />
+        <PrivateRoute exact path='/home/task-manage' component={TaskManageView} />
+        <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase} />
+        <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView} />
+
+        <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview} />
+        <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView} />
+        <PrivateRoute exact path='/home/sec-config/statistics' component={SecurityStatistics} />
+
+        <PrivateRoute exact path='/home/log-manage/inspect-logs' component={TaskExecResultsView} />
+        <PrivateRoute exact path='/home/log-manage/operate-logs' component={ExecActionsView} />
+        <PrivateRoute exact path='/home/log-manage/exception-logs' component={ExceptionLogsView} />
+        <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
+
+        <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
+        <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
+        <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
+
+        <PrivateRoute exact path='/home/about' component={AboutView} />
+
+        <PrivateRoute exact path='/home/other/test1' component={TestView} />
+        <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage} />
+        <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage} />
+        <PrivateRoute exact path='/home/other/ref3' component={OldResultPage} />
+
+        <Redirect exact from='/' to='/home' />
+      </Switch>
+    );
+  }
+
+  getTerminalSystemRoute() {
+    return (
+      <Switch>
+        <PrivateRoute exact path='/home' component={AssetAnalysisView} />
+
+        <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
+        <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
+        <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
+
+        <PrivateRoute exact path='/home/about' component={AboutView} />
+
+        <Redirect exact from='/' to='/home' />
+      </Switch>
+    );
   }
 }
 

@@ -10,6 +10,7 @@ import { GetBackEndRootUrl, IsSimulateMode } from '../../global/environment'
 import { errorCode } from '../../global/error'
 import { Button } from '@material-ui/core';
 import HttpRequest from '../../utils/HttpRequest';
+import { GetSystemType, GetSystemName } from "../../global/environment"
 
 const styles = theme => ({
     gridStyle: {
@@ -60,7 +61,8 @@ class AboutView extends React.Component {
     }
 
     GetSystemInfo() {
-        HttpRequest.asyncGet(this.GetSystemInfoCB, '/sysinfo/version');
+        let params = { sys_type: GetSystemType() };
+        HttpRequest.asyncGet(this.GetSystemInfoCB, '/sysinfo/version', params);
     }
 
     render() {
@@ -82,7 +84,7 @@ class AboutView extends React.Component {
                             /> */}
                                 <Card.Grid style={gridStyle}>
                                     {/* <span style={{ color: 'blue', fontSize: '24px' }}>{sysInfo.sysName} <br /></span> */}
-                                    <span style={{ color: 'blue', fontSize: '24px' }}>{"主站系统自动化配置检测工具"} <br /></span>
+                                    <span style={{ color: 'blue', fontSize: '24px' }}>{GetSystemName()} <br /></span>
                                     <span style={{ textAlign: 'left' }}>{sysInfo.desc} <br /></span>
                                     <Divider dashed />
                                     {"系统版本: " + sysInfo.sysVer} <br />
