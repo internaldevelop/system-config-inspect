@@ -44,34 +44,6 @@ class ContentMain extends React.Component {
       <div style={{ padding: 16, position: 'relative' }}>
       {GetSystemType() === 1 && this.getHostSystemRoute()}   
       {GetSystemType() === 2 && this.getTerminalSystemRoute()}   
-        {/* <Switch>
-          <PrivateRoute exact path='/home' component={SecurityProjectView} />
-          <PrivateRoute exact path='/home/task-manage' component={TaskManageView} />
-          <PrivateRoute exact path='/home/sec-config/knowledge' component={SecurityKnowledgeBase} />
-          <PrivateRoute exact path='/home/sec-config/management' component={SecurityConfigView} />
-
-          <PrivateRoute exact path='/home/inspect-result/overview' component={InspectResultOverview} />
-          <PrivateRoute exact path='/home/inspect-result/details' component={InspectResultView} />
-          <PrivateRoute exact path='/home/sec-config/statistics' component={SecurityStatistics} />
-
-          <PrivateRoute exact path='/home/log-manage/inspect-logs' component={TaskExecResultsView} />
-          <PrivateRoute exact path='/home/log-manage/operate-logs' component={ExecActionsView} />
-          <PrivateRoute exact path='/home/log-manage/exception-logs' component={ExceptionLogsView} />
-          <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
-
-          <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
-          <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
-          <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
-
-          <PrivateRoute exact path='/home/about' component={AboutView} />
-
-          <PrivateRoute exact path='/home/other/test1' component={TestView} />
-          <PrivateRoute exact path='/home/other/ref1' component={OldTaskPage} />
-          <PrivateRoute exact path='/home/other/ref2' component={OldPolicyPage} />
-          <PrivateRoute exact path='/home/other/ref3' component={OldResultPage} />
-
-          <Redirect exact from='/' to='/home' />
-        </Switch> */}
       </div>
     )
   }
