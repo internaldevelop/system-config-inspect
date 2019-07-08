@@ -56,6 +56,8 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView}/>
           <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView}/>
           <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView}/>
+          <PrivateRoute exact path='/home/sysconfig/system-alert' component={AssetManageView}/>
+          <PrivateRoute exact path='/home/sysconfig/user-alert' component={AssetManageView}/>
 
           <PrivateRoute exact path='/home/about' component={AboutView}/>
 

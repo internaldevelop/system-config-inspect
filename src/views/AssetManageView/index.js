@@ -176,6 +176,7 @@ class AssetMangeView extends React.Component {
         assetStore.setAssetProcName(('新建资产'));
         let assetItem = {
             name: '新建资产',
+            ip: '127.0.0.1',
             port: '8191',
         };
         assetStore.initAssetItem(assetItem);

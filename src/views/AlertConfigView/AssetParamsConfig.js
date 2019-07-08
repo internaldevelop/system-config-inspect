@@ -1,11 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
-import { withStyles } from '@material-ui/core/styles';
-import { observer, inject } from 'mobx-react'
+import React from './node_modules/react';
+import PropTypes from './node_modules/prop-types';
+import ReactDOM from './node_modules/react-dom';
+import { withStyles } from './node_modules/@material-ui/core/styles';
+import { observer, inject } from './node_modules/mobx-react'
 import Draggable from '../../components/window/Draggable'
-import { Modal, Row, Col, message, Icon, Button, Typography } from 'antd';
-import TextField from '@material-ui/core/TextField';
+import { Modal, Row, Col, message, Icon, Button, Typography } from './node_modules/antd';
+import TextField from './node_modules/@material-ui/core/TextField';
 
 import HttpRequest from '../../utils/HttpRequest'
 import { actionType } from '../../global/enumeration/ActionType';
@@ -117,7 +117,7 @@ class AssetParamsConfig extends React.Component {
         let type = document.getElementById('system-type').value;
         let version = document.getElementById('system-ver').value;
         
-        if (ip === null || ip === ' ' || ip === '') {
+        if (ip === null || ip === ' ') {
             message.info('资产ip不能为空，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
@@ -125,11 +125,11 @@ class AssetParamsConfig extends React.Component {
             message.info('资产ip名称长度不能超过20，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
-        } else if (type === null || type === '' || type === ' ') {
+        } else if (type === null || type === ' ') {
             message.info('系统类型不能为空，请重新输入');
             document.getElementById('system-type').value = '';
             return false;
-        } else if (version === null || version === '' || version === ' ') {
+        } else if (version === null || version === ' ') {
             message.info('系统版本不能为空，请重新输入');
             document.getElementById('system-ver').value = '';
             return false;
@@ -192,12 +192,6 @@ class AssetParamsConfig extends React.Component {
         this.checkAssetName();
     }
 
-    handleIpChange = (event) => {
-        //let ip = event.target.value;
-        document.getElementById('system-type').value = '';
-        document.getElementById('system-ver').value = '';
-    }
-
     getAssetInfoCB = (data) => {
         // 检查响应的payload数据是数组类型
         if (data.payload === null || data.payload.System === null) {
@@ -221,7 +215,7 @@ class AssetParamsConfig extends React.Component {
         let hostIp = document.getElementById('host-ip').value;
         if (hostIp !== null || hostIp !== undefined || hostIp !== '') {
             hostIp = "http://" + hostIp + ":8191";
-            let params = {types: "System"};
+            let params = {types: ""};
             HttpRequest.asyncGetSpecificUrl(this.getAssetInfoCB, hostIp, '/asset-info/acquire', params);
         }
     }
@@ -248,8 +242,8 @@ class AssetParamsConfig extends React.Component {
                         <Text styles={{ color: '#4caf50' }}><br />{assetNamealert}</Text>}
                     <Row>
                         <Col span={8}>
-                            <TextField required id="host-ip" label="主机IP" defaultValue={ip}
-                                variant="outlined" margin="normal" onChange={this.handleIpChange}
+                            <TextField disabled={this.props.assetStore.assetAction === actionType.ACTION_EDIT ? true : false} required id="host-ip" label="主机IP" defaultValue=" " value={ip}
+                                variant="outlined" margin="normal"
                             />
                         </Col>
                         <Col span={8} style={{ marginTop: 20 }}>

@@ -56,6 +56,15 @@ const menus = [
             { key: '/home/sysadmin/assets', title: '资产管理', icon: 'cluster', },
         ]
     },
+    {
+        title: '系统配置',
+        icon: 'alert',
+        key: '/home/sysconfig',
+        subs: [
+            { key: '/home/sysconfig/system-alert', title: '系统警告配置', icon: 'notification', },
+            { key: '/home/sysconfig/user-alert', title: '告警配置', icon: 'mail', },
+        ]
+    },
     // {
     //     title: '风险预警',
     //     icon: 'home',
