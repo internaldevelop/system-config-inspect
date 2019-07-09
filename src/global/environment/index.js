@@ -18,10 +18,12 @@ export function GetSystemName() {
 
 export function GetBackEndRootUrl() {
     return 'http://localhost:8090/api';
+    // return "http://172.16.60.5:8090/api/"; //信通所云服务器
 }
 
 export function GetWebSocketUrl() {
     return "ws://localhost:8090/websocket/";
+    // return "ws://172.16.60.5:8090/websocket/"; //信通所云服务器
 }
 
 export function IsSimulateMode() {
