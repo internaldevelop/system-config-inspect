@@ -144,7 +144,7 @@ class TaskManageView extends React.Component {
             console.log("您的浏览器支持WebSocket");
             //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
             //等同于socket = new WebSocket("ws://localhost:8083/checkcentersys/websocket/20");  
-            socket = new WebSocket(GetWebSocketUrl() + generateUuidStr());
+            socket = new WebSocket(GetWebSocketUrl() + 'task_run_info_' + generateUuidStr());
             //打开事件  
             socket.onopen = function () {
                 console.log("Socket 已打开");
