@@ -26,6 +26,8 @@ import TestView from '../views/TestView'
 
 import AssetAnalysisView from '../views/AssetAnalysisView'
 
+import AlertConfigView from '../views/AlertConfigView'
+
 
 //====================================================================
 // old pages, just for reference
@@ -68,6 +70,7 @@ class ContentMain extends React.Component {
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
+        <PrivateRoute exact path='/home/sysconfig/system-alert' component={AlertConfigView} />
 
         <PrivateRoute exact path='/home/about' component={AboutView} />
 
@@ -89,6 +92,7 @@ class ContentMain extends React.Component {
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
+        <PrivateRoute exact path='/home/sysconfig/system-alert' component={AlertConfigView} />
 
         <PrivateRoute exact path='/home/about' component={AboutView} />
 
