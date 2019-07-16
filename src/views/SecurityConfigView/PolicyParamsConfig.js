@@ -155,9 +155,13 @@ class PolicyParamsConfig extends React.Component {
             // 调用父组件传入的回调函数，第一个参数 true 表示本组件的参数设置已确认，且策略记录已在后台创建或更新
             actionCB(true, {});
         } else {
-            message.error(eng2chn(data.error));
-            // 后台创建策略记录失败，则用参数 false 通知父组件不更新页面
-            actionCB(false, {});
+            if (data.code === errorCode.ERROR_SCRIPT_SYNTAX_ERROR) {
+                // 检查脚本有错误，不关闭子组件
+            } else {
+                message.error(eng2chn(data.error));
+                // 后台创建策略记录失败，则用参数 false 通知父组件不更新页面
+                actionCB(false, {});
+            }
         }
     }
 

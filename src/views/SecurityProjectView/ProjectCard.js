@@ -130,16 +130,15 @@ class ProjectCard extends React.Component {
     }
 
     render() {
-        const projectItem = this.props.projectStore.projectItem;
         const { statusList } = this.props;
         const { showTaskConfig } = this.state;
-
+        
         return (
             <div>
                 <Row>
                     {statusList.map((item, index) => (
                         <Col span={4}>
-                            <Card title={item.name} bordered={true} style={{ marginRight: 16 }} extra={this.getTaskInfoButton(item)}>
+                            <Card title={item.name} bordered={true} style={{ marginRight: 16, height: 240 }} extra={this.getTaskInfoButton(item)}>
                                 {(item === null || item.run_status === taskRunStatus.IDLE) && <Progress type="circle" percent={0} format={() => '空闲'} />}
                                 {item.run_status === taskRunStatus.INTERRUPTED && <Progress type="circle" percent={item.done_rate} status="exception" />}
                                 {(item.run_status === taskRunStatus.RUNNING || item.run_status === taskRunStatus.FINISHED) && 
@@ -148,8 +147,7 @@ class ProjectCard extends React.Component {
                                     <Progress type="circle" percent={this.getPercentValue(item)} onClick={this.handlePlayback(item.task_uuid)} status={this.getProgressStatus(item)} />
                                 </div> */}
                                 <dr />
-                                <div>{this.getExportTasksResultsButton(item)}
-                                </div>
+                                <div>{this.getExportTasksResultsButton(item)}</div>
                             </Card>
                         </Col>
                     ))}
