@@ -58,7 +58,7 @@ class ProcUsageLine extends Component {
             dataset: { source: percents },
             grid: { containLabel: true },
             yAxis: {
-                name: name === 'CPU' ? '单核CPU(%)' : '内存使用率(%)',
+                name: name === 'CPU' ? '每CPU(%)' : '内存及交换区使用率(%)',
             },
             xAxis: {
                 type: 'category',

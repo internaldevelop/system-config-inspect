@@ -20,7 +20,7 @@ export function OpenSocket(slotType, processCB) {
         };
         //获得消息事件  
         socket.onmessage = function (msg) {
-            console.log(msg.data);
+            // console.log(msg.data);
             processCB(msg.data);
             //发现消息进入    开始处理前端触发逻辑
         };

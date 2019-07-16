@@ -55,7 +55,6 @@ const hostMenus = [
             { key: '/home/sysadmin/users', title: '用户管理', icon: 'contacts', },
             { key: '/home/sysadmin/personal', title: '个人资料', icon: 'user', },
             { key: '/home/sysadmin/assets', title: '资产管理', icon: 'cluster', },
-            { key: '/home/sysconfig/system-alert', title: '系统告警配置', icon: 'alert', },
         ]
     },
     // {

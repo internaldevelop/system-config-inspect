@@ -89,11 +89,18 @@ class AssetAnalysisView extends React.Component {
     // }
 
     processAssetRealTimeInfo = (data) => {
+        const { assets, selectedAssetId } = this.state;
+
         let infoStore = this.props.assetInfoStore;
         let message = JSON.parse(data);
         if (message.type === sockMsgType.ASSET_REAL_TIME_INFO) {
             // payload
             let payload = message.payload;
+            // 不是当前选择的资产信息忽略
+            if (payload['asset_uuid'] !== assets[selectedAssetId].uuid) {
+                return;
+            }
+
             // 从payload中提取CPU使用率，存到仓库中
             infoStore.setCpu(payload['CPU usage']);
             // 从payload中提取内存使用率，存到仓库中
@@ -145,7 +152,7 @@ class AssetAnalysisView extends React.Component {
         const { assets } = this.state;
         for (let index in assets) {
             if (assets[index].uuid === assetUuid)
-                return index;
+                return parseInt(index);
         }
         return -1;
     }
@@ -184,14 +191,23 @@ class AssetAnalysisView extends React.Component {
         this.setState({ loading: false });
     }
     selectAsset(assetUuid) {
-        const { assets } = this.state;
-        let selectedAssetId = this.assetIndexFromUuid(assetUuid);
-        this.setState({ selectedAssetId });
-        let assetIp = "http://" + assets[selectedAssetId].ip + ":8191";
-        let params = { types: 'System,CPU,Mem,Net Config' };
+        const { assets, selectedAssetId } = this.state;
+        // 停止旧的资产定时任务
+        if (selectedAssetId >= 0) {
+            this.stopNodeScheduler(assets[selectedAssetId].uuid);
+        }
 
+        // 新选择的资产UUID在列表中的索引
+        let curSelectId = this.assetIndexFromUuid(assetUuid);
+
+        // 保存新的资产索引
+        this.setState({ selectedAssetId: curSelectId });
+
+        // 获取新选择资产的系统信息
         this.setState({ loading: true });
-        HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(selectedAssetId), assetIp, '/asset-info/acquire', params);
+        let assetIp = "http://" + assets[curSelectId].ip + ":8191";
+        let params = { types: 'System,CPU,Mem,Net Config' };
+        HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(curSelectId), assetIp, '/asset-info/acquire', params);
     }
 
     onSelectAsset = (value) => {
@@ -217,8 +233,9 @@ class AssetAnalysisView extends React.Component {
     }
 
     render() {
-        const { assetOnline, assetInfo } = this.state;
+        const { assetOnline, assetInfo, selectedAssetId, assets } = this.state;
         let infoStore = this.props.assetInfoStore;
+        let assetName = selectedAssetId >= 0 ? assets[selectedAssetId].name : '';
         return (
             <div>
                 <Spin spinning={this.state.loading} size="large">
@@ -227,7 +244,7 @@ class AssetAnalysisView extends React.Component {
                         <Skeleton loading={!assetOnline} active avatar>
                             <Row gutter={8}>
                                 <Col span={17}>
-                                    <Card type="inner" title="资产信息">
+                                    <Card type="inner" title={assetName + "--资产信息"}>
                                         <Row>
                                             <Col span={7}>
                                                 <UsageGauge name='CPU' />
@@ -247,7 +264,7 @@ class AssetAnalysisView extends React.Component {
                                     </Card>
                                 </Col>
                                 <Col span={7}>
-                                    <Card type="inner" title="资产环境">
+                                    <Card type="inner" title={assetName + "--资产环境"}>
                                         {renderAssetInfo(assetInfo)}
                                     </Card>
                                 </Col>
