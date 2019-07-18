@@ -18,6 +18,8 @@ import TaskExecResultsView from '../views/TaskExecResultsView'
 import ExecActionsView from '../views/TaskExecResultsView/ExecActionsView'
 import ExceptionLogsView from '../views/TaskExecResultsView/ExceptionLogsView'
 import SystemLogsView from '../views/SystemLogsView'
+import CheckResultView from '../views/CheckResultView'
+import CheckTemplateView from '../views/CheckTemplateView'
 
 import UsersManageView from '../views/UsersManageView'
 import UserInfoView from '../views/UsersManageView/UserInfoView'
@@ -70,7 +72,6 @@ class ContentMain extends React.Component {
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
-        <PrivateRoute exact path='/home/sysconfig/system-alert' component={AlertConfigView} />
 
         <PrivateRoute exact path='/home/about' component={AboutView} />
 
@@ -88,11 +89,14 @@ class ContentMain extends React.Component {
     return (
       <Switch>
         <PrivateRoute exact path='/home' component={AssetAnalysisView} />
+        <PrivateRoute exact path='/home/check-template' component={CheckTemplateView} />
 
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
         <PrivateRoute exact path='/home/sysconfig/system-alert' component={AlertConfigView} />
+        <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
+        <PrivateRoute exact path='/home/log-manage/check-logs' component={CheckResultView} />
 
         <PrivateRoute exact path='/home/about' component={AboutView} />
 
