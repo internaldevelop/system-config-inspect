@@ -147,6 +147,35 @@ class LogIn extends React.Component {
         return true;
     }
 
+    getSystemConfigCB = (data) => {
+        // 检查响应的payload数据是数组类型
+        if (!(data.payload instanceof Array))
+            return;
+
+        let mailToManagerAddress = '';
+        let mailToManagerOnOff = '';
+        for (let config of data.payload) {
+            let name = config.name;
+            if (name !== '') {
+                if (name === 'mail-to-manager-address') {
+                    mailToManagerAddress = config.value;
+                } else if (name === 'mail-to-manager-on-off') {
+                    mailToManagerOnOff = config.value;
+                }
+            }
+        }
+        if (mailToManagerOnOff === 'on') {
+            const { account } = this.state;
+            let subject = '账号' + account + '密码已锁定';
+            let content = '账号' + account + '在主站系统自动化配置检测工具系统中的密码已被锁定，请解锁其密码';
+            HttpRequest.asyncGet(this.sendMailCB, '/emails/send', {subject, content, mailToManagerAddress});
+        } 
+    }
+
+    getSystemConfig() {
+        HttpRequest.asyncGet(this.getSystemConfigCB, '/system-config/all');
+    }
+
     verifyPasswordCB = (data) => {
         const userStore = this.props.userStore;
         if (data.code === errorCode.ERROR_OK) {
@@ -174,10 +203,8 @@ class LogIn extends React.Component {
                 showVerifyError: true,
                 verifyError: '密码已锁定，请联系管理员解锁密码',
             });
-            let subject = '密码已锁定';
-            let content = '您在主站系统自动化配置检测工具系统中的密码已锁定，请联系管理员解锁密码';
-            let toWho = data.payload.email;
-            HttpRequest.asyncGet(this.sendMailCB, '/emails/send', {subject, content, toWho});
+            // 获取系统配置确认是否需要发邮件给管理员解锁密码
+            this.getSystemConfig();
         } else if (data.code === errorCode.ERROR_INVALID_PASSWORD) {
             // 密码校验失败，提示剩余尝试次数
             this.setState({

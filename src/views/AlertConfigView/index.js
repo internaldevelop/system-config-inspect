@@ -48,6 +48,7 @@ class AlertConfigView extends React.Component {
             mailToManagerOnOff: '',
             mailToUserOnOff: '',
             existManagerMail: false,
+            existUserOnOff: false,
         }
         this.getSystemConfig();
     }
@@ -60,25 +61,28 @@ class AlertConfigView extends React.Component {
         let mailToManagerAddress = '';
         let mailToManagerUuid = '';
         let existManagerMail = false;
-        let mailToManagerOnOff = '';
-        let mailToUserOnOff = '';
+        let existUserOnOff = false;
+        let mailToManagerOnOff = 'off';
+        let mailToUserOnOff = 'off';
         for (let config of data.payload) {
             let name = config.name;
             if (name !== '') {
                 if (name === 'mail-to-manager-address') {
+                    existManagerMail = true;
                     mailToManagerAddress = config.value;
                 } else if (name === 'mail-to-manager-on-off') {
+                    existManagerMail = true;
                     mailToManagerOnOff = config.value;
-                    existManagerMail = true;
                 } else if (name === 'mail-to-manager-uuid') {
-                    mailToManagerUuid = config.value;
                     existManagerMail = true;
+                    mailToManagerUuid = config.value;
                 } else if (name === 'mail-to-user-on-off') {
+                    existUserOnOff = true;
                     mailToUserOnOff = config.value;
                 }
             }
         }
-        this.setState({ existManagerMail, mailToManagerAddress, mailToManagerUuid, mailToManagerOnOff, mailToUserOnOff, });
+        this.setState({ existUserOnOff, existManagerMail, mailToManagerAddress, mailToManagerUuid, mailToManagerOnOff, mailToUserOnOff, });
         this.getUsers();
     }
 
@@ -167,18 +171,24 @@ class AlertConfigView extends React.Component {
     }
 
     modifyDetails = () => {
-        const { existManagerMail, mailToManagerAddress, mailToManagerUuid, mailToManagerOnOff, mailToUserOnOff } = this.state;
+        const { existUserOnOff, existManagerMail, mailToManagerAddress, mailToManagerUuid, mailToManagerOnOff, mailToUserOnOff } = this.state;
         if (this.state.isModifyDetails) {
             if (existManagerMail) {
                 HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/update', { name: 'mail-to-manager-on-off', value: mailToManagerOnOff, });
-                HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/update', { name: 'mail-to-user-on-off', value: mailToUserOnOff, });
                 HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/update', { name: 'mail-to-manager-address', value: mailToManagerAddress });
                 HttpRequest.asyncPost(this.requestSystemConfigCB('update'), '/system-config/update', { name: 'mail-to-manager-uuid', value: mailToManagerUuid });
             } else {
-                HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/add', { name: 'mail-to-manager-on-off', value: mailToManagerOnOff, });
-                HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/add', { name: 'mail-to-user-on-off', value: mailToUserOnOff, });
+                existManagerMail = true;
+                HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/add', { name: 'mail-to-manager-on-off', value: mailToManagerOnOff, });         
                 HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/add', { name: 'mail-to-manager-address', value: mailToManagerAddress });
                 HttpRequest.asyncPost(this.requestSystemConfigCB('new'), '/system-config/add', { name: 'mail-to-manager-uuid', value: mailToManagerUuid });
+            }
+
+            if (existUserOnOff) {
+                HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/update', { name: 'mail-to-user-on-off', value: mailToUserOnOff, });
+            } else {
+                existUserOnOff = true;
+                HttpRequest.asyncPost(this.requestSystemConfigCB(''), '/system-config/add', { name: 'mail-to-user-on-off', value: mailToUserOnOff, });
             }
         }
         this.setState({ isModifyDetails: !this.state.isModifyDetails });
