@@ -7,6 +7,27 @@ import Signup from '../components/login/SignUp';
 import SystemEntry from './SystemEntry'
 
 class App extends Component {
+  // constructor(props) {
+  //   super(props);
+  //   this.state={};
+
+  //   // let data = '{"startup": 111}';
+  //   let data = '{"startup": {"SELinux_status": "检查SELinux是否开启","SELinux_mode": "检查SELinux模式是否为enforcing","SELinux_policy": "检查SELinux策略是否为strict"}}';
+  //   let jsonData = JSON.parse(data);
+  //   jsonData = jsonData["startup"];
+
+  //   let arrData= [];
+  //   for (let key in jsonData) {
+  //       if (jsonData.hasOwnProperty(key)) {
+  //           let value = jsonData[key];
+  //           arrData.push({key, value});
+  //           console.log(value);
+  //       }
+  //   }
+  //   let newData = arrData.map((value) => value.key + ": " + value.value);
+
+  // }
+
   render() {
     return (
       <HashRouter>

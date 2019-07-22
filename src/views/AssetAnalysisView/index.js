@@ -40,6 +40,7 @@ class AssetAnalysisView extends React.Component {
         };
 
         this.acquireAssets();
+
     }
 
     componentDidMount() {
