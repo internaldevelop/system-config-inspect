@@ -43,14 +43,14 @@ class CheckTemplateView extends React.Component {
                     let values;
                     if (jsonTemplate.hasOwnProperty(key)
                         && ((values = jsonTemplate[key]) !== null)) {
-                            dataArray.push({ key, values });
+                        dataArray.push({ key, values });
                     }
                 }
                 if (dataArray.length > 0) {
                     return (
-                        <div>
+                        <Collapse accordion defaultActiveKey={dataArray[0].key}>
                             {dataArray.map((item) => this.panelInfo(item.key, item.values))}
-                        </div>
+                        </Collapse>
                     );
                 }
                 break;
