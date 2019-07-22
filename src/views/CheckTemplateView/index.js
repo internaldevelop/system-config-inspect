@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { observer, inject } from 'mobx-react'
-import { Card, Skeleton, Select, Tag, Col, Collapse, } from 'antd';
+import { Card, Skeleton, Select, Tag, Col, Collapse, Row } from 'antd';
 import HttpRequest from '../../utils/HttpRequest';
 const Panel = Collapse.Panel;
 
@@ -86,21 +86,23 @@ class CheckTemplateView extends React.Component {
             <div>
                 <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Card title="核查模板" bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>
-                        <Col span={8}>
-                            <Card type="inner" title={"安全配置一级模板"}>
-                                {this.renderTemplateInfo(1)}
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card type="inner" title={"安全配置二级模板"}>
-                                {this.renderTemplateInfo(2)}
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card type="inner" title={"安全配置三级模板"}>
-                                {this.renderTemplateInfo(3)}
-                            </Card>
-                        </Col>
+                        <Row gutter={8}>
+                            <Col span={8}>
+                                <Card type="inner" title={"安全配置一级模板"}>
+                                    {this.renderTemplateInfo(1)}
+                                </Card>
+                            </Col>
+                            <Col span={8}>
+                                <Card type="inner" title={"安全配置二级模板"}>
+                                    {this.renderTemplateInfo(2)}
+                                </Card>
+                            </Col>
+                            <Col span={8}>
+                                <Card type="inner" title={"安全配置三级模板"}>
+                                    {this.renderTemplateInfo(3)}
+                                </Card>
+                            </Col>
+                        </Row>
                     </Card>
                 </Skeleton>
             </div>
