@@ -58,6 +58,24 @@ class CheckTemplateView extends React.Component {
         }
     }
 
+    getHeader = (key) => {
+        let header = 'iptables配置';
+        if (key === 'startup') {
+            header = '开机安全配置';
+        } else if (key === 'accounts') {
+            header = '账户安全配置';
+        } else if (key === 'services') {
+            header = '服务安全配置';
+        } else if (key === 'syslog') {
+            header = '日志安全配置';
+        } else if (key === 'login') {
+            header = '登录安全配置';
+        } else if (key === 'passowrd') {
+            header = '密码配置';
+        }
+        return header;
+    }
+
     panelInfo = (key, values) => {
         let templateArray = [];
         for (let templateKey in values) {
@@ -69,7 +87,7 @@ class CheckTemplateView extends React.Component {
         }
         if (templateArray.length > 0) {
             return (
-                <Panel header={key} key={key}>
+                <Panel header={this.getHeader(key)} key={key}>
                     {templateArray.map((template) => this.tagInfo(template.templateKey, template.value))}
                 </Panel>
             );
