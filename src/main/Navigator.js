@@ -88,9 +88,14 @@ const hostMenus = [
 
 const terminalMenus = [
     {
-        title: '资产扫描',
+        title: '资产信息',
         icon: 'home',
         key: '/home',
+    },
+    {
+        title: '资产扫描',
+        icon: 'security-scan',
+        key: '/home/asset-analysis',
     },
     {
         title: '核查模板',

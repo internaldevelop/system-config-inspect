@@ -3,18 +3,29 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { observer, inject } from 'mobx-react'
 
-import { Card, Skeleton, Select, Table, Spin, Button, Row, Col, Popconfirm, Collapse, message, Modal } from 'antd';
+import { Card, Skeleton, Select, Table, Divider, Button, Row, Col, Icon, Collapse, message, Modal, Typography } from 'antd';
 
-import { renderAssetInfo } from './AssetInfo';
-import UsageGauge from './UsageGauge';
-import ProcUsageLine from './ProcUsageLine';
+import ResultCard from './ResultCard';
+import CheckRating from './CheckRating';
+import StatStackBar from './StatStackBar';
+import { GetGroups } from './toolkit';
+
 import HttpRequest from '../../utils/HttpRequest';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
+import { getGroupAlias } from '../../utils/StringUtils';
 import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
+import lightBlue from '@material-ui/core/colors/lightBlue';
+import teal from '@material-ui/core/colors/teal';
+
+// var EventEmitter = require('events').EventEmitter;
+// let emitter = new EventEmitter();
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
+const ButtonGroup = Button.Group;
+const { Title } = Typography;
+
 
 let socket = null;
 
@@ -26,28 +37,24 @@ const styles = theme => ({
     },
 });
 
-@inject('assetInfoStore')
-@observer
 class AssetAnalysisView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             assets: [],
             selectedAssetId: -1,
-            assetInfo: {},
-            assetOnline: false,
-            loading: false,
+            hasCheckStat: false,
+            scan: null,
         };
 
         this.acquireAssets();
-
     }
 
     componentDidMount() {
-        let infoStore = this.props.assetInfoStore;
-        socket = OpenSocket('asset_info', this.processAssetRealTimeInfo);
-        infoStore.setProcCpu(this.getSourceInital());
-        infoStore.setProcMem(this.getSourceInital());
+        // let infoStore = this.props.assetInfoStore;
+        // socket = OpenSocket('asset_info', this.processAssetRealTimeInfo);
+        // infoStore.setProcCpu(this.getSourceInital());
+        // infoStore.setProcMem(this.getSourceInital());
         // infoStore.initProcCpu();
         // infoStore.addProcCpu('System', 0.0);
         // infoStore.initProcMem();
@@ -55,100 +62,31 @@ class AssetAnalysisView extends React.Component {
     }
 
     componentWillUnmount() {
-        CloseSocket(socket);
+        // CloseSocket(socket);
     }
 
-    getSourceInital = () => {
-        return [['procname', 'percent', 'score']];
+    getRecentCheckStatCB = (data) => {
+        this.setState({ hasCheckStat: true, recent: data.payload.recent });
+        global.myEventEmitter.emit('RefreshCheckResult', data.payload.statistics);
+    }
+    getRecentCheckStat = (assetId) => {
+        const { assets } = this.state;
+        if (assetId < 0)
+            return;
+        let asset = assets[assetId];
+        let params = { asset_uuid: asset.uuid };
+        HttpRequest.asyncGet(this.getRecentCheckStatCB, '/baseline-check/asset-recent-check-stat', params);
     }
 
     acquireAssetsCB = (data) => {
-        this.setState({ assets: data.payload });
+        this.setState({ assets: data.payload, selectedAssetId: 0 });
 
-        let selectedAsset = '';
-        if ((data.payload instanceof Array) && (data.payload.length > 0)) {
-            selectedAsset = data.payload[0].uuid;
-            this.selectAsset(selectedAsset);
-        }
+        this.getRecentCheckStat(0);
     }
     acquireAssets = () => {
         HttpRequest.asyncGet(this.acquireAssetsCB, '/assets/all');
     }
-    // @action initProcCpu = () => {
-    //     this.procCpuPercents = [['procname', 'percent', 'score']];
-    // }
-    // @action initProcMem = () => {
-    //     this.procMemPercents = [['procname', 'percent', 'score']];
-    // }
-    // @action addProcCpu = (procname, percent) => {
-    //     let record = [procname, percent, this.procCpuPercents.length];
-    //     this.procCpuPercents.push(record);
-    // }
-    // @action addProcMem = (procname, percent) => {
-    //     let record = [procname, percent, this.procMemPercents.length];
-    //     this.procMemPercents.push(record);
-    // }
 
-    processAssetRealTimeInfo = (data) => {
-        const { assets, selectedAssetId } = this.state;
-
-        let infoStore = this.props.assetInfoStore;
-        let message = JSON.parse(data);
-        if (message.type === sockMsgType.ASSET_REAL_TIME_INFO) {
-            // payload
-            let payload = message.payload;
-            // 不是当前选择的资产信息忽略
-            if (payload['asset_uuid'] !== assets[selectedAssetId].uuid) {
-                return;
-            }
-
-            // 从payload中提取CPU使用率，存到仓库中
-            infoStore.setCpu(payload['CPU usage']);
-            // 从payload中提取内存使用率，存到仓库中
-            infoStore.setMem(payload['Memory'].freePercent / 100);
-
-            // 存储进程的CPU占用率
-            let procCpuList = payload['Proc CPU Ranking'];
-            // let cpuCount = payload['CPU percents'].length;
-            if (procCpuList instanceof Array) {
-                let procPercents = this.getSourceInital();
-                // this.props.assetInfoStore.initProcCpu();
-                for (let procCpu of procCpuList) {
-                    let percent = (procCpu.percent * 100).toFixed(2) - 0;
-                    let procName = procPercents.length + '-' + procCpu.name;
-                    procPercents.push([procName, percent, percent]);
-                    // infoStore.addProcCpu(procCpu.name, procCpu.percent);
-                }
-                infoStore.setProcCpu(procPercents);
-            }
-
-            // 存储进程的内存占用率
-            let procMemList = payload['Proc Memory Ranking'];
-            if (procMemList instanceof Array) {
-                // this.props.assetInfoStore.initProcMem();
-                let procPercents = this.getSourceInital();
-                for (let procMem of procMemList) {
-                    let procName = procPercents.length + '-' + procMem.name;
-                    let percent = (procMem.percent * 100).toFixed(2) - 0;
-                    procPercents.push([procName, percent, percent]);
-                    // infoStore.addProcMem(procMem.name, procMem.percent);
-                }
-                infoStore.setProcMem(procPercents);
-            }
-        } else {
-            // 其它消息类型不做处理
-        }
-
-    }
-
-    assetNameFromUuid(assetUuid) {
-        const { assets } = this.state;
-        for (let asset of assets) {
-            if (asset.uuid === assetUuid)
-                return asset.name;
-        }
-        return '';
-    }
     assetIndexFromUuid(assetUuid) {
         const { assets } = this.state;
         for (let index in assets) {
@@ -158,57 +96,18 @@ class AssetAnalysisView extends React.Component {
         return -1;
     }
 
-    startNodeSchedulerCB = (data) => {
-    }
-    startNodeScheduler = (assetUuid) => {
-        let params = { asset_uuid: assetUuid, action: 1, info_types: 'Proc CPU Ranking,Proc Memory Ranking,CPU Usage,Mem' };
-        HttpRequest.asyncGet(this.startNodeSchedulerCB, '/assets/real-time-info', params);
-    }
-
-    stopNodeSchedulerCB = (data) => {
-    }
-    stopNodeScheduler(assetUuid) {
-        let params = { asset_uuid: assetUuid, action: 0 };
-        HttpRequest.asyncGet(this.startNodeSchedulerCB, '/assets/real-time-info', params);
-    }
-
-    acquireAssetInfoCB = (index) => (data, error) => {
-        const { assets } = this.state;
-        if ((typeof (error) !== 'undefined') && (error !== null)) {
-            Modal.error({
-                keyboard: true,         // 是否支持键盘 esc 关闭
-                content: '访问资产（' + assets[index].name + '）失败，请确认该资产连线状态。',
-            });
-            // 设置资产离线状态
-            this.setState({ assetOnline: false });
-        } else {
-            // 设置资产在线状态
-            this.setState({ assetInfo: data.payload, assetOnline: true });
-
-            // 启动后台定时任务，扫描终端节点的CPU和内存使用情况
-            this.startNodeScheduler(assets[index].uuid);
-        }
-
-        this.setState({ loading: false });
-    }
     selectAsset(assetUuid) {
         const { assets, selectedAssetId } = this.state;
-        // 停止旧的资产定时任务
-        if (selectedAssetId >= 0) {
-            this.stopNodeScheduler(assets[selectedAssetId].uuid);
-        }
 
         // 新选择的资产UUID在列表中的索引
         let curSelectId = this.assetIndexFromUuid(assetUuid);
 
-        // 保存新的资产索引
-        this.setState({ selectedAssetId: curSelectId });
+        // 保存新的资产索引，并清空核查统计数据
+        this.setState({ selectedAssetId: curSelectId, hasCheckStat: false });
+        global.myEventEmitter.emit('ClearCheckResult', '');
 
-        // 获取新选择资产的系统信息
-        this.setState({ loading: true });
-        let assetIp = "http://" + assets[curSelectId].ip + ":8191";
-        let params = { types: 'System,CPU,Mem,Net Config' };
-        HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(curSelectId), assetIp, '/asset-info/acquire', params);
+        // 获取新选择的资产的核查统计数据
+        this.getRecentCheckStat(curSelectId);
     }
 
     onSelectAsset = (value) => {
@@ -219,68 +118,89 @@ class AssetAnalysisView extends React.Component {
         const { assets, selectedAssetId } = this.state;
         if (assets.length > 0 && selectedAssetId >= 0) {
             return (
-                <Select value={assets[selectedAssetId].uuid} style={{ width: 200 }} onChange={this.onSelectAsset}>
-                    {assets.map(asset => (
-                        <Option value={asset.uuid}>{asset.name}</Option>
-                    ))}
-                </Select>
+                <span>
+                    <span>选择资产</span>
+                    <Select value={assets[selectedAssetId].uuid} style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectAsset}>
+                        {assets.map(asset => (
+                            <Option value={asset.uuid} key={asset.uuid}>{asset.name}</Option>
+                        ))}
+                    </Select>
+                </span>
             );
         } else {
             return (
-                <Select style={{ width: 200 }}>
-                </Select>
+                <span>
+                    <span>选择资产</span>
+                    <Select style={{ width: 200, marginLeft: '16px' }}>
+                    </Select>
+                </span>
             );
         }
     }
 
+    getTitle = () => {
+        const { hasCheckStat, recent } = this.state;
+        let title;
+        if (hasCheckStat && recent !== null) {
+            let level;
+            if (recent.base_line === 1) {
+                level = '一级';
+            } else if (recent.base_line === 2) {
+                level = '二级';
+            } else if (recent.base_line === 3) {
+                level = '三级';
+            } else {
+                level = '未知级别';
+            }
+            title = '资产核查--' + level + '（最新核查时间：' + recent.create_time + '）';
+        } else {
+            title = '资产核查（从未核查）';
+        }
+        return title;
+    }
+
     render() {
-        const { assetOnline, assetInfo, selectedAssetId, assets } = this.state;
-        let infoStore = this.props.assetInfoStore;
-        let assetName = selectedAssetId >= 0 ? assets[selectedAssetId].name : '';
-        return (
-            <div>
-                <Spin spinning={this.state.loading} size="large">
-                    {/* <Card title="资产扫描" extra={this.getAssetSelectList()} style={{minWidth: '600px', minHeight: '400px'}}> */}
-                    <Card title="资产扫描" extra={this.getAssetSelectList()} bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>
-                        <Skeleton loading={!assetOnline} active avatar>
-                            <Row gutter={8}>
-                                <Col span={17}>
-                                    <Card type="inner" title={assetName + "--资产信息"}>
-                                        <Row>
-                                            <Col span={7}>
-                                                <UsageGauge name='CPU' />
-                                            </Col>
-                                            <Col span={17}>
-                                                <ProcUsageLine name='CPU' percents={infoStore.procCpuPercents}/>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col span={7}>
-                                                <UsageGauge name='内存' />
-                                            </Col>
-                                            <Col span={17}>
-                                                <ProcUsageLine name='内存'  percents={infoStore.procMemPercents} />
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                </Col>
-                                <Col span={7}>
-                                    <Card type="inner" title={assetName + "--资产环境"}>
-                                        {renderAssetInfo(assetInfo)}
-                                    </Card>
-                                </Col>
-                            </Row>
-                        </Skeleton>
-                    </Card>
-                </Spin>
-            </div>
-        );
+        const { selectedAssetId } = this.state;
+        let groups = GetGroups();
+        let title = this.getTitle();
+
+        return (<div style={{ minWidth: 1200 }}>
+            <Card title={title} extra={this.getAssetSelectList()}>
+                <Row gutter={8}>
+                    <Col span={3}>
+                        <Card style={{ textAlign: 'center' }} bordered={false}>
+                            <Title style={{ textAlign: 'center' }} level={3}>核查评分</Title>
+                            <CheckRating />
+                        </Card>
+                    </Col>
+                    {groups.map((group) => <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
+                </Row>
+                <Divider />
+                <Row gutter={8}>
+                    {selectedAssetId >= 0 &&
+                        <Col span={4}>
+                            {/* <Card style={{ backgroundColor: teal[500] }}> */}
+                            <Card bordered={false}>
+                                <Title style={{ textAlign: 'center' }} level={3}>核查</Title>
+                                <Button block size={'large'} type='secondary' style={{ marginBottom: 15 }}>基线一级</Button>
+                                <Button block size={'large'} type='primary' style={{ marginBottom: 15 }}>基线二级</Button>
+                                <Button block size={'large'} type='danger'>基线三级</Button>
+                            </Card>
+                        </Col>
+                    }
+                    <Col span={20}>
+                        <StatStackBar />
+                    </Col>
+                </Row>
+
+            </Card>
+
+        </div>);
     }
 }
 
 AssetAnalysisView.propTypes = {
     classes: PropTypes.object,
 };
-
 
 export default withStyles(styles)(AssetAnalysisView);

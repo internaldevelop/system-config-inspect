@@ -6,6 +6,8 @@ import LoginPage from '../components/login/LoginPage'
 import Signup from '../components/login/SignUp';
 import SystemEntry from './SystemEntry'
 
+import EventEmitter from 'events';
+
 class App extends Component {
   // constructor(props) {
   //   super(props);
@@ -27,6 +29,9 @@ class App extends Component {
   //   let newData = arrData.map((value) => value.key + ": " + value.value);
 
   // }
+  componentDidMount() {
+    global.myEventEmitter = new EventEmitter();
+  }
 
   render() {
     return (

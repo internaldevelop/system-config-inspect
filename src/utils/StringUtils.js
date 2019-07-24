@@ -62,3 +62,26 @@ export function eng2chn(eng) {
   // 没有匹配时，则返回原英文字符串
   return eng;
 }
+
+export function getGroupAlias(name) {
+  // return name;
+  switch (name) {
+      case "startup":
+          return "开机安全配置";
+      case "accounts":
+          return "账户安全配置";
+      case "passowrd":
+          return "密码配置";
+      case "services":
+          return "服务安全配置";
+      case "login":
+          return "登陆安全配置";
+      case "syslog":
+          return "日志安全配置";
+      case "iptables":
+          return "iptables配置";
+      default:
+          return "未知";
+  }
+}
+
