@@ -178,7 +178,7 @@ class CheckResultView extends React.Component {
             //scan_result: scanResult
         };
 
-        return HttpRequest.asyncPost(this.queryResultHistoryCB, '/baseline-check/get-scan_records', params, false);
+        return HttpRequest.asyncPost(this.queryResultHistoryCB, '/baseline-check/get-scan-records', params, false);
     }
 
     /** 从后台请求所有设备数据，请求完成后的回调 */
