@@ -4,5 +4,5 @@ export function GetGroups() {
 }
 
 export function GetRiskLevels() {
-    return ['无漏洞', '一级风险', '二级风险', '三级风险'];
+    return ['核查通过', '一级风险', '二级风险', '三级风险'];
 }

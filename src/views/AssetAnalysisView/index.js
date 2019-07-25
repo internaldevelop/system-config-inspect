@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { observer, inject } from 'mobx-react'
 
-import { Card, Skeleton, Select, Table, Divider, Button, Row, Col, Icon, Collapse, message, Modal, Typography } from 'antd';
+import { Card, Skeleton, Select, Table, Divider, Button, Row, Col, Spin, Collapse, message, Modal, Typography } from 'antd';
 
 import ResultCard from './ResultCard';
 import CheckRating from './CheckRating';
 import StatStackBar from './StatStackBar';
+import StatRadar from './StatRadar';
 import { GetGroups } from './toolkit';
 
 import HttpRequest from '../../utils/HttpRequest';
@@ -45,24 +46,16 @@ class AssetAnalysisView extends React.Component {
             selectedAssetId: -1,
             hasCheckStat: false,
             scan: null,
+            checking: false,
         };
 
         this.acquireAssets();
     }
 
     componentDidMount() {
-        // let infoStore = this.props.assetInfoStore;
-        // socket = OpenSocket('asset_info', this.processAssetRealTimeInfo);
-        // infoStore.setProcCpu(this.getSourceInital());
-        // infoStore.setProcMem(this.getSourceInital());
-        // infoStore.initProcCpu();
-        // infoStore.addProcCpu('System', 0.0);
-        // infoStore.initProcMem();
-        // infoStore.addProcMem('System', 0.0);
     }
 
     componentWillUnmount() {
-        // CloseSocket(socket);
     }
 
     getRecentCheckStatCB = (data) => {
@@ -73,6 +66,11 @@ class AssetAnalysisView extends React.Component {
         const { assets } = this.state;
         if (assetId < 0)
             return;
+
+        // 清空核查统计数据
+        this.setState({ hasCheckStat: false });
+        global.myEventEmitter.emit('ClearCheckResult', '');
+
         let asset = assets[assetId];
         let params = { asset_uuid: asset.uuid };
         HttpRequest.asyncGet(this.getRecentCheckStatCB, '/baseline-check/asset-recent-check-stat', params);
@@ -102,9 +100,8 @@ class AssetAnalysisView extends React.Component {
         // 新选择的资产UUID在列表中的索引
         let curSelectId = this.assetIndexFromUuid(assetUuid);
 
-        // 保存新的资产索引，并清空核查统计数据
-        this.setState({ selectedAssetId: curSelectId, hasCheckStat: false });
-        global.myEventEmitter.emit('ClearCheckResult', '');
+        // 保存新的资产索引
+        this.setState({ selectedAssetId: curSelectId });
 
         // 获取新选择的资产的核查统计数据
         this.getRecentCheckStat(curSelectId);
@@ -159,42 +156,67 @@ class AssetAnalysisView extends React.Component {
         return title;
     }
 
-    render() {
+    execAssetCheckCB = (data) => {
         const { selectedAssetId } = this.state;
+        // 获取资产最新的核查统计数据
+        this.getRecentCheckStat(selectedAssetId);
+        // 设置页面为waiting状态
+        this.setState({ checking: false });
+    }
+    handleCheck = (baseLine) => (event) => {
+        console.log();
+        const { assets, selectedAssetId } = this.state;
+        if (selectedAssetId < 0)
+            return;
+
+        // 设置页面为waiting状态
+        this.setState({ checking: true });
+
+        // 执行核查
+        let asset = assets[selectedAssetId];
+        let params = { asset_uuid: asset.uuid, base_line: baseLine };
+        HttpRequest.asyncGet(this.execAssetCheckCB, '/baseline-check/run-asset-check', params, false);
+    }
+
+    render() {
+        const { selectedAssetId, checking } = this.state;
         let groups = GetGroups();
         let title = this.getTitle();
 
         return (<div style={{ minWidth: 1200 }}>
-            <Card title={title} extra={this.getAssetSelectList()}>
-                <Row gutter={8}>
-                    <Col span={3}>
-                        <Card style={{ textAlign: 'center' }} bordered={false}>
-                            <Title style={{ textAlign: 'center' }} level={3}>核查评分</Title>
-                            <CheckRating />
-                        </Card>
-                    </Col>
-                    {groups.map((group) => <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
-                </Row>
-                <Divider />
-                <Row gutter={8}>
-                    {selectedAssetId >= 0 &&
-                        <Col span={4}>
-                            {/* <Card style={{ backgroundColor: teal[500] }}> */}
-                            <Card bordered={false}>
-                                <Title style={{ textAlign: 'center' }} level={3}>核查</Title>
-                                <Button block size={'large'} type='secondary' style={{ marginBottom: 15 }}>基线一级</Button>
-                                <Button block size={'large'} type='primary' style={{ marginBottom: 15 }}>基线二级</Button>
-                                <Button block size={'large'} type='danger'>基线三级</Button>
+            <Spin spinning={checking} size="large">
+                <Card title={title} extra={this.getAssetSelectList()}>
+                    <Row gutter={8}>
+                        <Col span={3}>
+                            <Card style={{ textAlign: 'center' }} bordered={false}>
+                                <Title style={{ textAlign: 'center' }} level={3}>总体评分</Title>
+                                <CheckRating />
                             </Card>
                         </Col>
+                        {groups.map((group) => <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
+                    </Row>
+                    <Divider />
+                    {selectedAssetId >= 0 &&
+                        <Row gutter={8}>
+                            <Col span={3}>
+                                {/* <Card style={{ backgroundColor: teal[500] }}> */}
+                                <Card bordered={false}>
+                                    <Title style={{ textAlign: 'center' }} level={3}>核查</Title>
+                                    <Button block size={'large'} type='secondary' style={{ marginBottom: 15 }} onClick={this.handleCheck(1).bind(this)}>基线一级</Button>
+                                    <Button block size={'large'} type='primary' style={{ marginBottom: 15 }} onClick={this.handleCheck(2).bind(this)}>基线二级</Button>
+                                    <Button block size={'large'} type='danger' onClick={this.handleCheck(3).bind(this)}>基线三级</Button>
+                                </Card>
+                            </Col>
+                            <Col span={6}>
+                                <StatRadar />
+                            </Col>
+                            <Col span={15}>
+                                <StatStackBar />
+                            </Col>
+                        </Row>
                     }
-                    <Col span={20}>
-                        <StatStackBar />
-                    </Col>
-                </Row>
-
-            </Card>
-
+                </Card>
+            </Spin>
         </div>);
     }
 }

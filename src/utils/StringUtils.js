@@ -53,7 +53,7 @@ export function eng2chn(eng) {
   // 获取翻译列表
   const transList = getTranslateList();
 
-  for (let i=0; i<transList.length; i++) {
+  for (let i = 0; i < transList.length; i++) {
     // 如果有匹配的，则返回对应的中文字符串
     if (transList[i].eng === eng)
       return transList[i].chn;
@@ -64,24 +64,34 @@ export function eng2chn(eng) {
 }
 
 export function getGroupAlias(name) {
+  let alias = '';
   // return name;
   switch (name) {
-      case "startup":
-          return "开机安全配置";
-      case "accounts":
-          return "账户安全配置";
-      case "passowrd":
-          return "密码配置";
-      case "services":
-          return "服务安全配置";
-      case "login":
-          return "登陆安全配置";
-      case "syslog":
-          return "日志安全配置";
-      case "iptables":
-          return "iptables配置";
-      default:
-          return "未知";
+    case "startup":
+      alias = "开机安全";
+      break;
+    case "accounts":
+      alias = "账户安全";
+      break;
+    case "passowrd":
+      alias = "密码";
+      break;
+    case "services":
+      alias = "服务安全";
+      break;
+    case "login":
+      alias = "登陆安全";
+      break;
+    case "syslog":
+      alias = "日志安全";
+      break;
+    case "iptables":
+      alias = "iptables";
+      break;
+    default:
+      alias = "未知";
+      break;
   }
+  return alias;
 }
 
