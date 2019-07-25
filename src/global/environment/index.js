@@ -2,7 +2,7 @@
 
 // 1: 主站系统自动化配置核查工具
 // 2: 终端系统自动化配置检测工具
-const SYSTEM_TYPE = 2;
+const SYSTEM_TYPE = 1;
 
 export function GetSystemType() {
     return SYSTEM_TYPE;
@@ -31,4 +31,8 @@ export function GetWebSocketUrl() {
 export function IsSimulateMode() {
     // return true;
     return false;
+}
+
+export function GetViewMinWidth() {
+    return 1000;
 }

@@ -20,7 +20,7 @@ import { Typography, Row, Col, Tag } from 'antd';
 import LogoImage from '../resources/image/logo.jpg'
 import HttpRequest from '../utils/HttpRequest';
 // import { Logout } from '../components/login/Logout';
-import { GetSystemName } from "../global/environment"
+import { GetSystemName, GetViewMinWidth } from "../global/environment"
 
 const { Title } = Typography;
 
@@ -106,7 +106,7 @@ class HeaderBar extends React.Component {
     const { classes } = this.props
 
     return (
-      <div id='headerbar' style={{ minWidth: '500px' }}>
+      <div id='headerbar' style={{ minWidth: GetViewMinWidth() }}>
         <div style={{ lineHeight: '64px', float: 'left' }}>
           <IconButton className={classes.menuButton} color="primary" aria-label="Open drawer" onClick={this.toggle}>
             <MenuIcon />

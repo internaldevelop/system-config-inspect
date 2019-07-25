@@ -25,7 +25,7 @@ class SystemEntry extends React.Component {
         return (
             <div id='page'>
                 <CssBaseline />
-                <Layout>
+                <Layout style={{ overflowX: 'auto' }}>
                     <Sider collapsible
                         trigger={null}
                         collapsed={this.state.collapsed}

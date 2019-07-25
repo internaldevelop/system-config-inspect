@@ -6,6 +6,7 @@ import HttpRequest from '../../utils/HttpRequest';
 import { GetBackEndRootUrl } from '../../global/environment'
 import { observer, inject } from 'mobx-react'
 import { userType } from '../../global/enumeration/UserType'
+import { TrimStr } from '../../utils/StringUtils'
 
 import { Skeleton, Table, Icon, Button, Row, Col, Tabs, Input, Select } from 'antd'
 
@@ -36,7 +37,7 @@ class InspectResultView extends React.Component {
             inputValue: '',//输入框输入值
             selectValue: '',
         }
-        this.getTasksResults();
+        this.findTasksResults();
     }
 
     generateResultList(result) {
@@ -68,11 +69,6 @@ class InspectResultView extends React.Component {
         });
     }
 
-    getTasksResults() {
-        const { inputValue } = this.state;
-        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', { taskNameIpType: inputValue });
-    }
-
     handleGetInputValue = (event) => {
         this.setState({
             inputValue: event.target.value,
@@ -81,7 +77,7 @@ class InspectResultView extends React.Component {
 
     findTasksResults = () => {
         const { inputValue } = this.state;
-        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', { taskNameIpType: inputValue });
+        HttpRequest.asyncGet(this.getResultsCB, '/tasks/results/all', { taskNameIpType: TrimStr(inputValue) });
     };
 
     handleChange = (value) => {
@@ -122,12 +118,12 @@ class InspectResultView extends React.Component {
             <div>
                 <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Row>
-                        <Col span={8}><Typography variant="h6">检测结果</Typography></Col>
-                        <Col span={7} offset={5} align="right">
+                        <Col span={3}><Typography variant="h6">检测结果</Typography></Col>
+                        <Col span={13} align="left">
                             <Input className={classes.antInput} size="large" value={this.state.inputValue} onChange={this.handleGetInputValue} placeholder="任务名称、目标IP、问题类型" />
                             <Button className={classes.iconButton} type="primary" size="large" onClick={this.findTasksResults} ><Icon type="search" />查询</Button>
                         </Col>
-                        <Col span={4} align="right">
+                        <Col span={8} align="right">
                             <Select defaultValue='Excel' size="large" onChange={this.handleChange}>
                                 <Option value='Excel'>Excel</Option>
                                 <Option value='Word'>Word</Option>

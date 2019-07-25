@@ -24,7 +24,7 @@ import { DefaultValues } from '../../global/enumeration/DefaultValues';
 import { userType } from '../../global/enumeration/UserType'
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
 import TaskExecResultsView from '../SecurityStatistics/TaskExecResultsView'
-import { GetWebSocketUrl } from '../../global/environment';
+import { GetWebSocketUrl, GetViewMinWidth } from '../../global/environment';
 
 
 let timer1S = undefined;    // 1 秒的定时器
@@ -533,7 +533,7 @@ class TaskManageView extends React.Component {
 
         // var taskParamsConfig = new TaskParamsConfig;
         return (
-            <div>
+            <div style={{ minWidth: GetViewMinWidth(), overflowX: 'auto' }}>
                 <Skeleton loading={!userStore.isNormalUser} active avatar>
                     <Row>
                         <Col span={8}><Typography variant="h6">任务管理</Typography></Col>

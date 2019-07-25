@@ -18,6 +18,7 @@ import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
 import lightBlue from '@material-ui/core/colors/lightBlue';
 import teal from '@material-ui/core/colors/teal';
+import { GetViewMinWidth } from "../../global/environment"
 
 // var EventEmitter = require('events').EventEmitter;
 // let emitter = new EventEmitter();
@@ -183,7 +184,7 @@ class AssetAnalysisView extends React.Component {
         let groups = GetGroups();
         let title = this.getTitle();
 
-        return (<div style={{ minWidth: 1200 }}>
+        return (<div style={{ minWidth: GetViewMinWidth(), overflow: 'scroll' }}>
             <Spin spinning={checking} size="large">
                 <Card title={title} extra={this.getAssetSelectList()}>
                     <Row gutter={8}>

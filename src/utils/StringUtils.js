@@ -95,3 +95,11 @@ export function getGroupAlias(name) {
   return alias;
 }
 
+/**
+ * 去除字符串首尾空格
+ * @param {*} str 
+ */
+export function TrimStr(str) {
+  return str.replace(/(^\s*)|(\s*$)/g, "");
+}
+
