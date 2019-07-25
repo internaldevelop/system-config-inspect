@@ -6,6 +6,7 @@ import { observer, inject } from 'mobx-react'
 import Draggable from '../../components/window/Draggable'
 import { Modal, Row, Col, message, Icon, Button, Typography } from 'antd';
 import TextField from '@material-ui/core/TextField';
+import { isContainSpecialCharacter, isContainSpecialCharacterForIP } from '../../utils/ObjUtils'
 
 import HttpRequest from '../../utils/HttpRequest'
 import { actionType } from '../../global/enumeration/ActionType';
@@ -112,17 +113,25 @@ class AssetParamsConfig extends React.Component {
     }
 
     checkData() {
-        // let name = document.getElementById('host-name').value;
+        let name = document.getElementById('host-name').value;
         let ip = document.getElementById('host-ip').value;
         let type = document.getElementById('system-type').value;
         let version = document.getElementById('system-ver').value;
         
-        if (ip === null || ip === ' ' || ip === '') {
+        if (isContainSpecialCharacter(name)) {
+            message.info('资产名称含有特殊字符，请重新输入');
+            document.getElementById('host-name').value = '';
+            return false;
+        } else if (ip === null || ip === ' ' || ip === '') {
             message.info('资产ip不能为空，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
         } else if (ip.length > 20) {
             message.info('资产ip名称长度不能超过20，请重新输入');
+            document.getElementById('host-ip').value = '';
+            return false;
+        } else if (isContainSpecialCharacterForIP(ip)) {
+            message.info('资产ip名称含有特殊字符，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
         } else if (type === null || type === '' || type === ' ') {
@@ -133,7 +142,7 @@ class AssetParamsConfig extends React.Component {
             message.info('系统版本不能为空，请重新输入');
             document.getElementById('system-ver').value = '';
             return false;
-        } 
+        }
 
         // if (name === null || name === '') {
         //     message.info('资产名称不能为空，请重新输入');

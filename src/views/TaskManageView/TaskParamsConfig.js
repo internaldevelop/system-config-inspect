@@ -14,7 +14,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
 import { observer, inject } from 'mobx-react'
-import { DeepClone } from '../../utils/ObjUtils'
+import { DeepClone, isContainSpecialCharacter } from '../../utils/ObjUtils'
 
 import Draggable from '../../components/window/Draggable'
 
@@ -150,6 +150,9 @@ class TaskParamsConfig extends React.Component {
     const { uuid, name, description, policy_groups } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
     let actionCB = this.props.actioncb;
+    if (!this.checkData()) {
+      return false;
+    }
     if (this.props.taskStore.taskAction === actionType.ACTION_NEW) {
       // 向后台发送请求，创建一条新的任务记录
       HttpRequest.asyncPost(this.requestTaskCB('new'), '/tasks/add-task-details',
@@ -171,6 +174,24 @@ class TaskParamsConfig extends React.Component {
     } else {
       actionCB(true, {});
     }
+  }
+
+  checkData() {
+    let name = document.getElementById('task-name').value;
+    if (name === null || name === '') {
+      message.info('任务名称不能为空，请重新输入');
+      document.getElementById('task-name').value = '';
+      return false;
+    } else if (name.length > 20) {
+      message.info('任务名称长度不能超过20，请重新输入');
+      document.getElementById('task-name').value = '';
+      return false;
+    } else if (isContainSpecialCharacter(name)) {
+      message.info('任务名称含有特殊字符，请重新输入');
+      document.getElementById('task-name').value = '';
+      return false;
+    }
+    return true;
   }
 
   handleCancel = (e) => {
@@ -313,21 +334,21 @@ class TaskParamsConfig extends React.Component {
   onSelectAsset = (value, option) => {
     const { assets } = this.state;
     for (let asset of assets) {
-        if (asset.name === value) {
-          this.props.taskStore.setParam("asset_uuid", asset.uuid);
-          this.props.taskStore.setParam("asset_os_ver", asset.os_ver);
-          this.props.taskStore.setParam("asset_name", asset.name);
-          this.props.taskStore.setParam("asset_os_type", asset.os_type);
-          this.props.taskStore.setParam("asset_ip", asset.ip);
-          this.props.taskStore.setParam("asset_port", asset.port);
-          break;
-        }
+      if (asset.name === value) {
+        this.props.taskStore.setParam("asset_uuid", asset.uuid);
+        this.props.taskStore.setParam("asset_os_ver", asset.os_ver);
+        this.props.taskStore.setParam("asset_name", asset.name);
+        this.props.taskStore.setParam("asset_os_type", asset.os_type);
+        this.props.taskStore.setParam("asset_ip", asset.ip);
+        this.props.taskStore.setParam("asset_port", asset.port);
+        break;
+      }
     }
-}
+  }
 
-onAssetChanged = (value, option) => {
-  //
-}
+  onAssetChanged = (value, option) => {
+    //
+  }
 
   StepAssetInfo = () => {
     const { asset_name, asset_ip, asset_port, asset_login_user, asset_login_pwd, asset_os_type, asset_os_ver } = this.props.taskStore.taskItem;

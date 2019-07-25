@@ -11,7 +11,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import { DeepClone } from '../../utils/ObjUtils'
+import { DeepClone, isContainSpecialCharacter } from '../../utils/ObjUtils'
 
 import HttpRequest from '../../utils/HttpRequest'
 import { errorCode } from '../../global/error';
@@ -210,11 +210,15 @@ class ProjectParamsConfig extends React.Component {
     checkData() {
         let name = document.getElementById('name').value;  
         if (name === null || name === '') {
-            message.info('策略名称不能为空，请重新输入');
+            message.info('项目名称不能为空，请重新输入');
             document.getElementById('name').value = '';
             return false;
         } else if (name.length > 20) {
-            message.info('策略名称长度不能超过20，请重新输入');
+            message.info('项目名称长度不能超过20，请重新输入');
+            document.getElementById('name').value = '';
+            return false;
+        } else if (isContainSpecialCharacter(name)) {
+            message.info('项目名称含有特殊字符，请重新输入');
             document.getElementById('name').value = '';
             return false;
         }

@@ -6,7 +6,7 @@ import Draggable from '../../components/window/Draggable'
 import { observer, inject } from 'mobx-react'
 import { Upload, Modal, Row, Col, message, AutoComplete, Icon, Button } from 'antd';
 import TextField from '@material-ui/core/TextField';
-import { DeepClone } from '../../utils/ObjUtils'
+import { DeepClone, isContainSpecialCharacter } from '../../utils/ObjUtils'
 
 import HttpRequest from '../../utils/HttpRequest'
 import { errorCode } from '../../global/error';
@@ -216,18 +216,22 @@ class PolicyParamsConfig extends React.Component {
             message.info('策略名称长度不能超过20，请重新输入');
             document.getElementById('name').value = '';
             return false;
-        } else if (groupChangedValue === null || groupChangedValue === '') {
+        } else if (isContainSpecialCharacter(name)) {
+            message.info('策略名称含有特殊字符，请重新输入');
+            document.getElementById('name').value = '';
+            return false;
+        } else if (groupChangedValue === null || groupChangedValue === '' || groupChangedValue === undefined) {
             message.info('策略分组不能为空，请重新输入');
             return false;
         } else if (groupChangedValue.length > 20) {
             message.info('策略组长度不能超过20，请重新输入');
             return false;
-        // } else if (assetChangedValue === null || assetChangedValue === '') {
-        //     message.info('资产不能为空，请重新输入');
-        //     return false;
-        // } else if (assetChangedValue.length > 20) {
-        //     message.info('资产长度不能超过20，请重新输入');
-        //     return false;
+        } else if (assetChangedValue === null || assetChangedValue === '' || assetChangedValue === undefined) {
+             message.info('资产不能为空，请重新输入');
+             return false;
+        } else if (assetChangedValue.length > 20) {
+             message.info('资产长度不能超过20，请重新输入');
+             return false;
         } else if ((lv1_require !== null && lv1_require !== '' && lv1_require.length > 100)) {
             message.info('等保长度不能超过100，请重新输入');
             document.getElementById('lv1_require').value = '';

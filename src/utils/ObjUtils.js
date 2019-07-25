@@ -13,7 +13,7 @@ export function IsEmptyObject(obj) {
 */
 export function PushNew(arr) {
   let eleCount = arguments.length;
-  for (let i=1; i<eleCount; i++) {
+  for (let i = 1; i < eleCount; i++) {
     let ele = arguments[i];
     if (arr.indexOf(ele) < 0)
       arr.push(ele);
@@ -26,7 +26,7 @@ export function PushNew(arr) {
  */
 export function DeleteElements(arr) {
   let eleCount = arguments.length;
-  for (let i=1; i<eleCount; i++) {
+  for (let i = 1; i < eleCount; i++) {
     let ele = arguments[i];
     let index = arr.indexOf(ele);
     if (index >= 0) {
@@ -47,7 +47,7 @@ export function CopyProps(dest, src) {
 
   for (var prop in src) {
     // if (dest.hasOwnProperty(prop)) 
-      dest[prop] = src[prop];
+    dest[prop] = src[prop];
   }
 }
 
@@ -81,4 +81,23 @@ export function DeepCopy(dest, src) {
 
   // 将克隆出的对象拷贝到目标对象中
   ShallowCopy(dest, clone);
+}
+
+/**
+ * 校验是否含有特殊字符
+*/
+export function isContainSpecialCharacter(inputStr) {
+  let pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]");
+  if (pattern.test(inputStr)) {
+    return true;
+  }
+  return false;
+}
+
+export function isContainSpecialCharacterForIP(inputStr) {
+  let pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\]<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]");
+  if (pattern.test(inputStr)) {
+    return true;
+  }
+  return false;
 }
