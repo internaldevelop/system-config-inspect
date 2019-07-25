@@ -40,10 +40,10 @@ class InspectResultOverview extends React.Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={11}>
+                        <Col span={17}>
                             <RiskPie />
                         </Col>
-                        <Col span={11} offset={2}>
+                        <Col span={6} offset={1}>
                             <OsPie />
                         </Col>
                     </Row>

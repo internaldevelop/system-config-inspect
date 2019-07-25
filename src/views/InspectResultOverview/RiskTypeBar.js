@@ -156,7 +156,7 @@ class RiskTypeBar extends Component {
                 notMerge={true}
                 lazyUpdate={true}
                 onEvents={onEvents}
-                style={{ width: '100%', height: '300px' }}
+                style={{ width: '100%', height: '400px' }}
             />
 
         );

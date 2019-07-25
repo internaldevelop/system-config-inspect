@@ -41,7 +41,7 @@ class RiskPie extends Component {
                     name:'策略类型',
                     type:'pie',
                     selectedMode: 'single',
-                    radius: ['40%', '60%'],
+                    radius: ['20%', '50%'],
         
                     label: {
                         normal: {
@@ -150,7 +150,7 @@ class RiskPie extends Component {
                 notMerge={true}
                 lazyUpdate={true}
                 onEvents={onEvents}
-                style={{ width: '100%', height: '300px' }}
+                style={{ width: '100%', height: '320px' }}
             />
 
         );
