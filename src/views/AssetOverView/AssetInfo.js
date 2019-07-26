@@ -1,7 +1,10 @@
 import React from 'react'
 
-import { Collapse, Tag, Divider } from 'antd'
+import { Collapse, Tag, Divider, Button } from 'antd'
 import { withStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
+
+import TaskParamsConfig from '../../unused/TaskManageViewOld/TaskParamsConfig';
 
 const Panel = Collapse.Panel;
 
@@ -9,10 +12,11 @@ export function renderAssetInfo(assetInfo) {
     let system;
     return (
         <Collapse accordion defaultActiveKey='System'>
-            { assetGeneralInfo(assetInfo, 'System') }
-            { assetCpuInfo(assetInfo.CPU) }
-            { assetMenInfo(assetInfo.Memory, assetInfo.Swap) }
-            { assetNetworkInfo(assetInfo['Net Config']) }
+            {assetGeneralInfo(assetInfo, 'System')}
+            {assetCpuInfo(assetInfo.CPU)}
+            {assetMenInfo(assetInfo.Memory, assetInfo.Swap)}
+            {assetNetworkInfo(assetInfo['Net Config'])}
+            {assetPortInfo(assetInfo['Open Ports'])}
         </Collapse>
     );
 
@@ -149,6 +153,32 @@ function assetNetworkInfo(networkInfo) {
     } else {
         return (
             <Panel header={'网络信息获取失败'} key={'Network'}>
+            </Panel>
+        );
+    }
+}
+
+function assetPortInfo(portInfo) {
+    if (portInfo instanceof Array && portInfo.length > 0) {
+        return (
+            <Panel header={'开放的端口'} key={'OpenPorts'}>
+                <p>
+                    <Tag color="cyan">开放端口总数</Tag>
+                    <Link component="button" align="center" underline="always"
+                        onClick={() => { global.myEventEmitter.emit('DisplayPortsList', portInfo); }}
+                    >{portInfo.length + '个'}</Link>
+                </p>
+                {/* <p>
+                    <Tag color="cyan">UDP</Tag>
+                    <Link component="button" align="center" underline="always"
+                        onClick={() => { global.myEventEmitter.emit('DisplayPortsList', portInfo); }}
+                    > 23</Link>
+                </p> */}
+            </Panel>
+        );
+    } else {
+        return (
+            <Panel header={'端口信息获取失败'} key={'OpenPorts'}>
             </Panel>
         );
     }

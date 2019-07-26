@@ -42,7 +42,8 @@ class StatStackBar extends React.Component {
         this.setState({ series: [] });
     }
 
-    refreshResult = (stats) => {
+    refreshResult = (payload) => {
+        let stats = payload.statistics;
         let groups = GetGroups();
         let series = [];
         let levels = GetRiskLevels();

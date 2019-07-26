@@ -61,7 +61,7 @@ class AssetAnalysisView extends React.Component {
 
     getRecentCheckStatCB = (data) => {
         this.setState({ hasCheckStat: true, recent: data.payload.recent });
-        global.myEventEmitter.emit('RefreshCheckResult', data.payload.statistics);
+        global.myEventEmitter.emit('RefreshCheckResult', data.payload);
     }
     getRecentCheckStat = (assetId) => {
         const { assets } = this.state;
@@ -194,7 +194,8 @@ class AssetAnalysisView extends React.Component {
                                 <CheckRating />
                             </Card>
                         </Col>
-                        {groups.map((group) => <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
+                        {groups.map((group) => 
+                        <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
                     </Row>
                     <Divider />
                     {selectedAssetId >= 0 &&

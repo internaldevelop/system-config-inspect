@@ -8,6 +8,7 @@ import { Card, Skeleton, Select, Table, Spin, Button, Row, Col, Popconfirm, Coll
 import { renderAssetInfo } from './AssetInfo';
 import UsageGauge from './UsageGauge';
 import ProcUsageLine from './ProcUsageLine';
+import OpenPortsDrawer from './OpenPortsDrawer';
 import HttpRequest from '../../utils/HttpRequest';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
 import { errorCode } from '../../global/error';
@@ -48,6 +49,9 @@ class AssetOverView extends React.Component {
         socket = OpenSocket('asset_info', this.processAssetRealTimeInfo);
         infoStore.setProcCpu(this.getSourceInital());
         infoStore.setProcMem(this.getSourceInital());
+
+        // 注册事件
+        global.myEventEmitter.addListener('DisplayPortsList', this.displayPortsList);
         // infoStore.initProcCpu();
         // infoStore.addProcCpu('System', 0.0);
         // infoStore.initProcMem();
@@ -56,6 +60,12 @@ class AssetOverView extends React.Component {
 
     componentWillUnmount() {
         CloseSocket(socket);
+
+        // 取消事件
+        global.myEventEmitter.removeListener('DisplayPortsList', this.displayPortsList);
+    }
+
+    displayPortsList = () => {
     }
 
     getSourceInital = () => {
@@ -207,7 +217,7 @@ class AssetOverView extends React.Component {
         // 获取新选择资产的系统信息
         this.setState({ loading: true });
         let assetIp = "http://" + assets[curSelectId].ip + ":8191";
-        let params = { types: 'System,CPU,Mem,Net Config' };
+        let params = { types: 'System,CPU,Mem,Net Config,Port' };
         HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(curSelectId), assetIp, '/asset-info/acquire', params);
     }
 
@@ -239,6 +249,7 @@ class AssetOverView extends React.Component {
         let assetName = selectedAssetId >= 0 ? assets[selectedAssetId].name : '';
         return (
             <div>
+                <OpenPortsDrawer/>
                 <Spin spinning={this.state.loading} size="large">
                     {/* <Card title="资产扫描" extra={this.getAssetSelectList()} style={{minWidth: '600px', minHeight: '400px'}}> */}
                     <Card title="资产扫描" extra={this.getAssetSelectList()} bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>

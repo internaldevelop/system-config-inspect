@@ -39,7 +39,8 @@ class StatRadar extends React.Component {
         global.myEventEmitter.removeListener('ClearCheckResult', this.clearResult);
     }
 
-    refreshResult = (stats) => {
+    refreshResult = (payload) => {
+        let stats = payload.statistics;
         if (!(stats instanceof Array))
             return;
 
