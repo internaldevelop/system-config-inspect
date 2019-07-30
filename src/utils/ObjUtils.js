@@ -101,3 +101,14 @@ export function isContainSpecialCharacterForIP(inputStr) {
   }
   return false;
 }
+
+// 由字母a～z(不区分大小写)、数字0～9、点、减号或下划线组成
+// 只能以字母开头，包含字符 数字 下划线，例如：beijing.2008
+// 用户名长度为4～18个字符
+export function isValidAccount(account) {
+  var patten = /^[a-zA-Z]\w{3,15}$/ig;
+  if (!patten.test(account)) {
+    return false;
+  }
+  return true;
+}

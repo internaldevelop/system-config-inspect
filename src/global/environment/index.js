@@ -2,6 +2,7 @@
 
 // 1: 主站系统自动化配置核查工具
 // 2: 终端系统自动化配置检测工具
+// 3: 主站性能测试工具
 const SYSTEM_TYPE = 2;
 
 export function GetSystemType() {
@@ -34,5 +35,5 @@ export function IsSimulateMode() {
 }
 
 export function GetViewMinWidth() {
-    return 1000;
+    return 1100;
 }

@@ -48,6 +48,7 @@ class AssetAnalysisView extends React.Component {
             hasCheckStat: false,
             scan: null,
             checking: false,
+            isWindows: true,
         };
 
         this.acquireAssets();
@@ -60,8 +61,14 @@ class AssetAnalysisView extends React.Component {
     }
 
     getRecentCheckStatCB = (data) => {
-        this.setState({ hasCheckStat: true, recent: data.payload.recent });
-        global.myEventEmitter.emit('RefreshCheckResult', data.payload);
+        if (data.payload.recent != null) {
+            this.setState({ hasCheckStat: true, recent: data.payload.recent });
+            global.myEventEmitter.emit('RefreshCheckResult', data.payload);
+        }
+
+        let isWindows = data.payload.system.System['os.name'].indexOf('Windows') >= 0;
+        // windows平台禁止核查，disable三个核查按钮
+        this.setState({ isWindows });
     }
     getRecentCheckStat = (assetId) => {
         const { assets } = this.state;
@@ -180,7 +187,7 @@ class AssetAnalysisView extends React.Component {
     }
 
     render() {
-        const { selectedAssetId, checking } = this.state;
+        const { selectedAssetId, checking, isWindows } = this.state;
         let groups = GetGroups();
         let title = this.getTitle();
 
@@ -194,8 +201,8 @@ class AssetAnalysisView extends React.Component {
                                 <CheckRating />
                             </Card>
                         </Col>
-                        {groups.map((group) => 
-                        <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
+                        {groups.map((group) =>
+                            <Col span={3}><ResultCard name={group} alias={getGroupAlias(group)} /></Col>)}
                     </Row>
                     <Divider />
                     {selectedAssetId >= 0 &&
@@ -204,9 +211,9 @@ class AssetAnalysisView extends React.Component {
                                 {/* <Card style={{ backgroundColor: teal[500] }}> */}
                                 <Card bordered={false}>
                                     <Title style={{ textAlign: 'center' }} level={3}>核查</Title>
-                                    <Button block size={'large'} type='secondary' style={{ marginBottom: 15 }} onClick={this.handleCheck(1).bind(this)}>基线一级</Button>
-                                    <Button block size={'large'} type='primary' style={{ marginBottom: 15 }} onClick={this.handleCheck(2).bind(this)}>基线二级</Button>
-                                    <Button block size={'large'} type='danger' onClick={this.handleCheck(3).bind(this)}>基线三级</Button>
+                                    <Button block size={'large'} disabled={isWindows} type='secondary' style={{ marginBottom: 15 }} onClick={this.handleCheck(1).bind(this)}>基线一级</Button>
+                                    <Button block size={'large'} disabled={isWindows} type='primary' style={{ marginBottom: 15 }} onClick={this.handleCheck(2).bind(this)}>基线二级</Button>
+                                    <Button block size={'large'} disabled={isWindows} type='danger' onClick={this.handleCheck(3).bind(this)}>基线三级</Button>
                                 </Card>
                             </Col>
                             <Col span={6}>
