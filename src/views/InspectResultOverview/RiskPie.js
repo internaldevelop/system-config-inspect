@@ -110,6 +110,9 @@ class RiskPie extends Component {
         let sourceDatas = [];
 
         for (let i = 0; i < result.length; i++) {
+            if ( i > 6 ) {
+                break;
+            }
             let pName = result[i].policy_group_name;
             let pNum = result[i].num;
             

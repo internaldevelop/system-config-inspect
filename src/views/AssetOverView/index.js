@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { observer, inject } from 'mobx-react'
 
-import { Card, Skeleton, Select, Table, Spin, Button, Row, Col, Popconfirm, Collapse, message, Modal } from 'antd';
+import { Card, Skeleton, Select, Input, Spin, Button, Row, Col, Icon, Collapse, message, Modal } from 'antd';
 
 import { renderAssetInfo } from './AssetInfo';
 import UsageGauge from './UsageGauge';
 import ProcUsageLine from './ProcUsageLine';
 import OpenPortsDrawer from './OpenPortsDrawer';
+import SetAccountPwd from './SetAccountPwd';
 import HttpRequest from '../../utils/HttpRequest';
+import { isValidAccount } from '../../utils/ObjUtils';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
 import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
@@ -38,10 +40,11 @@ class AssetOverView extends React.Component {
             assetInfo: {},
             assetOnline: false,
             loading: false,
+            isWindows: false,
+            showSetPwd: false,
         };
 
         this.acquireAssets();
-
     }
 
     componentDidMount() {
@@ -52,10 +55,6 @@ class AssetOverView extends React.Component {
 
         // 注册事件
         global.myEventEmitter.addListener('DisplayPortsList', this.displayPortsList);
-        // infoStore.initProcCpu();
-        // infoStore.addProcCpu('System', 0.0);
-        // infoStore.initProcMem();
-        // infoStore.addProcMem('System', 0.0);
     }
 
     componentWillUnmount() {
@@ -84,20 +83,6 @@ class AssetOverView extends React.Component {
     acquireAssets = () => {
         HttpRequest.asyncGet(this.acquireAssetsCB, '/assets/all');
     }
-    // @action initProcCpu = () => {
-    //     this.procCpuPercents = [['procname', 'percent', 'score']];
-    // }
-    // @action initProcMem = () => {
-    //     this.procMemPercents = [['procname', 'percent', 'score']];
-    // }
-    // @action addProcCpu = (procname, percent) => {
-    //     let record = [procname, percent, this.procCpuPercents.length];
-    //     this.procCpuPercents.push(record);
-    // }
-    // @action addProcMem = (procname, percent) => {
-    //     let record = [procname, percent, this.procMemPercents.length];
-    //     this.procMemPercents.push(record);
-    // }
 
     processAssetRealTimeInfo = (data) => {
         const { assets, selectedAssetId } = this.state;
@@ -170,6 +155,7 @@ class AssetOverView extends React.Component {
 
     startNodeSchedulerCB = (data) => {
     }
+    // 启动后台定时任务（定时查询节点实时信息）
     startNodeScheduler = (assetUuid) => {
         let params = { asset_uuid: assetUuid, action: 1, info_types: 'Proc CPU Ranking,Proc Memory Ranking,CPU Usage,Mem' };
         HttpRequest.asyncGet(this.startNodeSchedulerCB, '/assets/real-time-info', params);
@@ -177,6 +163,7 @@ class AssetOverView extends React.Component {
 
     stopNodeSchedulerCB = (data) => {
     }
+    // 关闭后台定时任务（定时查询节点实时信息）
     stopNodeScheduler(assetUuid) {
         let params = { asset_uuid: assetUuid, action: 0 };
         HttpRequest.asyncGet(this.startNodeSchedulerCB, '/assets/real-time-info', params);
@@ -192,8 +179,9 @@ class AssetOverView extends React.Component {
             // 设置资产离线状态
             this.setState({ assetOnline: false });
         } else {
+            let isWindows = data.payload.System['os.name'].indexOf('Windows') >= 0;
             // 设置资产在线状态
-            this.setState({ assetInfo: data.payload, assetOnline: true });
+            this.setState({ assetInfo: data.payload, assetOnline: true, isWindows });
 
             // 启动后台定时任务，扫描终端节点的CPU和内存使用情况
             this.startNodeScheduler(assets[index].uuid);
@@ -225,15 +213,64 @@ class AssetOverView extends React.Component {
         this.selectAsset(value);
     }
 
-    getAssetSelectList = () => {
+    setAccountPwdCB = () => {
+        Modal.info({ title: '操作成功', content: '已成功设置终端系统的账号和密码。' });
+    }
+
+    setAccountPwd = (account, password) => {
         const { assets, selectedAssetId } = this.state;
+        let params = { account, password, asset_uuid: assets[selectedAssetId].uuid };
+        HttpRequest.asyncPost(this.setAccountPwdCB, '/assets/set-account-pwd', params);
+    }
+
+    handleSetAccountPwd2 = () => {
+        const { form } = this.formRef.props;
+        form.validateFields((err, values) => {
+            if (err) {
+                return;
+            }
+
+            console.log('Received values of form: ', values);
+            form.resetFields();
+            this.setState({ showSetPwd: false });
+            this.setAccountPwd(values.account, values.password);
+        });
+    }
+
+    showSetPwdModal = () => {
+        this.setState({ showSetPwd: true });
+    };
+
+    handleCancel = () => {
+        this.setState({ showSetPwd: false });
+    };
+
+    saveFormRef = formRef => {
+        this.formRef = formRef;
+    };
+
+    getAssetSelectList = () => {
+        const { assets, selectedAssetId, isWindows, assetOnline, showSetPwd } = this.state;
         if (assets.length > 0 && selectedAssetId >= 0) {
             return (
-                <Select value={assets[selectedAssetId].uuid} style={{ width: 200 }} onChange={this.onSelectAsset}>
-                    {assets.map(asset => (
-                        <Option value={asset.uuid}>{asset.name}</Option>
-                    ))}
-                </Select>
+                <span>
+                    <span>选择资产</span>
+                    <Select value={assets[selectedAssetId].uuid} style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectAsset}>
+                        {assets.map(asset => (
+                            <Option value={asset.uuid}>{asset.name}</Option>
+                        ))}
+                    </Select>
+                    <span>
+                        {/* <Button size={'large'} disabled={isWindows || !assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.handleSetAccountPwd}>写入账号密码</Button> */}
+                        <Button size={'large'} disabled={isWindows || !assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.showSetPwdModal}>写入账号密码</Button>
+                        <SetAccountPwd
+                            wrappedComponentRef={this.saveFormRef}
+                            visible={showSetPwd}
+                            onCancel={this.handleCancel}
+                            onSetPassword={this.handleSetAccountPwd2}
+                        />
+                    </span>
+                </span>
             );
         } else {
             return (
@@ -249,20 +286,20 @@ class AssetOverView extends React.Component {
         let assetName = selectedAssetId >= 0 ? assets[selectedAssetId].name : '';
         return (
             <div>
-                <OpenPortsDrawer/>
+                <OpenPortsDrawer />
                 <Spin spinning={this.state.loading} size="large">
                     {/* <Card title="资产扫描" extra={this.getAssetSelectList()} style={{minWidth: '600px', minHeight: '400px'}}> */}
-                    <Card title="资产扫描" extra={this.getAssetSelectList()} bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>
+                    <Card title="资产信息" extra={this.getAssetSelectList()} bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>
                         <Skeleton loading={!assetOnline} active avatar>
                             <Row gutter={8}>
                                 <Col span={17}>
-                                    <Card type="inner" title={assetName + "--资产信息"}>
+                                    <Card type="inner" title={assetName + "--资产实时状态信息"}>
                                         <Row>
                                             <Col span={7}>
                                                 <UsageGauge name='CPU' />
                                             </Col>
                                             <Col span={17}>
-                                                <ProcUsageLine name='CPU' percents={infoStore.procCpuPercents}/>
+                                                <ProcUsageLine name='CPU' percents={infoStore.procCpuPercents} />
                                             </Col>
                                         </Row>
                                         <Row>
@@ -270,7 +307,7 @@ class AssetOverView extends React.Component {
                                                 <UsageGauge name='内存' />
                                             </Col>
                                             <Col span={17}>
-                                                <ProcUsageLine name='内存'  percents={infoStore.procMemPercents} />
+                                                <ProcUsageLine name='内存' percents={infoStore.procMemPercents} />
                                             </Col>
                                         </Row>
                                     </Card>

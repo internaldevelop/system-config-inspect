@@ -150,9 +150,9 @@ class TaskParamsConfig extends React.Component {
     const { uuid, name, description, policy_groups } = this.props.taskStore.taskItem;
     const { userUuid } = this.props.userStore.loginUser;
     let actionCB = this.props.actioncb;
-    if (!this.checkData()) {
-      return false;
-    }
+    // if (!this.checkData()) {
+    //   return false;
+    // }
     if (this.props.taskStore.taskAction === actionType.ACTION_NEW) {
       // 向后台发送请求，创建一条新的任务记录
       HttpRequest.asyncPost(this.requestTaskCB('new'), '/tasks/add-task-details',
@@ -176,8 +176,8 @@ class TaskParamsConfig extends React.Component {
     }
   }
 
-  checkData() {
-    let name = document.getElementById('task-name').value;
+  checkData(name) {
+    // let name = document.getElementById('task-name').value;
     if (name === null || name === '') {
       message.info('任务名称不能为空，请重新输入');
       document.getElementById('task-name').value = '';
@@ -286,6 +286,9 @@ class TaskParamsConfig extends React.Component {
 
   checkTaskName = () => {
     const { name, uuid } = this.props.taskStore.taskItem;
+    if (!this.checkData(name))
+      return;
+
     let params = {};
     params.task_name = name;
     if (this.props.taskStore.taskAction === actionType.ACTION_EDIT)
@@ -294,6 +297,7 @@ class TaskParamsConfig extends React.Component {
   }
 
   handleTaskNameChange = (event) => {
+    // checkData()
     this.props.taskStore.setParam("name", event.target.value);
     this.checkTaskName();
   }
