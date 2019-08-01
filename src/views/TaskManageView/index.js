@@ -413,7 +413,7 @@ class TaskManageView extends React.Component {
 
         // 向后台提交删除该任务
         const { tasks } = this.state;
-        HttpRequest.asyncPost(this.deleteTaskCB(dataIndex), '/tasks/remove', { uuid: tasks[dataIndex].task_uuid });
+        HttpRequest.asyncPost(this.deleteTaskCB(dataIndex), '/tasks/remove', { uuid: tasks[dataIndex].uuid });
     }
 
     /** 处理编辑操作 */
