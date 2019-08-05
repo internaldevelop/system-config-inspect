@@ -118,20 +118,29 @@ class AssetParamsConfig extends React.Component {
         let type = document.getElementById('system-type').value;
         let version = document.getElementById('system-ver').value;
         
-        if (isContainSpecialCharacter(name)) {
-            message.info('资产名称含有特殊字符，请重新输入');
+        if (name === null || name === '') {
+            message.info('资产名称不能为空，请重新输入');
             document.getElementById('host-name').value = '';
             return false;
+        // TODO: 后续需要放开校验
+        // } else if (name.length > 20) {
+        //     message.info('资产名称长度不能超过20，请重新输入');
+        //     document.getElementById('host-name').value = '';
+        //     return false;
+        // } else if (isContainSpecialCharacter(name)) {
+        //     message.info('资产名称含有特殊字符，请重新输入');
+        //     document.getElementById('host-name').value = '';
+        //     return false;
         } else if (ip === null || ip === ' ' || ip === '') {
-            message.info('资产ip不能为空，请重新输入');
+            message.info('资产IP不能为空，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
         } else if (ip.length > 20) {
-            message.info('资产ip名称长度不能超过20，请重新输入');
+            message.info('资产IP名称长度不能超过20，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
         } else if (isContainSpecialCharacterForIP(ip)) {
-            message.info('资产ip名称含有特殊字符，请重新输入');
+            message.info('资产IP名称含有特殊字符，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
         } else if (type === null || type === '' || type === ' ') {
@@ -143,18 +152,27 @@ class AssetParamsConfig extends React.Component {
             document.getElementById('system-ver').value = '';
             return false;
         }
-
-        // if (name === null || name === '') {
-        //     message.info('资产名称不能为空，请重新输入');
-        //     document.getElementById('host-name').value = '';
-        //     return false;
-        // } else if (name.length > 20) {
-        //     message.info('资产名称长度不能超过20，请重新输入');
-        //     document.getElementById('host-name').value = '';
-        //     return false;
-        // }
         if( this.state.assetNameExist === true) {
             return false;
+        }
+        return true;
+    }
+
+    checkAssetIp() {
+        let ip = document.getElementById('host-ip').value;
+        if (ip === null || ip === ' ' || ip === '') {
+            message.info('资产IP不能为空，请重新输入');
+            document.getElementById('host-ip').value = '';
+            return false;
+            // TODO: 后续需要放开校验
+        // } else if (ip.length > 20) {
+        //     message.info('资产IP名称长度不能超过20，请重新输入');
+        //     document.getElementById('host-ip').value = '';
+        //     return false;
+        // } else if (isContainSpecialCharacterForIP(ip)) {
+        //     message.info('资产IP名称含有特殊字符，请重新输入');
+        //     document.getElementById('host-ip').value = '';
+        //     return false;
         }
         return true;
     }
@@ -187,7 +205,7 @@ class AssetParamsConfig extends React.Component {
 
     handleAssetNameChange = (event) => {
         let name = event.target.value;
-        if (name === null || name === '') {
+        if (name === null || name === '' || name === undefined) {
             assetNamealert = '资产名称不能为空，请重新输入';
             this.setState({ assetNameExist: true });
             return false;
@@ -209,7 +227,7 @@ class AssetParamsConfig extends React.Component {
 
     getAssetInfoCB = (data) => {
         // 检查响应的payload数据是数组类型
-        if (data.payload === null || data.payload.System === null) {
+        if (data === null || data.payload === null || data.payload.System === null) {
             message.info('资产填写错误或者资产没有连网，请确认后再输入');
             document.getElementById('host-ip').value = '';
             return;
@@ -228,7 +246,7 @@ class AssetParamsConfig extends React.Component {
 
     getAssetInfo = (event) => {
         let hostIp = document.getElementById('host-ip').value;
-        if (hostIp !== null || hostIp !== undefined || hostIp !== '') {
+        if (this.checkAssetIp()) {
             hostIp = "http://" + hostIp + ":8191";
             let params = {types: "System"};
             HttpRequest.asyncGetSpecificUrl(this.getAssetInfoCB, hostIp, '/asset-info/acquire', params);

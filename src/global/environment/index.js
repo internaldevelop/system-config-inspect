@@ -3,12 +3,12 @@
 // 1: 主站系统自动化配置核查工具
 // 2: 终端系统自动化配置检测工具
 // 3: 主站性能测试工具
-const SYSTEM_TYPE = 1;
+const SYSTEM_TYPE = 2;
 
 const PROTOCOL = 'http';
 // const BASE_URL = '://192.168.87.128:8090/'; // TQ 虚拟机
-const BASE_URL = '://192.168.207.138:8090/'; // WYT 虚拟机
-// const BASE_URL = '://localhost:8090/'; // 本地
+// const BASE_URL = '://192.168.207.138:8090/'; // WYT 虚拟机
+const BASE_URL = '://localhost:8090/'; // 本地
 // const BASE_URL = '://172.16.60.5:8090/'; // 信通所云服务器
 
 export function GetSystemType() {

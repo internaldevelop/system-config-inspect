@@ -24,9 +24,10 @@ const SetAccountPwd = Form.create({ name: 'form_in_modal' })(
                             {getFieldDecorator('account', {
                                 rules: [
                                     { required: true, message: '请输入账号！' },
-                                    { min: 4, message: '账号不能少于4个字符；', },
-                                    { max: 18, message: '账号不能多于18个字符；', },
-                                    { pattern: /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){3,17}$/, message: '账号只能以字母开头，可带数字、“_”、“.”；', },
+                                    // TODO: 后续需要放开校验
+                                    // { min: 4, message: '账号不能少于4个字符；', },
+                                    // { max: 18, message: '账号不能多于18个字符；', },
+                                    // { pattern: /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){3,17}$/, message: '账号只能以字母开头，可带数字、“_”、“.”；', },
                                 ],
                             })(<Input allowClear
                                 prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -37,12 +38,13 @@ const SetAccountPwd = Form.create({ name: 'form_in_modal' })(
                             {getFieldDecorator('password', {
                                 rules: [
                                     { required: true, message: '请输入密码！' },
-                                    { min: 8, message: '密码不能少于8个字符；', },
-                                    { max: 20, message: '密码不能多于20个字符；', },
-                                    {
-                                        pattern: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[~!@#$%^&amp;*()_+`\-={}:";'&lt;&gt;?,.\/]).{8,20}$/,
-                                        message: '密码必须由 8-20 位字母、数字、特殊符号组成；',
-                                    },
+                                    // TODO: 后续需要放开校验
+                                    // { min: 8, message: '密码不能少于8个字符；', },
+                                    // { max: 20, message: '密码不能多于20个字符；', },
+                                    // {
+                                    //     pattern: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[~!@#$%^&amp;*()_+`\-={}:";'&lt;&gt;?,.\/]).{8,20}$/,
+                                    //     message: '密码必须由 8-20 位字母、数字、特殊符号组成；',
+                                    // },
                                 ],
                             })(<Input.Password allowClear
                                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
