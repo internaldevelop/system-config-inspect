@@ -5,6 +5,11 @@
 // 3: 主站性能测试工具
 const SYSTEM_TYPE = 1;
 
+const PROTOCOL = 'http';
+// const BASE_URL = '://192.168.87.128:8090/'; // 虚拟机
+const BASE_URL = '://localhost:8090/'; // 本地
+// const BASE_URL = '://172.16.60.5:8090/'; // 信通所云服务器
+
 export function GetSystemType() {
     return SYSTEM_TYPE;
 }
@@ -20,13 +25,11 @@ export function GetSystemName() {
 }
 
 export function GetBackEndRootUrl() {
-    return 'http://localhost:8090/api';
-    // return "http://172.16.60.5:8090/api/"; //信通所云服务器
+    return PROTOCOL + BASE_URL + 'api';
 }
 
 export function GetWebSocketUrl() {
-    return "ws://localhost:8090/websocket/";
-    // return "ws://172.16.60.5:8090/websocket/"; //信通所云服务器
+    return 'ws' + BASE_URL + 'websocket/';
 }
 
 export function IsSimulateMode() {
