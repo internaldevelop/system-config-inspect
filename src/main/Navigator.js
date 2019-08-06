@@ -129,6 +129,49 @@ const terminalMenus = [
     }
 ]
 
+const performanceMenus = [
+    {
+        title: '资产信息',
+        icon: 'home',
+        key: '/home',
+    },
+    {
+        title: '资产扫描',
+        icon: 'security-scan',
+        key: '/home/asset-analysis',
+    },
+    {
+        title: '核查模板',
+        icon: 'check-circle',
+        key: '/home/check-template',
+    },
+    {
+        title: '系统管理',
+        icon: 'setting',
+        key: '/home/sysadmin',
+        subs: [
+            { key: '/home/sysadmin/users', title: '用户管理', icon: 'contacts', },
+            { key: '/home/sysadmin/personal', title: '个人资料', icon: 'user', },
+            { key: '/home/sysadmin/assets', title: '资产管理', icon: 'cluster', },
+            { key: '/home/sysconfig/system-alert', title: '系统告警配置', icon: 'alert', },
+        ]
+    },
+    {
+        title: '日志管理',
+        icon: 'read',
+        key: '/home/log-manage',
+        subs: [
+            { key: '/home/log-manage/system-logs', title: '系统日志', icon: 'thunderbolt', },
+            { key: '/home/log-manage/check-logs', title: '扫描日志', icon: 'table', },
+        ]
+    },
+    {
+        title: '关于',
+        icon: 'info-circle-o',
+        key: '/home/about'
+    }
+]
+
 
 class Navigator extends React.Component {
     getMenus() {
@@ -137,6 +180,8 @@ class Navigator extends React.Component {
             return hostMenus;
         } else if (sysType === 2) {
             return terminalMenus;
+        } else if (sysType === 3) {
+            return performanceMenus;
         }
     }
 

@@ -48,7 +48,8 @@ class ContentMain extends React.Component {
     return (
       <div style={{ padding: 16, position: 'relative' }}>
       {GetSystemType() === 1 && this.getHostSystemRoute()}   
-      {GetSystemType() === 2 && this.getTerminalSystemRoute()}   
+      {GetSystemType() === 2 && this.getTerminalSystemRoute()}
+      {GetSystemType() === 3 && this.getPerformanceSystemRoute()}   
       </div>
     )
   }
@@ -87,6 +88,27 @@ class ContentMain extends React.Component {
   }
 
   getTerminalSystemRoute() {
+    return (
+      <Switch>
+        <PrivateRoute exact path='/home' component={AssetOverView} />
+        <PrivateRoute exact path='/home/asset-analysis' component={AssetAnalysisView} />
+        <PrivateRoute exact path='/home/check-template' component={CheckTemplateView} />
+
+        <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
+        <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
+        <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
+        <PrivateRoute exact path='/home/sysconfig/system-alert' component={AlertConfigView} />
+        <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
+        <PrivateRoute exact path='/home/log-manage/check-logs' component={CheckResultView} />
+
+        <PrivateRoute exact path='/home/about' component={AboutView} />
+
+        <Redirect exact from='/' to='/home' />
+      </Switch>
+    );
+  }
+
+  getPerformanceSystemRoute() {
     return (
       <Switch>
         <PrivateRoute exact path='/home' component={AssetOverView} />
