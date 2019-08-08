@@ -3,21 +3,22 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { observer, inject } from 'mobx-react'
 
-import { Card, Skeleton, Select, Input, Spin, Button, Row, Col, Icon, Collapse, message, Modal } from 'antd';
+import { Tabs, Card, Skeleton, Select, Input, Spin, Button, Row, Col, Icon, Collapse, message, Modal } from 'antd';
 
 import { renderAssetInfo } from './AssetInfo';
-import UsageGauge from './UsageGauge';
-import ProcUsageLine from './ProcUsageLine';
-import OpenPortsDrawer from './OpenPortsDrawer';
-import SetAccountPwd from './SetAccountPwd';
+import ProcUsageLine from '../AssetOverView/ProcUsageLine';
+import HistoryUsageLine from './HistoryUsageLine';
+import UsageGauge from '../AssetOverView/UsageGauge';
 import HttpRequest from '../../utils/HttpRequest';
 import { isValidAccount } from '../../utils/ObjUtils';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
 import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
+import { GetBackEndRootUrl } from '../../global/environment'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
+const { TabPane } = Tabs;
 
 let socket = null;
 
@@ -27,11 +28,15 @@ const styles = theme => ({
         marginBottom: 0,
         marginTop: 0,
     },
+    cardContainer: {
+        //height: 120,
+        marginTop: -16,
+    }
 });
 
 @inject('assetInfoStore')
 @observer
-class AssetOverView extends React.Component {
+class PerformanceOverView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -102,6 +107,9 @@ class AssetOverView extends React.Component {
             // 从payload中提取内存使用率，存到仓库中
             infoStore.setMem(payload['Memory'].usedPercent / 100);
 
+            // 从payload中提取硬盘使用率，存到仓库中
+            infoStore.setDisk(payload['FST'].usedPercentTotal / 100);
+
             // 存储进程的CPU占用率
             let procCpuList = payload['Proc CPU Ranking'];
             // let cpuCount = payload['CPU percents'].length;
@@ -157,7 +165,7 @@ class AssetOverView extends React.Component {
     }
     // 启动后台定时任务（定时查询节点实时信息）
     startNodeScheduler = (assetUuid) => {
-        let params = { asset_uuid: assetUuid, action: 1, info_types: 'Proc CPU Ranking,Proc Memory Ranking,CPU Usage,Mem' };
+        let params = { asset_uuid: assetUuid, action: 1, info_types: 'Proc CPU Ranking,Proc Memory Ranking,CPU Usage,Mem,FST' };
         HttpRequest.asyncGet(this.startNodeSchedulerCB, '/assets/real-time-info', params);
     }
 
@@ -205,7 +213,7 @@ class AssetOverView extends React.Component {
         // 获取新选择资产的系统信息
         this.setState({ loading: true });
         let assetIp = "http://" + assets[curSelectId].ip + ":8191";
-        let params = { types: 'System,CPU,Mem,Net Config,Port' };
+        let params = { types: 'System,CPU,Mem,Net Config,Port,FST' };
         HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(curSelectId), assetIp, '/asset-info/acquire', params);
     }
 
@@ -213,41 +221,15 @@ class AssetOverView extends React.Component {
         this.selectAsset(value);
     }
 
-    setAccountPwdCB = () => {
-        Modal.info({ title: '操作成功', content: '已成功设置终端系统的账号和密码。' });
-    }
-
-    setAccountPwd = (account, password) => {
-        const { assets, selectedAssetId } = this.state;
-        let params = { account, password, asset_uuid: assets[selectedAssetId].uuid };
-        HttpRequest.asyncPost(this.setAccountPwdCB, '/assets/set-account-pwd', params);
-    }
-
-    handleSetAccountPwd2 = () => {
-        const { form } = this.formRef.props;
-        form.validateFields((err, values) => {
-            if (err) {
-                return;
-            }
-
-            console.log('Received values of form: ', values);
-            form.resetFields();
-            this.setState({ showSetPwd: false });
-            this.setAccountPwd(values.account, values.password);
-        });
-    }
-
-    showSetPwdModal = () => {
-        this.setState({ showSetPwd: true });
-    };
-
-    handleCancel = () => {
-        this.setState({ showSetPwd: false });
-    };
-
     saveFormRef = formRef => {
         this.formRef = formRef;
     };
+
+    // 导出报告
+    exportTasksResults = () => {
+        const { inputValue, selectValue } = this.state;
+        window.location.href = GetBackEndRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
+    }
 
     getAssetSelectList = () => {
         const { assets, selectedAssetId, isWindows, assetOnline, showSetPwd } = this.state;
@@ -261,14 +243,7 @@ class AssetOverView extends React.Component {
                         ))}
                     </Select>
                     <span>
-                        {/* <Button size={'large'} disabled={isWindows || !assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.handleSetAccountPwd}>写入账号密码</Button> */}
-                        <Button size={'large'} disabled={isWindows || !assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.showSetPwdModal}>写入账号密码</Button>
-                        <SetAccountPwd
-                            wrappedComponentRef={this.saveFormRef}
-                            visible={showSetPwd}
-                            onCancel={this.handleCancel}
-                            onSetPassword={this.handleSetAccountPwd2}
-                        />
+                        <Button size={'large'} disabled={!assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.exportTasksResults} ><Icon type="export" />导出报告</Button>
                     </span>
                 </span>
             );
@@ -283,39 +258,70 @@ class AssetOverView extends React.Component {
     render() {
         const { assetOnline, assetInfo, selectedAssetId, assets } = this.state;
         let infoStore = this.props.assetInfoStore;
+        const { classes } = this.props
         let assetName = selectedAssetId >= 0 ? assets[selectedAssetId].name : '';
         return (
             <div>
-                <OpenPortsDrawer />
                 <Spin spinning={this.state.loading} size="large">
-                    {/* <Card title="资产扫描" extra={this.getAssetSelectList()} style={{minWidth: '600px', minHeight: '400px'}}> */}
-                    <Card title="资产信息" extra={this.getAssetSelectList()} bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>
+                    <Card title="性能测试" extra={this.getAssetSelectList()} bodyStyle={{ minWidth: '800px', minHeight: '400px' }}>
                         <Skeleton loading={!assetOnline} active avatar>
                             <Row gutter={8}>
-                                <Col span={17}>
-                                    <Card type="inner" title={assetName + "--资产实时状态信息"}>
-                                        <Row>
-                                            <Col span={7}>
-                                                <UsageGauge name='CPU' />
-                                            </Col>
-                                            <Col span={17}>
-                                                <ProcUsageLine name='CPU' percents={infoStore.procCpuPercents} />
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col span={7}>
-                                                <UsageGauge name='内存' />
-                                            </Col>
-                                            <Col span={17}>
-                                                <ProcUsageLine name='内存' percents={infoStore.procMemPercents} />
-                                            </Col>
-                                        </Row>
-                                    </Card>
+                                <Col span={17} className={classes.cardContainer}>
+                                    <Tabs onChange={this.changeTabs} type="card">
+                                        <TabPane tab="CPU" key="1">
+                                            <Row>
+                                                <Col span={7}>
+                                                    <UsageGauge name='CPU' />
+                                                </Col>
+                                                <Col span={17}>
+                                                    <ProcUsageLine name='CPU' percents={infoStore.procCpuPercents} />
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <HistoryUsageLine name='CPU' />
+                                                </Col>
+                                            </Row>
+                                        </TabPane>
+                                        <TabPane tab="内存" key="2">
+                                            <Row>
+                                                <Col span={7}>
+                                                    <UsageGauge name='内存' />
+                                                </Col>
+                                                <Col span={17}>
+                                                    <ProcUsageLine name='内存' percents={infoStore.procMemPercents} />
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <HistoryUsageLine name='内存' />
+                                                </Col>
+                                            </Row>
+                                        </TabPane>
+                                        <TabPane tab="硬盘" key="3">
+                                            <Row>
+                                                <Col span={7}>
+                                                    <UsageGauge name='硬盘' />
+                                                </Col>
+                                                <Col span={17}>
+                                                    <HistoryUsageLine name='硬盘' />
+                                                </Col>
+                                            </Row>
+                                        </TabPane>
+                                        <TabPane tab="网络" key="4">
+                                            <Row>
+                                                <Col span={7}>
+
+                                                </Col>
+                                                <Col span={17}>
+
+                                                </Col>
+                                            </Row>
+                                        </TabPane>
+                                    </Tabs>
                                 </Col>
-                                <Col span={7}>
-                                    <Card type="inner" title={assetName + "--资产环境"}>
-                                        {renderAssetInfo(assetInfo)}
-                                    </Card>
+                                <Col span={7} className={classes.cardContainer}>
+                                    {renderAssetInfo(assetInfo)}
                                 </Col>
                             </Row>
                         </Skeleton>
@@ -326,9 +332,9 @@ class AssetOverView extends React.Component {
     }
 }
 
-AssetOverView.propTypes = {
+PerformanceOverView.propTypes = {
     classes: PropTypes.object,
 };
 
 
-export default withStyles(styles)(AssetOverView);
+export default withStyles(styles)(PerformanceOverView);

@@ -131,19 +131,14 @@ const terminalMenus = [
 
 const performanceMenus = [
     {
-        title: '资产信息',
+        title: '性能测试',
         icon: 'home',
         key: '/home',
     },
     {
-        title: '资产扫描',
-        icon: 'security-scan',
-        key: '/home/asset-analysis',
-    },
-    {
-        title: '核查模板',
-        icon: 'check-circle',
-        key: '/home/check-template',
+        title: '历史测试数据',
+        icon: 'line-chart',
+        key: '/home/history-performance',
     },
     {
         title: '系统管理',
@@ -152,8 +147,7 @@ const performanceMenus = [
         subs: [
             { key: '/home/sysadmin/users', title: '用户管理', icon: 'contacts', },
             { key: '/home/sysadmin/personal', title: '个人资料', icon: 'user', },
-            { key: '/home/sysadmin/assets', title: '资产管理', icon: 'cluster', },
-            { key: '/home/sysconfig/system-alert', title: '系统告警配置', icon: 'alert', },
+            { key: '/home/sysadmin/assets', title: '资产管理', icon: 'laptop', },
         ]
     },
     {

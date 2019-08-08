@@ -50,6 +50,8 @@ class UsageGauge extends Component {
             percent = infoStore.cpuUsed;
         } else if (name === '内存') {
             percent = infoStore.memUsed;
+        } else if (name === '硬盘') {
+            percent = infoStore.diskUsed;
         }
         
         let option = this.getOption();

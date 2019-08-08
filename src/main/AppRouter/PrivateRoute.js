@@ -20,8 +20,8 @@ class PrivateRoute extends React.Component {
         this.state = {
             isUserLogin: false,
         }
-        // 关闭后门
-        //this.checkIfLogin();
+        // TODO: 后续需要关闭后门
+        this.checkIfLogin();
     }
 
     checkIfLogin = () => {
