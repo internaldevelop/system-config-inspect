@@ -9,9 +9,6 @@ class AssetInfoStore {
     @observable diskUsed = 0.0;
     @observable procCpuPercents = [];
     @observable procMemPercents = [];
-    @observable cpuRealTimeList = [];//[['time', 'value']]
-    @observable memRealTimeList = [];
-    @observable diskRealTimeList = [];
 
     @action setCpu = (percent) => {
         this.cpuUsed = percent;
@@ -27,15 +24,6 @@ class AssetInfoStore {
     }
     @action setProcMem = (procMem) => {
         this.procMemPercents = procMem;
-    }
-    @action setCpuRealTimeList = (realTimeList) => {
-        this.cpuRealTimeList = realTimeList;
-    }
-    @action setMemRealTimeList = (realTimeList) => {
-        this.memRealTimeList = realTimeList;
-    }
-    @action setDiskRealTimeList = (realTimeList) => {
-        this.procMemPercents = realTimeList;
     }
     // @action initProcCpu = () => {
     //     this.procCpuPercents = [['procname', 'percent', 'score']];

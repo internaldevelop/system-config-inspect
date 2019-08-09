@@ -34,7 +34,7 @@ class HistoryUsageLine extends Component {
         if (dataSource.length > 0) {
             return;
         }
-        let now= new Date();
+        let now = new Date();
         let startTime = now.getTime();
         startTime -= MAX_COUNT * TIME_GAP;
         for (let i=0; i<MAX_COUNT; i++) {
@@ -50,7 +50,7 @@ class HistoryUsageLine extends Component {
         return _hour + ':' + _minute + ':' + _second;
     }
     getCurrentTime = () => {
-        let now1= new Date();
+        let now1 = new Date();
         return this.formatTimeStr(now1);
         //let _month = ( 10 > (now.getMonth()+1) ) ? '0' + (now.getMonth()+1) : now.getMonth()+1;
         //let _day = ( 10 > now.getDate() ) ? '0' + now.getDate() : now.getDate();
@@ -107,13 +107,20 @@ class HistoryUsageLine extends Component {
                 }
             };
         }
-        this.saveRealTimeList(usedPercent);
+        let usageData = dataSource;
+        if (this.props.type === 'dataSrcFromDB') {
+            // TODO: no data now!
+            //usageData = this.props.data;
+        } else if (this.props.type === 'dataSrcFromNow') {
+            this.saveRealTimeList(usedPercent);
+            usageData = dataSource;
+        }
         
         return {
             tooltip: {
                 //formatter: (data) => this.getTooltipFormatter(data)
             },
-            dataset: { source: dataSource },
+            dataset: { source: usageData },
             grid: { containLabel: true },
 
             yAxis: {

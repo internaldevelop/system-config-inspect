@@ -7,6 +7,7 @@ import { Tabs, Card, Skeleton, Select, Input, Spin, Button, Row, Col, Icon, Coll
 
 import { renderAssetInfo } from './AssetInfo';
 import ProcUsageLine from '../AssetOverView/ProcUsageLine';
+import NetWorkStatus from './NetWorkStatus';
 import HistoryUsageLine from './HistoryUsageLine';
 import UsageGauge from '../AssetOverView/UsageGauge';
 import HttpRequest from '../../utils/HttpRequest';
@@ -279,7 +280,7 @@ class PerformanceOverView extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <HistoryUsageLine name='CPU' />
+                                                    <HistoryUsageLine type='dataSrcFromNow' name='CPU' />
                                                 </Col>
                                             </Row>
                                         </TabPane>
@@ -294,7 +295,7 @@ class PerformanceOverView extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <HistoryUsageLine name='内存' />
+                                                    <HistoryUsageLine type='dataSrcFromNow' name='内存' />
                                                 </Col>
                                             </Row>
                                         </TabPane>
@@ -304,17 +305,14 @@ class PerformanceOverView extends React.Component {
                                                     <UsageGauge name='硬盘' />
                                                 </Col>
                                                 <Col span={17}>
-                                                    <HistoryUsageLine name='硬盘' />
+                                                    <HistoryUsageLine type='dataSrcFromNow' name='硬盘' />
                                                 </Col>
                                             </Row>
                                         </TabPane>
                                         <TabPane tab="网络" key="4">
                                             <Row>
-                                                <Col span={7}>
-
-                                                </Col>
-                                                <Col span={17}>
-
+                                                <Col>
+                                                <NetWorkStatus></NetWorkStatus>
                                                 </Col>
                                             </Row>
                                         </TabPane>

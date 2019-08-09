@@ -19,6 +19,7 @@ import ExecActionsView from '../views/TaskExecResultsView/ExecActionsView'
 import ExceptionLogsView from '../views/TaskExecResultsView/ExceptionLogsView'
 import SystemLogsView from '../views/SystemLogsView'
 import CheckResultView from '../views/CheckResultView'
+import HistoryPerformance from '../views/HistoryPerformance'
 import CheckTemplateView from '../views/CheckTemplateView'
 
 import UsersManageView from '../views/UsersManageView'
@@ -113,7 +114,7 @@ class ContentMain extends React.Component {
     return (
       <Switch>
         <PrivateRoute exact path='/home' component={PerformanceOverView} />
-        <PrivateRoute exact path='/home/history-performance' component={AssetAnalysisView} />
+        <PrivateRoute exact path='/home/history-performance' component={HistoryPerformance} />
 
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
