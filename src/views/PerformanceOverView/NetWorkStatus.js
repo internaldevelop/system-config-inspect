@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { observer, inject } from 'mobx-react'
 
-import { Select, Col, Spin, Card, Form, Input, Row, Button, Icon } from 'antd';
+import { message, Select, Col, Spin, Card, Form, Input, Row, Button, Icon } from 'antd';
 import HttpRequest from '../../utils/HttpRequest';
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -81,6 +81,7 @@ class NetWorkStatus extends Component {
 
     getNetWorkResultCB = (data, error) => {
         let obj_asset_uuid = delay_select;
+        let success = true;
         if (data.payload !== null && data.payload !== undefined && obj_asset_uuid !== '' && obj_asset_uuid !== undefined) {
             let assetName = this.assetNameFromUuid(obj_asset_uuid);
             if (data.payload['tcp_lat'] !== null && data.payload['tcp_lat'] !== undefined) {
@@ -89,9 +90,16 @@ class NetWorkStatus extends Component {
                 document.getElementById('capacity_result').value = "当前节点与" + assetName + "节点吞吐量为：" + data.payload['tcp_bw_throughput'];
             } else if (data.payload['tcp_bw'] !== null && data.payload['tcp_bw'] !== undefined) {
                 document.getElementById('communicate_result').value = "当前节点与" + assetName + "节点带宽为：" + data.payload['tcp_bw'];
+            } else {
+                success = false;
             }
+        } else {
+            success = false;
         }
         this.setState({ loading: false });
+        if (!success) {
+            message.info('目标节点缺少环境或者没有上线，请重新选择');
+        }
     }
 
     getNetWorkResult = (networkType) => (event) => {
