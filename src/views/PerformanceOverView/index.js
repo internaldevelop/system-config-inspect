@@ -95,7 +95,7 @@ class PerformanceOverView extends React.Component {
 
         let infoStore = this.props.assetInfoStore;
         let message = JSON.parse(data);
-        if (message.type === sockMsgType.ASSET_REAL_TIME_INFO) {
+        if (message.type === sockMsgType.ASSET_REAL_TIME_INFO && selectedAssetId > -1 && assets.length > 0) {
             // payload
             let payload = message.payload;
             // 不是当前选择的资产信息忽略
@@ -261,6 +261,7 @@ class PerformanceOverView extends React.Component {
         let infoStore = this.props.assetInfoStore;
         const { classes } = this.props
         let assetName = selectedAssetId >= 0 ? assets[selectedAssetId].name : '';
+        let assetUuid = selectedAssetId >= 0 ? assets[selectedAssetId].uuid : '';
         return (
             <div>
                 <Spin spinning={this.state.loading} size="large">
@@ -312,7 +313,7 @@ class PerformanceOverView extends React.Component {
                                         <TabPane tab="网络" key="4">
                                             <Row>
                                                 <Col>
-                                                <NetWorkStatus></NetWorkStatus>
+                                                <NetWorkStatus asset_uuid={assetUuid}></NetWorkStatus>
                                                 </Col>
                                             </Row>
                                         </TabPane>

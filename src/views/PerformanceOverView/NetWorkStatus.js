@@ -15,6 +15,9 @@ const styles = theme => ({
     },
 
 });
+let delay_select = '';
+let communicate_select = '';
+let capacity_select = '';
 
 @inject('assetInfoStore')
 @observer
@@ -38,9 +41,16 @@ class NetWorkStatus extends Component {
         HttpRequest.asyncGet(this.acquireAssetsCB, '/assets/all');
     }
 
-    onSelectAsset = (value) => {
-        let { selectedAssetId } = this.state;
-        selectedAssetId = value;
+    onSelectDelayAsset = (value) => {
+        delay_select = value;
+    }
+
+    onSelectCapacityAsset = (value) => {
+        capacity_select = value;
+    }
+
+    onSelectCommunicateAsset = (value) => {
+        communicate_select = value;
     }
 
     getPingResultCB = (data, error) => {
@@ -57,7 +67,59 @@ class NetWorkStatus extends Component {
                 this.setState({ loading: true });
             }
         });
-        
+
+    }
+
+    assetNameFromUuid(assetUuid) {
+        const { assets } = this.state;
+        for (let asset of assets) {
+            if (asset.uuid === assetUuid)
+                return asset.name;
+        }
+        return '';
+    }
+
+    getNetWorkResultCB = (data, error) => {
+        let obj_asset_uuid = delay_select;
+        if (data.payload !== null && data.payload !== undefined && obj_asset_uuid !== '' && obj_asset_uuid !== undefined) {
+            let assetName = this.assetNameFromUuid(obj_asset_uuid);
+            if (data.payload['tcp_lat'] !== null && data.payload['tcp_lat'] !== undefined) {
+                document.getElementById('delay_result').value = "当前节点与" + assetName + "节点网络延时为：" + data.payload['tcp_lat'];
+            } else if (data.payload['tcp_bw_throughput'] !== null && data.payload['tcp_bw_throughput'] !== undefined) {
+                document.getElementById('capacity_result').value = "当前节点与" + assetName + "节点吞吐量为：" + data.payload['tcp_bw_throughput'];
+            } else if (data.payload['tcp_bw'] !== null && data.payload['tcp_bw'] !== undefined) {
+                document.getElementById('communicate_result').value = "当前节点与" + assetName + "节点带宽为：" + data.payload['tcp_bw'];
+            }
+        }
+        this.setState({ loading: false });
+    }
+
+    getNetWorkResult = (networkType) => (event) => {
+        let success = true;
+        this.props.form.validateFields((err, values) => {
+            if (err !== null) {
+                success = false;
+            } else {
+                let obj_asset_uuid = delay_select;
+                switch (networkType) {
+                    case 1:
+                        obj_asset_uuid = delay_select;
+                        break;
+                    case 2:
+                        obj_asset_uuid = capacity_select;
+                        break;
+                    case 3:
+                        obj_asset_uuid = communicate_select;
+                        break;
+                }
+                // this.props.asset_uuid 为当前节点，测试与选择的节点之间的网络延时
+                if (obj_asset_uuid !== '' && obj_asset_uuid !== undefined) {
+                    let params = { source_asset_uuid: this.props.asset_uuid, obj_asset_uuid: obj_asset_uuid, type: networkType };
+                    HttpRequest.asyncGet(this.getNetWorkResultCB, '/assets-network/delay', params);
+                    this.setState({ loading: true });
+                }
+            }
+        });
     }
 
     render() {
@@ -80,7 +142,7 @@ class NetWorkStatus extends Component {
                     <Form layout='horizontal'>
                         <Card type="inner" title='连通性检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={17}>
+                                <Col align="left" span={21}>
                                     <FormItem label='请输入IP或域名: ' {...formItemLayout}>
                                         {
                                             getFieldDecorator('IP', {
@@ -98,16 +160,16 @@ class NetWorkStatus extends Component {
                                         }
                                     </FormItem>
                                 </Col>
-                                <Col offset={1} span={6}>
+                                <Col span={3} align="right">
                                     <Button type='primary' onClick={this.getPingResult} >PING</Button>
                                 </Col>
                             </Row>
-                            <TextArea rows={2} disabled id='ping_result' />
+                            <TextArea rows={2} readOnly id='ping_result' />
                         </Card>
                         <Card type="inner" title='指定URL访问检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={17}>
-                                    <FormItem align="left" label='请输入URL地址:' {...formItemLayout}>
+                                <Col span={21} align="left">
+                                    <FormItem label='请输入URL地址:' {...formItemLayout}>
                                         {
                                             getFieldDecorator('URL', {
                                                 initialValue: '',
@@ -124,68 +186,72 @@ class NetWorkStatus extends Component {
                                         }
                                     </FormItem>
                                 </Col>
-                                <Col offset={1} span={6}>
+                                <Col span={3} align="right">
                                     <Button type='primary' onClick={this.getPingResult} >时长检测</Button>
                                 </Col>
                             </Row>
-                            <TextArea rows={2} disabled id='url_result'/>
+                            <TextArea rows={2} readOnly id='url_result' />
                         </Card>
                         <Card type="inner" title='网络延时检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={17}>
+                                <Col span={20}>
                                     <span>
                                         <span>请选择节点</span>
-                                        <Select style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectAsset}>
+                                        <Select id='delay_select' style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectDelayAsset.bind(this)}>
                                             {assets.map(asset => (
                                                 <Option value={asset.uuid}>{asset.name}</Option>
                                             ))}
                                         </Select>
                                     </span>
                                 </Col>
-                                <Col offset={1} span={6}>
-                                    <Button type='primary' onClick={this.getPingResult} >延时检测</Button>
+                                <Col span={4} align="right">
+                                    <Button type='primary' onClick={this.getNetWorkResult(1).bind(this)} >延时检测</Button>
                                 </Col>
                             </Row>
                             <br />
-                            <TextArea rows={2} disabled id='delay_result'/>
+                            <TextArea rows={2} readOnly id='delay_result' />
                         </Card>
                         <Card type="inner" title='吞吐量检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={17}>
+                                <Col span={20}>
                                     <span>
                                         <span>请选择节点</span>
-                                        <Select style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectAsset}>
-                                            {assets.map(asset => (
-                                                <Option value={asset.uuid}>{asset.name}</Option>
-                                            ))}
+                                        <Select style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectCapacityAsset.bind(this)} >
+                                            {
+                                                assets.map(asset => (
+                                                    <Option value={asset.uuid}>{asset.name}</Option>
+                                                ))
+                                            }
                                         </Select>
                                     </span>
                                 </Col>
-                                <Col offset={1} span={6}>
-                                    <Button type='primary' onClick={this.getPingResult} >吞吐量检测</Button>
+                                <Col span={4} align="right">
+                                    <Button type='primary' onClick={this.getNetWorkResult(2).bind(this)} >吞吐量检测</Button>
                                 </Col>
                             </Row>
                             <br />
-                            <TextArea rows={2} disabled id='capacity_result'/>
+                            <TextArea rows={2} readOnly id='capacity_result' />
                         </Card>
                         <Card type="inner" title='通信能力检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={17}>
+                                <Col span={20}>
                                     <span>
                                         <span>请选择节点</span>
-                                        <Select style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectAsset}>
-                                            {assets.map(asset => (
-                                                <Option value={asset.uuid}>{asset.name}</Option>
-                                            ))}
+                                        <Select style={{ width: 200, marginLeft: '16px' }} onChange={this.onSelectCommunicateAsset.bind(this)} >
+                                            {
+                                                assets.map(asset => (
+                                                    <Option value={asset.uuid}>{asset.name}</Option>
+                                                ))
+                                            }
                                         </Select>
                                     </span>
                                 </Col>
-                                <Col offset={1} span={6}>
-                                    <Button type='primary' onClick={this.getPingResult} >通信能力检测</Button>
+                                <Col span={4} align="right">
+                                    <Button type='primary' onClick={this.getNetWorkResult(3).bind(this)} >带宽检测</Button>
                                 </Col>
                             </Row>
                             <br />
-                            <TextArea rows={2} disabled id='communicate_result' />
+                            <TextArea rows={2} readOnly id='communicate_result' />
                         </Card>
                     </Form>
                 </Spin>
