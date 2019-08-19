@@ -81,6 +81,7 @@ class AssetAnalysisView extends React.Component {
 
         let asset = assets[assetId];
         let params = { asset_uuid: asset.uuid };
+        // f6edf23b-9c8b-4200-af9b-f95ac78118ec 统计
         HttpRequest.asyncGet(this.getRecentCheckStatCB, '/baseline-check/asset-recent-check-stat', params);
     }
 
@@ -157,9 +158,9 @@ class AssetAnalysisView extends React.Component {
             } else {
                 level = '未知级别';
             }
-            title = '资产核查--' + level + '（最新核查时间：' + recent.create_time + '）';
+            title = '成果查询--' + level + '（最新核查时间：' + recent.create_time + '）';//资产核查
         } else {
-            title = '资产核查（从未核查）';
+            title = '成果查询（从未核查）';
         }
         return title;
     }
@@ -210,7 +211,7 @@ class AssetAnalysisView extends React.Component {
                             <Col span={3}>
                                 {/* <Card style={{ backgroundColor: teal[500] }}> */}
                                 <Card bordered={false}>
-                                    <Title style={{ textAlign: 'center' }} level={3}>核查</Title>
+                                    <Title style={{ textAlign: 'center' }} level={3}>成果统计</Title>
                                     <Button block size={'large'} disabled={isWindows} type='secondary' style={{ marginBottom: 15 }} onClick={this.handleCheck(1).bind(this)}>基线一级</Button>
                                     <Button block size={'large'} disabled={isWindows} type='primary' style={{ marginBottom: 15 }} onClick={this.handleCheck(2).bind(this)}>基线二级</Button>
                                     <Button block size={'large'} disabled={isWindows} type='danger' onClick={this.handleCheck(3).bind(this)}>基线三级</Button>

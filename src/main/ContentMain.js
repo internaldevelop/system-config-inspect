@@ -92,8 +92,10 @@ class ContentMain extends React.Component {
   getTerminalSystemRoute() {
     return (
       <Switch>
-        <PrivateRoute exact path='/home' component={AssetOverView} />
-        <PrivateRoute exact path='/home/asset-analysis' component={AssetAnalysisView} />
+        {/* <PrivateRoute exact path='/home' component={AssetOverView} />
+        <PrivateRoute exact path='/home/asset-analysis' component={AssetAnalysisView} /> */}
+        <PrivateRoute exact path='/home' component={AssetAnalysisView} />
+        <PrivateRoute exact path='/home/asset-analysis' component={AssetOverView} />
         <PrivateRoute exact path='/home/check-template' component={CheckTemplateView} />
 
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />

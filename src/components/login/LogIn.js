@@ -136,13 +136,13 @@ class LogIn extends React.Component {
     }
 
     checkVerifyCode() {
-        let inputCode = document.getElementById('verification').value;
-        if (this.state.verifyCode.toUpperCase() !== inputCode.toUpperCase()) {
-            message.info('验证码错误，请重新输入验证码');
-            document.getElementById('verification').value = '';
-            this.createCode();
-            return false;
-        }
+        // let inputCode = document.getElementById('verification').value;
+        // if (this.state.verifyCode.toUpperCase() !== inputCode.toUpperCase()) {
+        //     message.info('验证码错误，请重新输入验证码');
+        //     document.getElementById('verification').value = '';
+        //     this.createCode();
+        //     return false;
+        // }
 
         return true;
     }
