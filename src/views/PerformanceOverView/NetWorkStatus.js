@@ -18,6 +18,8 @@ const styles = theme => ({
 let delay_select = '';
 let communicate_select = '';
 let capacity_select = '';
+let pingIP = '';
+let targetURL = '';
 
 @inject('assetInfoStore')
 @observer
@@ -54,6 +56,16 @@ class NetWorkStatus extends Component {
     }
 
     getPingResultCB = (data, error) => {
+        let success = true;
+        if (data.payload !== null && data.payload !== undefined) {
+            if (data.payload['isconnect'] !== null && data.payload['isconnect'] !== undefined) {
+                document.getElementById('ping_result').value = "PING " + pingIP + "时间为 "  + data.payload['isconnect'] + "ms";
+            } else {
+                success = false;
+            }
+        } else {
+            success = false;
+        }
         this.setState({ loading: false });
     }
 
@@ -63,11 +75,44 @@ class NetWorkStatus extends Component {
             if (err !== null) {
                 success = false;
             } else {
-                //HttpRequest.asyncPost(this.getPingResultCB, '/users/update', newUserData);
-                this.setState({ loading: true });
+                if (values.pingIP !== '' && values.pingIP !== undefined) {
+                    pingIP = values.pingIP;
+                    let params = { uuid: this.props.asset_uuid, ip: values.pingIP };
+                    HttpRequest.asyncGet(this.getPingResultCB, '/netconnect/param', params);
+                    this.setState({ loading: true });
+                }
             }
         });
+    }
 
+    getURLResultCB = (data, error) => {
+        let success = true;
+        if (data.payload !== null && data.payload !== undefined) {
+            if (data.payload['total_time'] !== null && data.payload['total_time'] !== undefined) {
+                document.getElementById('url_result').value = "访问" + targetURL + "时间为 "  + data.payload['total_time'] + "ms";
+            } else {
+                success = false;
+            }
+        } else {
+            success = false;
+        }
+        this.setState({ loading: false });
+    }
+
+    getURLResult = () => {
+        let success = true;
+        this.props.form.validateFields((err, values) => {
+            if (err !== null) {
+                success = false;
+            } else {
+                if (values.URL !== '' && values.URL !== undefined) {
+                    targetURL = values.URL;
+                    let params = { asset_uuid: this.props.asset_uuid, url: values.URL };
+                    HttpRequest.asyncGet(this.getURLResultCB, '/netconnect/url-resp', params);
+                    this.setState({ loading: true });
+                }
+            }
+        });
     }
 
     assetNameFromUuid(assetUuid) {
@@ -133,7 +178,7 @@ class NetWorkStatus extends Component {
     render() {
         const { assets } = this.state;
         const { classes } = this.props;
-        const { getFieldDecorator } = this.props.form
+        const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -153,7 +198,7 @@ class NetWorkStatus extends Component {
                                 <Col align="left" span={21}>
                                     <FormItem label='请输入IP或域名: ' {...formItemLayout}>
                                         {
-                                            getFieldDecorator('IP', {
+                                            getFieldDecorator('pingIP', {
                                                 initialValue: '',
                                                 rules: [
                                                     {
@@ -195,7 +240,7 @@ class NetWorkStatus extends Component {
                                     </FormItem>
                                 </Col>
                                 <Col span={3} align="right">
-                                    <Button type='primary' onClick={this.getPingResult} >时长检测</Button>
+                                    <Button type='primary' onClick={this.getURLResult} >时长检测</Button>
                                 </Col>
                             </Row>
                             <TextArea rows={2} readOnly id='url_result' />
