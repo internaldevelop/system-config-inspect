@@ -227,9 +227,9 @@ class PerformanceOverView extends React.Component {
     };
 
     // 导出报告
-    exportTasksResults = () => {
-        const { inputValue, selectValue } = this.state;
-        window.location.href = GetBackEndRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
+    exportReport = () => {
+        const { assets, selectedAssetId} = this.state;
+        window.location.href = GetBackEndRootUrl() + '/assets-network/export?asset_uuid=' + assets[selectedAssetId].uuid;
     }
 
     getAssetSelectList = () => {
@@ -244,7 +244,7 @@ class PerformanceOverView extends React.Component {
                         ))}
                     </Select>
                     <span>
-                        <Button size={'large'} disabled={!assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.exportTasksResults} ><Icon type="export" />导出报告</Button>
+                        <Button size={'large'} disabled={!assetOnline} type='primary' style={{ marginLeft: '16px' }} onClick={this.exportReport} ><Icon type="export" />导出报告</Button>
                     </span>
                 </span>
             );

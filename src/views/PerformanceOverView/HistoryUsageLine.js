@@ -70,7 +70,9 @@ class HistoryUsageLine extends Component {
         let infoStore = this.props.assetInfoStore;
         let usedPercent;
         let itemStyle;
+        let usageData;
         if (name === 'CPU') {
+            usageData = infoStore.historyCpuPercents;
             usedPercent = infoStore.cpuUsed.toFixed(4);
             itemStyle = {
                 normal: {
@@ -83,6 +85,7 @@ class HistoryUsageLine extends Component {
                 }
             };
         } else if (name === '内存') {
+            usageData = infoStore.historyMemPercents;
             usedPercent = infoStore.memUsed.toFixed(4);
             itemStyle = {
                 normal: {
@@ -95,6 +98,7 @@ class HistoryUsageLine extends Component {
                 }
             };
         } else if (name === '硬盘') {
+            usageData = infoStore.historyDiskPercents;
             usedPercent = infoStore.diskUsed.toFixed(5);
             itemStyle = {
                 normal: {
@@ -107,11 +111,10 @@ class HistoryUsageLine extends Component {
                 }
             };
         }
-        let usageData = dataSource;
-        if (this.props.type === 'dataSrcFromDB') {
-            // TODO: no data now!
-            //usageData = this.props.data;
-        } else if (this.props.type === 'dataSrcFromNow') {
+        if (this.props.type === 'dataSrcFromNow' || usageData.length <= 0) {
+            if (this.props.type === 'dataSrcFromDB') {
+                usedPercent = 0.0;
+            }
             this.saveRealTimeList(usedPercent);
             usageData = dataSource;
         }

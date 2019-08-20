@@ -27,6 +27,7 @@ const styles = theme => ({
 
 @observer
 @inject('userStore')
+@inject('assetInfoStore')
 class HistoryPerformance extends React.Component {
     constructor(props) {
         super(props);
@@ -36,20 +37,31 @@ class HistoryPerformance extends React.Component {
             endTime: GetNowTimeMyStr(),
             loading: false,     // 图表加载完成前为 true，加载完成后是 false
             selectedAssetUuid: '',
-            cpuHistoryList: [],
-            memHistoryList: [],
-            fstHistoryList: [],
         };
-
+        // 设置beginTime为当天
+        this.setBeginTime();
         // 从后台获取设备数据的集合
         this.acquireAssets();
     };
+
+    setBeginTime = () => {
+        this.setState({ beginTime: this.getNowTime() });
+    }
+
+    getNowTime = () => {
+        let now = new Date();
+        let month = (10 > (now.getMonth() + 1)) ? '0' + (now.getMonth() + 1) : now.getMonth() + 1;
+        let day = (10 > now.getDate()) ? '0' + now.getDate() : now.getDate();
+        let today = now.getFullYear() + '-' + month + '-' + day;
+        return today + ' 00:00:00';
+    }
 
     acquireAssetsCB = (data) => {
         this.setState({ assets: data.payload });
         let selectedAssetUuid = this.state;
         if ((data.payload instanceof Array) && (data.payload.length > 0)) {
             selectedAssetUuid = data.payload[0].uuid;
+            this.onSelectAsset(selectedAssetUuid);
             this.setState({ selectedAssetUuid });
         }
     }
@@ -58,16 +70,27 @@ class HistoryPerformance extends React.Component {
     }
 
     acquireHistoryCB = (data) => {
-        //this.setState({ cpuHistoryList: data.payload });
+        let cpuHistoryList = [];
+        let memHistoryList = [];
+        let fstHistoryList = [];
+        let infoStore = this.props.assetInfoStore;
+        if ((data.payload instanceof Array) && (data.payload.length > 0)) {
+            for (let item of data.payload) {
+                cpuHistoryList.push({ time: item.create_time, value: item.cpu_used_percent });
+                memHistoryList.push({ time: item.create_time, value: item.memory_used_percent });
+                fstHistoryList.push({ time: item.create_time, value: item.disk_used_percent });
+            }
+        }
+        infoStore.setHistoryCpuPercents(cpuHistoryList);
+        infoStore.setHistoryMemPercents(memHistoryList);
+        infoStore.setHistoryDiskPercents(fstHistoryList);
     }
 
     onSelectAsset = (value) => {
-        //let { selectedAssetUuid } = this.state;
-        //selectedAssetUuid = value;
         // 获取CPU 内存 硬盘历史性能数据
-        //HttpRequest.asyncGet(this.acquireHistoryCB, '/assets/all', type: 'CPU');
-        //HttpRequest.asyncGet(this.acquireHistoryCB, '/assets/all', type: 'Mem');
-        //HttpRequest.asyncGet(this.acquireHistoryCB, '/assets/all', type: 'FST');
+        this.setState({ selectedAssetUuid: value });
+        let params = { asset_uuid: value, begin_time: this.state.beginTime, end_time: this.state.endTime };
+        HttpRequest.asyncGet(this.acquireHistoryCB, '/assets-network/his-perf', params);
     }
 
     onDateTimeChange = (value, dateString) => {
@@ -82,7 +105,7 @@ class HistoryPerformance extends React.Component {
 
     getRangePickerProps() {
         const timeFormat = "YYYY-MM-DD HH:mm:ss";
-        const { beginTime, endTime } = this.state;
+        const { endTime } = this.state;
 
         const rangePickerProps = {
             allowClear: false,
@@ -91,14 +114,14 @@ class HistoryPerformance extends React.Component {
             placeholder: ['Start Time', 'End Time'],
             onChange: this.onDateTimeChange,
             onOk: this.onSetDateTime,
-            defaultValue: [moment(beginTime, timeFormat), moment(endTime, timeFormat)],
+            defaultValue: [moment(this.getNowTime(), timeFormat), moment(endTime, timeFormat)],
         };
         return rangePickerProps;
     }
 
     render() {
         const userStore = this.props.userStore;
-        const { assets, selectedAssetUuid, cpuHistoryList, memHistoryList, fstHistoryList } = this.state;
+        const { assets, selectedAssetUuid } = this.state;
         return (
             <Skeleton loading={userStore.isAdminUser} active avatar paragraph={{ rows: 12 }}>
                 <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
@@ -121,17 +144,17 @@ class HistoryPerformance extends React.Component {
                         <br /><br />
                         <Row>
                             <Col>
-                                <HistoryUsageLine type='dataSrcFromDB' data={cpuHistoryList} name='CPU' />
+                                <HistoryUsageLine type='dataSrcFromDB' name='CPU' />
                             </Col>
                         </Row>
                         <Row>
                             <Col>
-                                <HistoryUsageLine type='dataSrcFromDB' data={memHistoryList} name='内存' />
+                                <HistoryUsageLine type='dataSrcFromDB' name='内存' />
                             </Col>
                         </Row>
                         <Row>
                             <Col>
-                                <HistoryUsageLine type='dataSrcFromDB' data={fstHistoryList} name='硬盘' />
+                                <HistoryUsageLine type='dataSrcFromDB' name='硬盘' />
                             </Col>
                         </Row>
                     </Card>

@@ -59,7 +59,11 @@ class NetWorkStatus extends Component {
         let success = true;
         if (data.payload !== null && data.payload !== undefined) {
             if (data.payload['isconnect'] !== null && data.payload['isconnect'] !== undefined) {
-                document.getElementById('ping_result').value = "PING " + pingIP + "时间为 "  + data.payload['isconnect'] + "ms";
+                if (data.payload['isconnect'] === '1' ) {
+                    document.getElementById('ping_result').value = "可以PING通 " + pingIP;
+                } else {
+                    document.getElementById('ping_result').value = "PING " + pingIP + " 失败";
+                }
             } else {
                 success = false;
             }

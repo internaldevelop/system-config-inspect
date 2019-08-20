@@ -109,13 +109,27 @@ class ChangePwdDlg extends React.Component {
         }, {
             max: 16,
             message: '密码不能多于16个字符',
+        }, {
+            validator: this.oldAndNewpasswordValidator
         }]);
+    }
+
+    oldAndNewpasswordValidator = (rule, value, callback) => {
+        const { getFieldValue } = this.props.form;
+        if (value && value === getFieldValue('newPwd')) {
+            callback('原密码和新密码相同，请重新输入！')
+        }
+
+        // 必须总是返回一个 callback，否则 validateFields 无法响应
+        callback();
     }
 
     passwordValidator = (rule, value, callback) => {
         const { getFieldValue } = this.props.form;
         if (value && value !== getFieldValue('newPwd')) {
             callback('两次输入不一致！')
+        } else if (value === getFieldValue('oldPwd')) {
+            callback('原密码和新密码相同，请重新输入！')
         }
 
         // 必须总是返回一个 callback，否则 validateFields 无法响应

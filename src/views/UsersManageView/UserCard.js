@@ -198,11 +198,10 @@ class UserCard extends React.Component {
                                             getFieldDecorator('email', {
                                                 initialValue: userInfo.email,
                                                 rules: [
-                                                    // TODO: 后续需要放开校验
-                                                    // {
-                                                    //     type: 'email',
-                                                    //     message: '请输入正确的邮箱地址'
-                                                    // },
+                                                    {
+                                                        type: 'email',
+                                                        message: '请输入正确的邮箱地址'
+                                                    },
                                                     {
                                                         required: true,
                                                         message: '请填写邮箱地址'
@@ -235,13 +234,12 @@ class UserCard extends React.Component {
                                             getFieldDecorator('phone', {
                                                 initialValue: userInfo.phone,
                                                 rules: [
-                                                    // TODO: 后续需要放开校验
-                                                    // {
-                                                    //     len: 11,
-                                                    //     pattern: /^[1][3,4,5,7,8][0-9]{9}$/,
-                                                    //     required: true,
-                                                    //     message: '请输入正确的11位手机号码'
-                                                    // }
+                                                    {
+                                                        len: 11,
+                                                        pattern: /^[1][3,4,5,7,8][0-9]{9}$/,
+                                                        required: true,
+                                                        message: '请输入正确的11位手机号码'
+                                                    }
                                                 ]
                                             })(
                                                 <Input addonBefore={prefixSelector} allowClear />

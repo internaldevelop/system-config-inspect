@@ -80,7 +80,7 @@ export function getGroupAlias(name) {
       alias = "服务安全";
       break;
     case "login":
-      alias = "登陆安全";
+      alias = "登录安全";
       break;
     case "syslog":
       alias = "日志安全";

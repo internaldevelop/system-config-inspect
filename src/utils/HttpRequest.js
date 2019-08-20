@@ -138,8 +138,7 @@ class HttpRequest {
             .catch(error => {
                 console.log('axios asyncGet catch error:');
                 console.log(error);
-                // TODO: 后续需要注释掉这行
-                message.error(eng2chn(error.message));
+                //message.error(eng2chn(error.message));
                 callback(null, error);
             })
     }

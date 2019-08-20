@@ -122,15 +122,14 @@ class AssetParamsConfig extends React.Component {
             message.info('资产名称不能为空，请重新输入');
             document.getElementById('host-name').value = '';
             return false;
-        // TODO: 后续需要放开校验
-        // } else if (name.length > 20) {
-        //     message.info('资产名称长度不能超过20，请重新输入');
-        //     document.getElementById('host-name').value = '';
-        //     return false;
-        // } else if (isContainSpecialCharacter(name)) {
-        //     message.info('资产名称含有特殊字符，请重新输入');
-        //     document.getElementById('host-name').value = '';
-        //     return false;
+        } else if (name.length > 20) {
+            message.info('资产名称长度不能超过20，请重新输入');
+            document.getElementById('host-name').value = '';
+            return false;
+        } else if (isContainSpecialCharacter(name)) {
+            message.info('资产名称含有特殊字符，请重新输入');
+            document.getElementById('host-name').value = '';
+            return false;
         } else if (ip === null || ip === ' ' || ip === '') {
             message.info('资产IP不能为空，请重新输入');
             document.getElementById('host-ip').value = '';
@@ -164,15 +163,14 @@ class AssetParamsConfig extends React.Component {
             message.info('资产IP不能为空，请重新输入');
             document.getElementById('host-ip').value = '';
             return false;
-            // TODO: 后续需要放开校验
-        // } else if (ip.length > 20) {
-        //     message.info('资产IP名称长度不能超过20，请重新输入');
-        //     document.getElementById('host-ip').value = '';
-        //     return false;
-        // } else if (isContainSpecialCharacterForIP(ip)) {
-        //     message.info('资产IP名称含有特殊字符，请重新输入');
-        //     document.getElementById('host-ip').value = '';
-        //     return false;
+        } else if (ip.length > 20) {
+            message.info('资产IP名称长度不能超过20，请重新输入');
+            document.getElementById('host-ip').value = '';
+            return false;
+        } else if (isContainSpecialCharacterForIP(ip)) {
+            message.info('资产IP名称含有特殊字符，请重新输入');
+            document.getElementById('host-ip').value = '';
+            return false;
         }
         return true;
     }

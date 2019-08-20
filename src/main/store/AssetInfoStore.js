@@ -9,6 +9,9 @@ class AssetInfoStore {
     @observable diskUsed = 0.0;
     @observable procCpuPercents = [];
     @observable procMemPercents = [];
+    @observable historyCpuPercents = [];
+    @observable historyMemPercents = [];
+    @observable historyDiskPercents = [];
 
     @action setCpu = (percent) => {
         this.cpuUsed = percent;
@@ -24,6 +27,16 @@ class AssetInfoStore {
     }
     @action setProcMem = (procMem) => {
         this.procMemPercents = procMem;
+    }
+
+    @action setHistoryCpuPercents = (historyCpu) => {
+        this.historyCpuPercents = historyCpu;
+    }
+    @action setHistoryMemPercents = (historyMem) => {
+        this.historyMemPercents = historyMem;
+    }
+    @action setHistoryDiskPercents = (historyDisk) => {
+        this.historyDiskPercents = historyDisk;
     }
     // @action initProcCpu = () => {
     //     this.procCpuPercents = [['procname', 'percent', 'score']];
