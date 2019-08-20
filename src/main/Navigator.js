@@ -156,7 +156,6 @@ const performanceMenus = [
         key: '/home/log-manage',
         subs: [
             { key: '/home/log-manage/system-logs', title: '系统日志', icon: 'thunderbolt', },
-            { key: '/home/log-manage/check-logs', title: '扫描日志', icon: 'table', },
         ]
     },
     {

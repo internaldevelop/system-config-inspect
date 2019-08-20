@@ -122,7 +122,7 @@ class ContentMain extends React.Component {
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
         <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
-        <PrivateRoute exact path='/home/log-manage/check-logs' component={CheckResultView} />
+        {/* <PrivateRoute exact path='/home/log-manage/check-logs' component={CheckResultView} /> */}
 
         <PrivateRoute exact path='/home/about' component={AboutView} />
 

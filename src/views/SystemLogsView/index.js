@@ -55,6 +55,7 @@ class SystemLogsView extends React.Component {
             // antd 表格的 key 属性复用 index
             // 表格中索引列（后台接口返回数据中没有此属性）
             item.index = index + 1;
+            item.level = this.getLogLevelMeaning(item.type);
             return item;
         });
         this.setState({ resultData: logs });
@@ -68,8 +69,34 @@ class SystemLogsView extends React.Component {
         return ["未知", "成功", "失败", "系统错误", "信息", "异常", "警告",];
     }
 
+    logLevelArray() {
+        return ["信息", "告警", "严重"];
+    }
+
     getLogTypeMeaning(type) {
         return this.logTypeArray()[type];
+    }
+
+    getLogLevelMeaning(type) {
+        let typeName = this.logTypeArray()[type];
+        if (typeName === "成功" || typeName === "信息") {
+            return this.logLevelArray()[0];
+        } else if (typeName === "警告" || typeName === "未知" || typeName === "异常") {
+            return this.logLevelArray()[1];
+        } else {
+            return this.logLevelArray()[2];
+        }
+    }
+
+    getLevelColumnFilters = (dataList, key) => {
+        let values = [];
+        for (let item of dataList) {
+            let meaning = this.getLogLevelMeaning(item[key]);
+            if ((meaning.length > 0) && (values.indexOf(meaning) < 0)) {
+                values.push(meaning);
+            }
+        }
+        return values.map(item => { return { text: item, value: item }; });
     }
 
     getTypeColumnFilters = (dataList, key) => {
@@ -99,15 +126,15 @@ class SystemLogsView extends React.Component {
                 onFilter: (value, record) => this.getLogTypeMeaning(record.type).indexOf(value) === 0,
             },
             {
-                title: '标题', dataIndex: 'title', width: 100,
+                title: '标题', dataIndex: 'title', width: 80,
                 // 添加过滤器用于审计
                 filters: GetTableColumnFilters(resultData, "title"),
                 filterMultiple: true,
                 onFilter: (value, record) => record.title.indexOf(value) === 0,
             },
             {
-                title: '日志内容', dataIndex: 'contents', width: 300,
-                render: content => <EllipsisText content={content} width={300 * ratio} />,
+                title: '日志内容', dataIndex: 'contents', width: 260,
+                render: content => <EllipsisText content={content} width={260 * ratio} />,
             },
             {
                 title: '用户名', dataIndex: 'create_user_name', width: 100,
@@ -125,6 +152,13 @@ class SystemLogsView extends React.Component {
             },
             {
                 title: '时间', dataIndex: 'create_time', width: 130,
+            },
+            {
+                title: '级别', dataIndex: 'level', width: 80,
+                // 添加过滤器用于审计
+                // filters: this.getLevelColumnFilters(resultData, "type"),
+                // filterMultiple: true,
+                // onFilter: (value, record) => this.getLogLevelMeaning(record.type).indexOf(value) === 0,
             },
         ];
         return tableColumns;
