@@ -49,6 +49,7 @@ class AssetOverView extends React.Component {
 
     componentDidMount() {
         let infoStore = this.props.assetInfoStore;
+        // TODO: 性能测试时需要注释掉Socket通信
         socket = OpenSocket('asset_info', this.processAssetRealTimeInfo);
         infoStore.setProcCpu(this.getSourceInital());
         infoStore.setProcMem(this.getSourceInital());
@@ -58,6 +59,7 @@ class AssetOverView extends React.Component {
     }
 
     componentWillUnmount() {
+        // TODO: 性能测试时需要注释掉Socket通信
         CloseSocket(socket);
 
         // 取消事件

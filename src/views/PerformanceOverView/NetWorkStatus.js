@@ -185,12 +185,14 @@ class NetWorkStatus extends Component {
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
-                xs: { span: 24 },
+                xs: { span: 12 },
                 sm: { span: 4 },
+                //md: { span: 3},
             },
             wrapperCol: {
                 xs: { span: 24 },
                 sm: { span: 12 },
+                //md: { span: 10 },
             },
         };
         return (
@@ -199,8 +201,8 @@ class NetWorkStatus extends Component {
                     <Form layout='horizontal'>
                         <Card type="inner" title='连通性检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col align="left" span={21}>
-                                    <FormItem label='请输入IP或域名: ' {...formItemLayout}>
+                                <Col span={21}>
+                                    <FormItem style={{ marginLeft: '0px', float: 'left' }} label='请输入IP或域名: ' {...formItemLayout}>
                                         {
                                             getFieldDecorator('pingIP', {
                                                 initialValue: '',
@@ -225,7 +227,7 @@ class NetWorkStatus extends Component {
                         </Card>
                         <Card type="inner" title='指定URL访问检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={21} align="left">
+                                <Col span={20} align="left">
                                     <FormItem label='请输入URL地址:' {...formItemLayout}>
                                         {
                                             getFieldDecorator('URL', {

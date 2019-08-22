@@ -33,20 +33,14 @@ class HistoryPerformance extends React.Component {
         super(props);
         this.state = {
             assets: [],
-            beginTime: '2019-01-01 00:00:00',
+            beginTime: this.getNowTime(), // 设置beginTime为当天
             endTime: GetNowTimeMyStr(),
             loading: false,     // 图表加载完成前为 true，加载完成后是 false
             selectedAssetUuid: '',
         };
-        // 设置beginTime为当天
-        this.setBeginTime();
         // 从后台获取设备数据的集合
         this.acquireAssets();
     };
-
-    setBeginTime = () => {
-        this.setState({ beginTime: this.getNowTime() });
-    }
 
     getNowTime = () => {
         let now = new Date();
@@ -97,6 +91,8 @@ class HistoryPerformance extends React.Component {
         // console.log('Selected Time: ', value);
         // console.log('Formatted Selected Time: ', dateString);
         this.setState({ beginTime: dateString[0], endTime: dateString[1] });
+        let params = { asset_uuid: this.state.selectedAssetUuid, begin_time: dateString[0], end_time: dateString[1] };
+        HttpRequest.asyncGet(this.acquireHistoryCB, '/assets-network/his-perf', params);
     }
 
     onSetDateTime = (value) => {
@@ -105,7 +101,7 @@ class HistoryPerformance extends React.Component {
 
     getRangePickerProps() {
         const timeFormat = "YYYY-MM-DD HH:mm:ss";
-        const { endTime } = this.state;
+        const { beginTime, endTime } = this.state;
 
         const rangePickerProps = {
             allowClear: false,
@@ -114,7 +110,7 @@ class HistoryPerformance extends React.Component {
             placeholder: ['Start Time', 'End Time'],
             onChange: this.onDateTimeChange,
             onOk: this.onSetDateTime,
-            defaultValue: [moment(this.getNowTime(), timeFormat), moment(endTime, timeFormat)],
+            defaultValue: [moment(beginTime, timeFormat), moment(endTime, timeFormat)],
         };
         return rangePickerProps;
     }

@@ -39,7 +39,7 @@ class HistoryUsageLine extends Component {
         startTime -= MAX_COUNT * TIME_GAP;
         for (let i=0; i<MAX_COUNT; i++) {
             now.setTime(startTime + i * TIME_GAP);
-            dataSource.push({time: this.formatTimeStr(now), value: '0.0'});
+            dataSource.push({time: this.formatTimeStr(now), value: 0.0});
         }
     }
 
@@ -68,12 +68,14 @@ class HistoryUsageLine extends Component {
     getOption() {
         const { name, dataSource } = this.state;
         let infoStore = this.props.assetInfoStore;
-        let usedPercent;
+        let usedPercent = 0.0;
         let itemStyle;
         let usageData;
         if (name === 'CPU') {
             usageData = infoStore.historyCpuPercents;
-            usedPercent = infoStore.cpuUsed.toFixed(4);
+            if (infoStore.cpuUsed !== null || infoStore.cpuUsed !== undefined) {
+                usedPercent = infoStore.cpuUsed.toFixed(4);
+            }
             itemStyle = {
                 normal: {
                     color: '#289df5', // 折线条的颜色
@@ -86,7 +88,9 @@ class HistoryUsageLine extends Component {
             };
         } else if (name === '内存') {
             usageData = infoStore.historyMemPercents;
-            usedPercent = infoStore.memUsed.toFixed(4);
+            if (infoStore.memUsed !== null || infoStore.memUsed !== undefined) {
+                usedPercent = infoStore.memUsed.toFixed(4);
+            }
             itemStyle = {
                 normal: {
                     color: '#fbc01b',
@@ -99,7 +103,9 @@ class HistoryUsageLine extends Component {
             };
         } else if (name === '硬盘') {
             usageData = infoStore.historyDiskPercents;
-            usedPercent = infoStore.diskUsed.toFixed(5);
+            if (infoStore.diskUsed !== null || infoStore.diskUsed !== undefined) {
+                usedPercent = infoStore.diskUsed.toFixed(5);
+            }
             itemStyle = {
                 normal: {
                     color: '#ff5050',
