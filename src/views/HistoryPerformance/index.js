@@ -37,6 +37,9 @@ class HistoryPerformance extends React.Component {
             endTime: GetNowTimeMyStr(),
             loading: false,     // 图表加载完成前为 true，加载完成后是 false
             selectedAssetUuid: '',
+            cpuAvg: '',
+            diskAvg: '',
+            memAvg: '',
         };
         // 从后台获取设备数据的集合
         this.acquireAssets();
@@ -68,12 +71,22 @@ class HistoryPerformance extends React.Component {
         let memHistoryList = [];
         let fstHistoryList = [];
         let infoStore = this.props.assetInfoStore;
+        let cpuAvg = 0.0;
+        let memAvg = 0.0;
+        let diskAvg = 0.0;
         if ((data.payload instanceof Array) && (data.payload.length > 0)) {
             for (let item of data.payload) {
+                cpuAvg = cpuAvg + parseFloat(item.cpu_used_percent);
+                memAvg = memAvg + parseFloat(item.memory_used_percent);
+                diskAvg = diskAvg + parseFloat(item.disk_used_percent);
                 cpuHistoryList.push({ time: item.create_time, value: item.cpu_used_percent });
                 memHistoryList.push({ time: item.create_time, value: item.memory_used_percent });
                 fstHistoryList.push({ time: item.create_time, value: item.disk_used_percent });
             }
+            cpuAvg = ((cpuAvg / data.payload.length) * 100) .toFixed(2);
+            memAvg = (memAvg / data.payload.length).toFixed(2);
+            diskAvg = (diskAvg / data.payload.length).toFixed(2);
+            this.setState ({ cpuAvg: cpuAvg + '%', memAvg: memAvg + '%', diskAvg: diskAvg + '%'});
         }
         infoStore.setHistoryCpuPercents(cpuHistoryList);
         infoStore.setHistoryMemPercents(memHistoryList);
@@ -117,7 +130,7 @@ class HistoryPerformance extends React.Component {
 
     render() {
         const userStore = this.props.userStore;
-        const { assets, selectedAssetUuid } = this.state;
+        const { assets, selectedAssetUuid, cpuAvg, memAvg, diskAvg } = this.state;
         return (
             <Skeleton loading={userStore.isAdminUser} active avatar paragraph={{ rows: 12 }}>
                 <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
@@ -138,6 +151,17 @@ class HistoryPerformance extends React.Component {
                             </Col>
                         </Row>
                         <br /><br />
+                        <Row>
+                        <Col span={8}>
+                        { "CPU平均使用率统计：   " + cpuAvg }
+                        </Col>
+                        <Col span={8}>
+                        { "内存平均使用率统计：   " + memAvg }
+                        </Col>
+                        <Col span={8}>
+                        { "硬盘平均使用率统计：   " + diskAvg }
+                        </Col>
+                        </Row>
                         <Row>
                             <Col>
                                 <HistoryUsageLine type='dataSrcFromDB' name='CPU' />

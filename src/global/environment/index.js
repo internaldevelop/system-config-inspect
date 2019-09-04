@@ -3,10 +3,11 @@
 // 1: 主站系统自动化配置核查工具
 // 2: 终端系统自动化配置检测工具
 // 3: 主站性能测试工具
-const SYSTEM_TYPE = 2;
+const SYSTEM_TYPE = 3;
 
 const PROTOCOL = 'http';
-// const BASE_URL = '://192.168.1.70:8090/'; // TQ 虚拟机
+//const BASE_URL = '://192.168.1.80:8090/'; // TQ 80虚拟机
+//const BASE_URL = '://192.168.1.70:8090/'; // TQ 虚拟机
 //const BASE_URL = '://192.168.1.60:8090/'; // TQ 本机
 // const BASE_URL = '://192.168.207.138:8090/'; // WYT 虚拟机
 const BASE_URL = '://localhost:8090/'; // 本地

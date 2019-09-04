@@ -75,14 +75,15 @@ class NetWorkStatus extends Component {
 
     getPingResult = () => {
         let success = true;
+        document.getElementById('ping_result').value = '';
         this.props.form.validateFields((err, values) => {
             if (err !== null) {
                 success = false;
             } else {
                 if (values.pingIP !== '' && values.pingIP !== undefined) {
                     pingIP = values.pingIP;
-                    let params = { uuid: this.props.asset_uuid, ip: values.pingIP };
-                    HttpRequest.asyncGet(this.getPingResultCB, '/netconnect/param', params);
+                    let params = { asset_uuid: this.props.asset_uuid, ip: values.pingIP };
+                    HttpRequest.asyncGet(this.getPingResultCB, '/netconnect/ping', params);
                     this.setState({ loading: true });
                 }
             }
@@ -105,6 +106,7 @@ class NetWorkStatus extends Component {
 
     getURLResult = () => {
         let success = true;
+        document.getElementById('url_result').value =  '';
         this.props.form.validateFields((err, values) => {
             if (err !== null) {
                 success = false;
@@ -160,12 +162,15 @@ class NetWorkStatus extends Component {
                 let obj_asset_uuid = delay_select;
                 switch (networkType) {
                     case 1:
+                        document.getElementById('delay_result').value = '';
                         obj_asset_uuid = delay_select;
                         break;
                     case 2:
+                        document.getElementById('capacity_result').value = '';
                         obj_asset_uuid = capacity_select;
                         break;
                     case 3:
+                        document.getElementById('communicate_result').value = '';
                         obj_asset_uuid = communicate_select;
                         break;
                 }
@@ -187,12 +192,11 @@ class NetWorkStatus extends Component {
             labelCol: {
                 xs: { span: 12 },
                 sm: { span: 4 },
-                //md: { span: 3},
+                md: { span: 3 },
             },
             wrapperCol: {
                 xs: { span: 24 },
                 sm: { span: 12 },
-                //md: { span: 10 },
             },
         };
         return (
@@ -202,7 +206,7 @@ class NetWorkStatus extends Component {
                         <Card type="inner" title='连通性检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
                                 <Col span={21}>
-                                    <FormItem style={{ marginLeft: '0px', float: 'left' }} label='请输入IP或域名: ' {...formItemLayout}>
+                                    <FormItem label='请输入IP或域名: ' {...formItemLayout}>
                                         {
                                             getFieldDecorator('pingIP', {
                                                 initialValue: '',
@@ -227,7 +231,7 @@ class NetWorkStatus extends Component {
                         </Card>
                         <Card type="inner" title='指定URL访问检测' bordered={true} style={{ marginBottom: 16 }}>
                             <Row>
-                                <Col span={20} align="left">
+                                <Col span={21}>
                                     <FormItem label='请输入URL地址:' {...formItemLayout}>
                                         {
                                             getFieldDecorator('URL', {

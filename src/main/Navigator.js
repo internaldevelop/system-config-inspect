@@ -131,12 +131,12 @@ const terminalMenus = [
 
 const performanceMenus = [
     {
-        title: '性能测试',
+        title: '历史测试数据',
         icon: 'home',
         key: '/home',
     },
     {
-        title: '历史测试数据',
+        title: '性能测试',
         icon: 'line-chart',
         key: '/home/history-performance',
     },

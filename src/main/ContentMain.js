@@ -115,9 +115,10 @@ class ContentMain extends React.Component {
   getPerformanceSystemRoute() {
     return (
       <Switch>
-        <PrivateRoute exact path='/home' component={PerformanceOverView} />
-        <PrivateRoute exact path='/home/history-performance' component={HistoryPerformance} />
-
+        {/* <PrivateRoute exact path='/home' component={PerformanceOverView} />
+        <PrivateRoute exact path='/home/history-performance' component={HistoryPerformance} /> */}
+        <PrivateRoute exact path='/home' component={HistoryPerformance} />
+        <PrivateRoute exact path='/home/history-performance' component={PerformanceOverView} />
         <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
         <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />

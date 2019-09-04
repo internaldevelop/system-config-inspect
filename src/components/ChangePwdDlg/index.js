@@ -116,9 +116,9 @@ class ChangePwdDlg extends React.Component {
 
     oldAndNewpasswordValidator = (rule, value, callback) => {
         const { getFieldValue } = this.props.form;
-        if (value && value === getFieldValue('newPwd')) {
-            callback('原密码和新密码相同，请重新输入！')
-        }
+        // if (value && value === getFieldValue('newPwd')) {
+        //     callback('原密码和新密码相同，请重新输入！')
+        // }
 
         // 必须总是返回一个 callback，否则 validateFields 无法响应
         callback();
