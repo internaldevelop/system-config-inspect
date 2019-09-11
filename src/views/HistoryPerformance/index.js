@@ -86,8 +86,8 @@ class HistoryPerformance extends React.Component {
             cpuAvg = ((cpuAvg / data.payload.length) * 100) .toFixed(2);
             memAvg = (memAvg / data.payload.length).toFixed(2);
             diskAvg = (diskAvg / data.payload.length).toFixed(2);
-            this.setState ({ cpuAvg: cpuAvg + '%', memAvg: memAvg + '%', diskAvg: diskAvg + '%'});
         }
+        this.setState ({ cpuAvg: cpuAvg + '%', memAvg: memAvg + '%', diskAvg: diskAvg + '%'});
         infoStore.setHistoryCpuPercents(cpuHistoryList);
         infoStore.setHistoryMemPercents(memHistoryList);
         infoStore.setHistoryDiskPercents(fstHistoryList);

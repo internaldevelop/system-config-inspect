@@ -158,9 +158,11 @@ class AssetAnalysisView extends React.Component {
             } else {
                 level = '未知级别';
             }
-            title = '成果查询--' + level + '（最新核查时间：' + recent.create_time + '）';//资产核查
+            title = '资产核查--' + level + '（最新核查时间：' + recent.create_time + '）';
+            //title = '成果查询--' + level + '（最新核查时间：' + recent.create_time + '）';
         } else {
-            title = '成果查询（从未核查）';
+            title = '资产核查（从未核查）';
+            //title = '成果查询（从未核查）';
         }
         return title;
     }

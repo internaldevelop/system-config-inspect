@@ -20,6 +20,7 @@ let communicate_select = '';
 let capacity_select = '';
 let pingIP = '';
 let targetURL = '';
+let timer3S = undefined;    // 3秒的定时器
 
 @inject('assetInfoStore')
 @observer
@@ -73,6 +74,15 @@ class NetWorkStatus extends Component {
         this.setState({ loading: false });
     }
 
+    startTimer = () => {
+        // 开启3秒的定时器
+        timer3S = setInterval(() => this.timer3sProcess(), 3000);
+    }
+
+    timer3sProcess = () => {
+        this.setState({ loading: false });
+    }
+
     getPingResult = () => {
         let success = true;
         document.getElementById('ping_result').value = '';
@@ -85,6 +95,7 @@ class NetWorkStatus extends Component {
                     let params = { asset_uuid: this.props.asset_uuid, ip: values.pingIP };
                     HttpRequest.asyncGet(this.getPingResultCB, '/netconnect/ping', params);
                     this.setState({ loading: true });
+                    this.startTimer();
                 }
             }
         });
@@ -116,6 +127,7 @@ class NetWorkStatus extends Component {
                     let params = { asset_uuid: this.props.asset_uuid, url: values.URL };
                     HttpRequest.asyncGet(this.getURLResultCB, '/netconnect/url-resp', params);
                     this.setState({ loading: true });
+                    this.startTimer();
                 }
             }
         });
@@ -179,6 +191,7 @@ class NetWorkStatus extends Component {
                     let params = { source_asset_uuid: this.props.asset_uuid, obj_asset_uuid: obj_asset_uuid, type: networkType };
                     HttpRequest.asyncGet(this.getNetWorkResultCB, '/assets-network/delay', params);
                     this.setState({ loading: true });
+                    this.startTimer();
                 }
             }
         });
