@@ -165,6 +165,57 @@ const performanceMenus = [
     }
 ]
 
+const vulnerMenus = [
+    {
+        title: '漏洞利用方法',
+        icon: 'home',
+        key: '/home',
+        subs: [
+            { key: '/home', title: '操作系统漏洞', icon: 'contacts', },
+            { key: '/home/vulnerquery/service', title: '服务漏洞', icon: 'user', },
+            { key: '/home/vulnerquery/db', title: '数据库漏洞', icon: 'database', },
+            { key: '/home/vulnerquery/PLC', title: 'PLC漏洞', icon: 'usb', },
+        ]
+    },
+    {
+        title: '漏洞库管理',
+        icon: 'project',
+        key: '/home/vulner-manage',
+        subs: [
+            { key: '/home/vulner-manage/info', title: '漏洞库信息管理', icon: 'exception', },
+            { key: '/home/vulner-manage/method', title: '漏洞利用方法管理', icon: 'solution', },
+        ]
+    },
+    {
+        title: '漏洞利用库统计',
+        icon: 'line-chart',
+        key: '/home/vulner-stat',
+    },
+    {
+        title: '系统管理',
+        icon: 'setting',
+        key: '/home/sysadmin',
+        subs: [
+            { key: '/home/sysadmin/users', title: '用户管理', icon: 'contacts', },
+            { key: '/home/sysadmin/personal', title: '个人资料', icon: 'user', },
+            { key: '/home/sysadmin/assets', title: '资产管理', icon: 'laptop', },
+        ]
+    },
+    {
+        title: '日志管理',
+        icon: 'read',
+        key: '/home/log-manage',
+        subs: [
+            { key: '/home/log-manage/system-logs', title: '系统日志', icon: 'thunderbolt', },
+        ]
+    },
+    {
+        title: '关于',
+        icon: 'info-circle-o',
+        key: '/home/about'
+    }
+]
+
 
 class Navigator extends React.Component {
     getMenus() {
@@ -175,6 +226,8 @@ class Navigator extends React.Component {
             return terminalMenus;
         } else if (sysType === 3) {
             return performanceMenus;
+        } else if (sysType === 4) {
+            return vulnerMenus;
         }
     }
 

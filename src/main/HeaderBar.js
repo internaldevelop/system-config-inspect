@@ -111,7 +111,9 @@ class HeaderBar extends React.Component {
           <IconButton className={classes.menuButton} color="primary" aria-label="Open drawer" onClick={this.toggle}>
             <MenuIcon />
           </IconButton>
-          <img alt="logo-pic" src={LogoImage} />
+          {/*TODO, 不显示电科院图标*/}
+          {/* <img alt="logo-pic" src={LogoImage} /> */}
+          { <img alt="logo-pic" src={LogoImage} /> }
           <span style={{ fontSize: 28, marginLeft: '32px' }} color="#108ee9">{GetSystemName()}</span>
         </div>
 

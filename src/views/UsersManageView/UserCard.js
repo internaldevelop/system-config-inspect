@@ -92,8 +92,8 @@ class UserCard extends React.Component {
     activateUserCB = (data) => {
         this.fetchUser();
     }
-    activateUser() {
-        HttpRequest.asyncPost(this.activateUserCB, '/users/activate', { uuid: this.props.uuid });
+    activateUser = (status) => (event) => {
+        HttpRequest.asyncPost(this.activateUserCB, '/users/activate', { uuid: this.props.uuid, status: status });
     }
 
     changeUserGroupCB = (data) => {
@@ -115,6 +115,19 @@ class UserCard extends React.Component {
                 <Option value={1}>普通用户</Option>
             </Select>
         );
+    }
+
+    getUserStateInfo() {
+        const { userInfo } = this.state;
+        if (userInfo.status === 0 && this.props.manage === 1) {
+            return (
+                <a onClick={this.activateUser(1).bind(this)}>激活</a>
+            );
+        } else if (userInfo.status === 1 && this.props.manage === 1) {
+            return (
+                <a onClick={this.activateUser(0).bind(this)}>回收</a>
+            );
+        }
     }
 
     render() {
@@ -153,7 +166,7 @@ class UserCard extends React.Component {
                     <Card
                         type="inner"
                         title='基本信息'
-                        extra={(userInfo.status === 0) && (this.props.manage === 1) && <a onClick={this.activateUser.bind(this)}>激活</a>}
+                        extra={this.getUserStateInfo()}
                     >
                         <Row>
                             <Col span={6}>

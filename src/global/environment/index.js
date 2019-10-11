@@ -3,14 +3,17 @@
 // 1: 主站系统自动化配置核查工具
 // 2: 终端系统自动化配置检测工具
 // 3: 主站性能测试工具
-const SYSTEM_TYPE = 3;
+// 4: 终端漏洞利用工具
+const SYSTEM_TYPE = 4;
 
 const PROTOCOL = 'http';
-//const BASE_URL = '://192.168.1.80:8090/'; // TQ 80虚拟机
-//const BASE_URL = '://192.168.1.70:8090/'; // TQ 虚拟机
+//const BASE_URL = '://192.168.1.70:8090/'; // TQ 直连虚拟机
 //const BASE_URL = '://192.168.1.60:8090/'; // TQ 本机
-// const BASE_URL = '://192.168.207.138:8090/'; // WYT 虚拟机
+//const BASE_URL = '://192.168.207.138:8090/'; // WYT 虚拟机
+//const BASE_URL = '://172.16.113.48:8090/'; // TQ wifi虚拟机
+
 const BASE_URL = '://localhost:8090/'; // 本地
+export const BASE_URL2 = '://localhost:8000'; // 本地
 // const BASE_URL = '://172.16.60.5:8090/'; // 信通所云服务器
 
 export function GetSystemType() {
@@ -24,6 +27,8 @@ export function GetSystemName() {
         return "终端系统自动化配置检测工具";
     } else if (SYSTEM_TYPE === 3) {
         return "主站性能测试工具";
+    } else if (SYSTEM_TYPE === 4) {
+        return "终端漏洞利用工具";
     } else {
         return "主站 & 终端系统自动化配置核查工具";
     }
@@ -31,6 +36,10 @@ export function GetSystemName() {
 
 export function GetBackEndRootUrl() {
     return PROTOCOL + BASE_URL + 'api';
+}
+
+export function GetBackEndRootUrl2(baseUrl) {
+    return PROTOCOL + baseUrl;
 }
 
 export function GetWebSocketUrl() {

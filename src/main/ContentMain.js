@@ -33,6 +33,14 @@ import AssetAnalysisView from '../views/AssetAnalysisView'
 
 import AlertConfigView from '../views/AlertConfigView'
 
+import OsSystemVulnerQueryView from '../views/VulnerQueryViews/OsSystemVulnerQueryView'
+import DBVulnerQueryView from '../views/VulnerQueryViews/DBVulnerQueryView'
+import ServiceVulnerQueryView from '../views/VulnerQueryViews/ServiceVulnerQueryView'
+import PLCVulnerQueryView from '../views/VulnerQueryViews/PLCVulnerQueryView'
+import VulnerManageInfoView from '../views/VulnerManageView/VulnerManageInfoView'
+import VulnerMethodManageInfoView from '../views/VulnerMethodManageInfoView/VulnerMethodManageInfoView'
+import VulnerStatisticsView from '../views/VulnerStatisticsView/VulnerStatisticsView'
+
 
 //====================================================================
 // old pages, just for reference
@@ -51,7 +59,8 @@ class ContentMain extends React.Component {
       <div style={{ padding: 16, position: 'relative' }}>
       {GetSystemType() === 1 && this.getHostSystemRoute()}   
       {GetSystemType() === 2 && this.getTerminalSystemRoute()}
-      {GetSystemType() === 3 && this.getPerformanceSystemRoute()}   
+      {GetSystemType() === 3 && this.getPerformanceSystemRoute()}
+      {GetSystemType() === 4 && this.getVulnerManageSystemRoute()}   
       </div>
     )
   }
@@ -124,6 +133,30 @@ class ContentMain extends React.Component {
         <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
         <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
         {/* <PrivateRoute exact path='/home/log-manage/check-logs' component={CheckResultView} /> */}
+
+        <PrivateRoute exact path='/home/about' component={AboutView} />
+
+        <Redirect exact from='/' to='/home' />
+      </Switch>
+    );
+  }
+
+  getVulnerManageSystemRoute() {
+    return (
+      <Switch>
+        <PrivateRoute exact path='/home' component={OsSystemVulnerQueryView} />
+        <PrivateRoute exact path='/home/vulnerquery/service' component={ServiceVulnerQueryView} />
+        <PrivateRoute exact path='/home/vulnerquery/db' component={DBVulnerQueryView} />
+        <PrivateRoute exact path='/home/vulnerquery/PLC' component={PLCVulnerQueryView} />
+
+        <PrivateRoute exact path='/home/vulner-manage/info' component={VulnerManageInfoView} />
+        <PrivateRoute exact path='/home/vulner-manage/method' component={VulnerMethodManageInfoView} />
+        <PrivateRoute exact path='/home/vulner-stat' component={VulnerStatisticsView} />
+
+        <PrivateRoute exact path='/home/sysadmin/users' component={UsersManageView} />
+        <PrivateRoute exact path='/home/sysadmin/personal' component={UserInfoView} />
+        <PrivateRoute exact path='/home/sysadmin/assets' component={AssetManageView} />
+        <PrivateRoute exact path='/home/log-manage/system-logs' component={SystemLogsView} />
 
         <PrivateRoute exact path='/home/about' component={AboutView} />
 

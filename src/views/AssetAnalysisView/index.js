@@ -213,7 +213,7 @@ class AssetAnalysisView extends React.Component {
                             <Col span={3}>
                                 {/* <Card style={{ backgroundColor: teal[500] }}> */}
                                 <Card bordered={false}>
-                                    <Title style={{ textAlign: 'center' }} level={3}>成果统计</Title>
+                                    <Title style={{ textAlign: 'center' }} level={3}>资产统计</Title>
                                     <Button block size={'large'} disabled={isWindows} type='secondary' style={{ marginBottom: 15 }} onClick={this.handleCheck(1).bind(this)}>基线一级</Button>
                                     <Button block size={'large'} disabled={isWindows} type='primary' style={{ marginBottom: 15 }} onClick={this.handleCheck(2).bind(this)}>基线二级</Button>
                                     <Button block size={'large'} disabled={isWindows} type='danger' onClick={this.handleCheck(3).bind(this)}>基线三级</Button>
