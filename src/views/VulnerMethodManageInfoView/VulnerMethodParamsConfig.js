@@ -59,17 +59,16 @@ class VulnerMethodParamsConfig extends React.Component {
         let successInfo;
 
         if (action === 'new') {
-            successInfo = "漏洞创建成功";
+            successInfo = "POC创建成功";
         } else if (action === 'update') {
-            successInfo = "漏洞更新成功";
+            successInfo = "POC成功";
         } else {
             successInfo = "操作成功";
         }
 
         if (data.code === errorCode.ERROR_OK) {
             message.info(successInfo);
-            // TODO 等待接口实现后调试
-            this.props.vulnerMethodStore.setParam("edb_id", data.payload.edb_id);
+            //this.props.vulnerMethodStore.setParam("edb_id", data.payload.edb_id);
             // 调用父组件传入的回调函数，第一个参数 true 表示本组件的参数设置已确认，且记录已在后台创建或更新
             actionCB(true, {});
         } else {
@@ -80,7 +79,8 @@ class VulnerMethodParamsConfig extends React.Component {
     }
 
     handleOk = (e) => {
-        const { edb_id, fileName, fileType, content, } = this.props.vulnerMethodStore.vulnerMethodItem;
+        const { edb_id, customized } = this.props.vulnerMethodStore.vulnerMethodItem;
+        const { aliases, content_type, content } = this.props.vulnerMethodStore.vulnerMethodItem.poc;
         const { userUuid } = this.props.userStore.loginUser;
         if (!this.checkData()) {
             return false;
@@ -88,14 +88,14 @@ class VulnerMethodParamsConfig extends React.Component {
         if (this.props.vulnerMethodStore.vulnerMethodAction === actionType.ACTION_NEW) {
             HttpRequest.asyncPost2(this.requestVulnerCB('new'), '/edb/poc/add',
                 {
-                    edb_id, fileName, fileType, content, alias: fileName,
+                    edb_id, content, alias: aliases,
                 },
                 false
             );
         } else if (this.props.vulnerMethodStore.vulnerMethodAction === actionType.ACTION_EDIT) {
             HttpRequest.asyncPost2(this.requestVulnerCB('update'), '/edb/poc/update',
                 {
-                    edb_id, fileName, fileType, content, alias: fileName,
+                    edb_id, content, alias: aliases,
                 },
                 false
             );
@@ -104,7 +104,7 @@ class VulnerMethodParamsConfig extends React.Component {
 
     checkData() {
         let fileName = document.getElementById('fileName').value;
-        let fileType = document.getElementById('fileType').value;
+        //let fileType = document.getElementById('fileType').value;
         let content = document.getElementById('content').value;
 
         if (fileName === null || fileName === '') {
@@ -119,18 +119,18 @@ class VulnerMethodParamsConfig extends React.Component {
         //     message.info('文件名称含有特殊字符，请重新输入');
         //     document.getElementById('fileName').value = '';
         //     return false;
-        } else if (fileType === null || fileType === ' ' || fileType === '') {
-            message.info('文件类型不能为空，请重新输入');
-            document.getElementById('fileType').value = '';
-            return false;
-        } else if (fileType.length > 20) {
-            message.info('文件类型长度不能超过20，请重新输入');
-            document.getElementById('fileType').value = '';
-            return false;
-        } else if (isContainSpecialCharacter(fileType)) {
-            message.info('文件类型含有特殊字符，请重新输入');
-            document.getElementById('fileType').value = '';
-            return false;
+        // } else if (fileType === null || fileType === ' ' || fileType === '') {
+        //     message.info('文件类型不能为空，请重新输入');
+        //     document.getElementById('fileType').value = '';
+        //     return false;
+        // } else if (fileType.length > 20) {
+        //     message.info('文件类型长度不能超过20，请重新输入');
+        //     document.getElementById('fileType').value = '';
+        //     return false;
+        // } else if (isContainSpecialCharacter(fileType)) {
+        //     message.info('文件类型含有特殊字符，请重新输入');
+        //     document.getElementById('fileType').value = '';
+        //     return false;
         } else if (content === null || content === '' || content === ' ') {
             message.info('内容不能为空，请重新输入');
             document.getElementById('content').value = '';
@@ -140,19 +140,19 @@ class VulnerMethodParamsConfig extends React.Component {
     }
 
     handleFileNameChange = (event) => {
-        this.props.vulnerMethodStore.setParam("fileName", event.target.value);
+        this.props.vulnerMethodStore.setPOCParam("aliases", event.target.value);
     }
 
     handleFileTypeChange = (event) => {
-        this.props.vulnerMethodStore.setParam("fileType", event.target.value);
+        this.props.vulnerMethodStore.setPOCParam("content_type", event.target.value);
     }
 
     handleContentChange = (event) => {
-        this.props.vulnerMethodStore.setParam("content", event.target.value);
+        this.props.vulnerMethodStore.setPOCParam("content", event.target.value);
     }
 
     render() {
-        const { edb_id, fileName, fileType, content, } = this.props.vulnerMethodStore.vulnerMethodItem;
+        const { edb_id, poc, } = this.props.vulnerMethodStore.vulnerMethodItem;
         const modalTitle = <Draggable title={this.props.vulnerMethodStore.vulnerMethodProcName} />;
         return (
             <Modal
@@ -166,19 +166,22 @@ class VulnerMethodParamsConfig extends React.Component {
             >
                 <form>
                     <Row>
-                        <Col span={11}>
-                            <TextField required fullWidth id="fileName" label="文件名" defaultValue={fileName}
+                    <TextField required fullWidth id="fileName" label="文件名" defaultValue={poc.aliases}
                                 variant="outlined" margin="normal" onChange={this.handleFileNameChange}
                             />
-                        </Col>
-                        <Col span={11} offset={2}>
-                            <TextField required fullWidth id="fileType" label="文件类型" defaultValue={fileType}
+                        {/* <Col span={11}>
+                            <TextField required fullWidth id="fileName" label="文件名" defaultValue={poc.aliases}
+                                variant="outlined" margin="normal" onChange={this.handleFileNameChange}
+                            />
+                        </Col> */}
+                        {/* <Col span={11} offset={2}>
+                            <TextField required fullWidth id="fileType" label="文件类型" defaultValue={poc.content_type}
                                 variant="outlined" margin="normal" onChange={this.handleFileTypeChange}
                             />
-                        </Col>
+                        </Col> */}
                     </Row>
                     <Row>
-                        <TextArea required rows={10} fullWidth id="content"  placeholder="文件内容" defaultValue={content}
+                        <TextArea required rows={10} fullWidth id="content"  placeholder="文件内容" defaultValue={poc.content}
                             variant="outlined" margin="normal" onChange={this.handleContentChange}
                         />
                     </Row>

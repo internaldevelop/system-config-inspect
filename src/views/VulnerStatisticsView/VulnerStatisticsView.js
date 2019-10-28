@@ -29,7 +29,7 @@ class VulnerStatisticsView extends React.Component {
         const userStore = this.props.userStore;
         return (
             <div>
-                <Skeleton loading={userStore.isAdminUser} active avatar>
+                <Skeleton loading={!userStore.isAuditUser} active avatar>
                     <Row>
                         <Col span={12}>
                             <StatBar name='years' />

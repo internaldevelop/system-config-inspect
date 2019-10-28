@@ -17,6 +17,7 @@ import LoginBGImage from '../../resources/image/login_bg.jpg'
 import { observer, inject } from 'mobx-react'
 // import UserStore from '../../main/store/UserStore';
 import { withRouter } from 'react-router-dom'
+import { GetSystemType } from "../../global/environment"
 
 import { Row, Col, message, Form } from 'antd'
 
@@ -176,6 +177,10 @@ class LogIn extends React.Component {
         HttpRequest.asyncGet(this.getSystemConfigCB, '/system-config/all');
     }
 
+    setUserCB = (result) => {
+        //
+    }
+
     verifyPasswordCB = (data) => {
         const userStore = this.props.userStore;
         if (data.code === errorCode.ERROR_OK) {
@@ -189,6 +194,11 @@ class LogIn extends React.Component {
                 userGroup: data.payload.user_group,
                 email: data.payload.email,
             });
+
+            // 如果是GetSystemType == 4 登录成功后设置userUiid给python后台
+            if (GetSystemType() === 4) {
+                HttpRequest.asyncGet2(this.setUserCB, '/set_user', { uuid: data.payload.user_uuid });
+            }
 
             let remember = document.getElementById('remember').checked;
             if (remember)

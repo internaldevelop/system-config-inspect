@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Skeleton, Input, message, Table, Icon, Button, Row, Col, Tabs, Popconfirm } from 'antd'
+import { Skeleton, Input, message, Table, Icon, Button, Row, Col, Tabs, Modal, Popconfirm } from 'antd'
 import { columns as Column } from './Column'
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -12,6 +12,7 @@ import { GetMainViewHeight } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
 import { isContainSpecialCharacter } from '../../utils/ObjUtils'
 import { GetBackEndRootUrl2, BASE_URL2 } from '../../global/environment'
+import { errorCode } from '../../global/error'
 
 const TabPane = Tabs.TabPane;
 
@@ -53,8 +54,9 @@ class VulnerMethodManageInfoView extends React.Component {
             inputValue1: '',
             inputValue2: '',
             totalResult: 0,
+            queryType: 0,
         }
-        this.getVulnerResults(this.state.currentPage, this.state.pageSize);
+        this.getVulnerResults(this.state.currentPage, this.state.pageSize, this.state.queryType);
     }
 
     componentDidMount() {
@@ -82,37 +84,97 @@ class VulnerMethodManageInfoView extends React.Component {
 
         columns[columns.length - 1].render = (text, record, index) => (
             <div>
-                <Row>
-                    <Col span={8}>
-                        <Popconfirm title="确定要删除该漏洞信息吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                            <Button className={classes.actionButton} type="danger" size="small">删除</Button>
-                        </Popconfirm>
-                    </Col>
-                    <Col span={8}>
-                        <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEditVulner(index).bind(this)}>编辑</Button>
-                    </Col>
-                    <Col span={8}>
-                        <Button className={classes.actionButton} type="primary" size="small" onClick={this.exportReport(index).bind(this)}>导出</Button>
-                    </Col>
-                </Row>
+                <Popconfirm title="确定要删除该条POC吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
+                    <Button className={classes.actionButton} disabled={!this.isCustomizedData(index)} type="danger" size="small">删除</Button>
+                </Popconfirm>
+                <Button className={classes.actionButton} type="primary" size="small" onClick={this.exportReport(index).bind(this)}>导出</Button>
             </div>
         )
 
+        columns[3].render = (text, record, index) => {
+            return (
+                <div>
+                <span>{text}</span>
+                {!this.isNewStatus(index) && this.isCustomizedData(index) && <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEditVulner(index).bind(this)}>编辑</Button>}
+                {!this.isNewStatus(index) && !this.isCustomizedData(index) && <Button className={classes.actionButton} type="primary" size="small" onClick={this.checkPoc(index).bind(this)}>查看</Button>}
+                {this.isNewStatus(index) && <Button type="primary" size="small" onClick={this.handleNewVulner(index).bind(this)}>新建POC</Button>}
+            </div>
+            )
+        }
         this.setState({ columns });
     }
 
-    generateResult = (item, index, data) => {
-        item.key = index + 1;
-        item.index = index + 1;
-        //item.platform = data.platform.platform;
-        //item.type = data.type.name;
-        //item.author = data.author.name;
+    isNewStatus = (rowIndex) => {
+        const { vulners } = this.state;
+        if (vulners == null || vulners.length <= 0) {
+            return false;
+        }
+        let dataIndex = this.transferDataIndex(rowIndex);
+        if (vulners[dataIndex] !== undefined && vulners[dataIndex].poc !== null) {
+            return false;
+        }
+        return true;
+    }
+
+    isCustomizedData = (rowIndex) => {
+        const { vulners } = this.state;
+        if (vulners == null || vulners.length <= 0) {
+            return false;
+        }
+        let dataIndex = this.transferDataIndex(rowIndex);
+        if (!!vulners[dataIndex] && !!vulners[dataIndex].customized && vulners[dataIndex].customized === 1) {
+            return true;
+        }
+        return false;
+    }
+
+    getVulnerProContentCB = (data) => {
+        if (!!data.payload && !!data.payload.poc) {
+            this.showVulnerProContent(data.payload.poc.aliases, data.payload.poc.content);
+        }
+    }
+
+    showVulnerProContent = (title, content) => {
+        Modal.info({
+            title: '文件名： ' + title,
+            keyboard: true,         // 是否支持键盘 esc 关闭
+            destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
+            closable: false,         // 是否显示右上角的关闭按钮
+            width: 800,
+            content: (
+                <div>
+                    {content}
+                </div>
+            ),
+            onOk() {
+                // message.info('OK');
+            },
+        });
+    }
+
+    checkPoc = (rowIndex) => (event) => {
+        const { vulners } = this.state;
+        if (vulners == null || vulners.length <= 0) {
+            return false;
+        }
+        let dataIndex = this.transferDataIndex(rowIndex);
+        if (vulners[dataIndex].content !== null && vulners[dataIndex].content !== undefined) {
+            this.showVulnerProContent(vulners[dataIndex].aliases, vulners[dataIndex].content);
+        } else {
+            HttpRequest.asyncGet2(this.getVulnerProContentCB, '/edb/poc/fetch', { edb_id: vulners[dataIndex].edb_id });
+        }
+    }
+
+    generateResult = (item, data) => {
+        if (data.customized !== undefined && data.customized !== null) {
+            item.customized = data.customized;
+        }
         if (data.description === undefined) {
             //item.title = data.description[1];
             item.edb_id = data.edb_id;
-            item.fileName = data.aliases;
-            item.fileType = data.content_type;
-            item.content = data.content;
+            item.fileName = data.poc.aliases;
+            item.fileType = data.poc.content_type;
+            item.content = data.poc.content;
         } else {
             item.title = data.description[1];
             item.edb_id = data.edb_id;
@@ -127,31 +189,43 @@ class VulnerMethodManageInfoView extends React.Component {
         return item;
     }
 
-    generateResultList = (result) => {
+    generateResultList = (result, totalResult, currentPage, queryType) => {
         let vulners = [];
-        let index = 0;
-        for (let data of result) {
-            let item = {};
-            vulners.push(this.generateResult(item, index, data));
-            index++;
-        }
-        this.setState({ vulners });
+        vulners = result.map((item, index) => {
+            let taskItem = DeepClone(item);
+            taskItem.key = index + 1;
+            taskItem.index = index + 1;
+            taskItem.title = item.description[1];
+            // this.generateResult(taskItem, item)
+            return taskItem;
+        })
+
+        this.setState({ vulners, totalResult, currentPage, queryType });
     }
 
     getResultsCB = (result) => {
         // 检查响应的payload数据是数组类型
-        if ((typeof result.payload === "undefined") || (result.payload.items.length === 0)) {
+        if (result.code !== errorCode.ERROR_OK
+            || (typeof result.payload === "undefined") || (result.payload.items === null)
+            || (result.payload.items.length === 0)) {
+            message.info('没有查询到数据，请重新输入。');
             return;
         }
-        let currentPage = (result.payload.items.length % 10 == 0) ? (result.payload.items.length / 10) : (result.payload.items.length / 10 + 1);
-        this.setState({ totalResult: result.payload.total, currentPage });
-        this.generateResultList(result.payload.items);
+        //let currentPage = (result.payload.items.length % 10 == 0) ? (parseInt(result.payload.items.length / 10)) : (parseInt(result.payload.items.length / 10) + 1);
+        let currentPage = this.state.currentPage;
+        this.generateResultList(result.payload.items, result.payload.total, currentPage, 0);
         this.initActionColumn();
     }
 
-    getVulnerResults = (currentPage, pageSize) => {
+    getVulnerResults = (currentPage, pageSize, queryType) => {
         //let startSet = (currentPage - 1) * pageSize;
-        HttpRequest.asyncGet2(this.getResultsCB, '/edb/poc/search', { value: 'oracle', offset: 0, count: pageSize * currentPage });
+        if (queryType === 1) {
+            this.fuzzySearch(currentPage);
+        } else if (queryType === 2) {
+            this.getExactSearch();
+        } else {
+            HttpRequest.asyncGet2(this.getResultsCB, '/edb/poc/search', { value: 'oracle', offset: 0, count: pageSize * currentPage }, false);
+        }
     }
 
     deleteVulnerCB = (dataIndex) => (data) => {
@@ -191,7 +265,7 @@ class VulnerMethodManageInfoView extends React.Component {
             return;
         }
         const vulnerMethodItem = this.props.vulnerMethodStore.vulnerMethodItem;
-        vulnerMethodItem.content = result.payload.content;
+        vulnerMethodItem.poc.content = result.payload.poc.content;
         this.setState({ showConfig: true });
     }
 
@@ -200,7 +274,7 @@ class VulnerMethodManageInfoView extends React.Component {
         // 从行索引转换成实际的数据索引
         let dataIndex = this.transferDataIndex(rowIndex);
         const vulnerMethodItem = this.state.vulners[dataIndex];
-        if (vulnerMethodItem.content !== null && vulnerMethodItem.content !== undefined) {
+        if (vulnerMethodItem.poc.aliases !== null && vulnerMethodItem.poc.aliases !== undefined) {
             window.location.href = GetBackEndRootUrl2(BASE_URL2) + '/edb/poc/download?edb_id=' + this.state.vulners[dataIndex].edb_id;
         } else {
             message.info('没有查询到相应的利用方法文件。');
@@ -220,22 +294,26 @@ class VulnerMethodManageInfoView extends React.Component {
         HttpRequest.asyncGet2(this.getMethodContentCB, '/edb/poc/fetch', { edb_id: this.state.vulners[dataIndex].edb_id });
     }
 
-    handleNewVulner = (event) => {
+    handleNewVulner = (rowIndex) => (event) => {
+        const { vulners } = this.state;
+        let dataIndex = this.transferDataIndex(rowIndex);
         const vulnerMethodStore = this.props.vulnerMethodStore;
         vulnerMethodStore.setVulnerMethodAction(actionType.ACTION_NEW);
         vulnerMethodStore.setVulnerMethodProcName(('新建漏洞利用方法'));
         let vulnerMethodItem = {
-            fileName: '新建漏洞利用方法',
+            poc: {'aliases': '新建漏洞利用方法', content_type: '', content: ''},
+            customized: 1,
+            edb_id: vulners[dataIndex].edb_id,
         };
         vulnerMethodStore.initVulnerMethodItem(vulnerMethodItem);
-        this.setState({ showConfig: true });
+        this.setState({ showConfig: true, recordChangeID: dataIndex });
     }
 
     handleCloseConfig = (isOk, policy) => {
         const vulnerMethodStore = this.props.vulnerMethodStore;
         if (isOk) {
             if (vulnerMethodStore.vulnerMethodAction === actionType.ACTION_NEW) {
-                this.addVulnerData();
+                this.editVulnerParams();
             } else if (vulnerMethodStore.vulnerMethodAction === actionType.ACTION_EDIT) {
                 this.editVulnerParams();
             }
@@ -260,7 +338,8 @@ class VulnerMethodManageInfoView extends React.Component {
 
     /** 处理页面变化（页面跳转/切换/每页记录数变化） */
     handlePageChange = (currentPage, pageSize) => {
-        this.getVulnerResults(currentPage, pageSize);
+        this.setState({currentPage});
+        this.getVulnerResults(currentPage, pageSize, this.state.queryType);
     }
 
     callback = (key) => {
@@ -268,12 +347,18 @@ class VulnerMethodManageInfoView extends React.Component {
     }
 
     handleGetInputValue1 = (event) => {
+        if (event.target.value === '' && (this.state.inputValue2 === '' || this.state.inputValue2 === undefined)) {
+            this.getVulnerResults(this.state.currentPage, this.state.pageSize, 0);
+        }
         this.setState({
             inputValue1: event.target.value,
         })
     };
 
     handleGetInputValue2 = (event) => {
+        if (event.target.value === '' && (this.state.inputValue1 === '' || this.state.inputValue1 === undefined)) {
+            this.getVulnerResults(this.state.currentPage, this.state.pageSize, 0);
+        }
         this.setState({
             inputValue2: event.target.value,
         })
@@ -281,51 +366,76 @@ class VulnerMethodManageInfoView extends React.Component {
 
     getFuzzySearchCB = (result) => {
         // 检查响应的payload数据是数组类型
-        if ((typeof result.payload === "undefined") || (result.payload.items.length === 0)) {
-            message.info('没有查询到数据，请重新输入');
+        if (result.code !== errorCode.ERROR_OK
+            || (typeof result.payload === "undefined")
+            || (result.payload.items === null)
+            || (result.payload.items.length === 0)) {
+            message.info('没有查询到数据，请重新输入。');
+            this.setState({
+                //inputValue1: '',
+                vulners: [],
+                totalResult: 0,
+            })
             return;
         }
-        this.generateResultList(result.payload.items);
+        this.generateResultList(result.payload.items, result.payload.total, 1, 1);
         this.initActionColumn();
     }
 
     getExactSearchCB = (result) => {
-        if (typeof result.payload === "undefined") {
-            message.info('没有查询到数据，请重新输入');
+        // 检查响应的payload数据是数组类型
+        if (typeof result.payload === "undefined" || result.code !== errorCode.ERROR_OK) {
+            message.info('没有查询到数据，请重新输入。');
+            this.setState({
+                //inputValue2: '',
+                vulners: [],
+            })
             return;
         }
-        let vulners = [];
-        let item = {};
-        vulners.push(this.generateResult(item, 0, result.payload));
-        this.setState({ vulners });
+        let vulnersData = [result.payload];
+        this.generateResultList(vulnersData, 1, 1, 2);
     }
 
-    checkSearch = (value) => {
-        if (value === null || value === '') {
+    checkSearch = (inputValue) => {
+        if (inputValue === null || inputValue === '') {
             message.info('查询条件不能为空，请重新输入');
-            document.getElementById('value').value = '';
             return false;
-        } else if (value.length > 20) {
+        } else if (inputValue.length > 20) {
             message.info('查询条件长度不能超过20，请重新输入');
-            document.getElementById('value').value = '';
             return false;
-        } else if (isContainSpecialCharacter(value)) {
+        } else if (isContainSpecialCharacter(inputValue)) {
             message.info('查询条件含有特殊字符，请重新输入');
-            document.getElementById('value').value = '';
             return false;
         }
         return true;
     }
 
-    getFuzzySearch = () => {
+    getFuzzySearch = (currentPage) => (event) => {
+        this.fuzzySearch(currentPage);
+    };
+
+    fuzzySearch = (currentPage) => {
         const { inputValue1 } = this.state;
         if (!this.checkSearch(inputValue1)) {
             return;
         }
         this.setState({
             inputValue2: '',
+            queryType: 1,
         });
-        HttpRequest.asyncGet2(this.getFuzzySearchCB, '/edb/poc/search', { value: inputValue1, offset: 0, count: this.state.pageSize * this.state.currentPage });
+        HttpRequest.asyncGet2(this.getFuzzySearchCB, '/edb/poc/search', { value: inputValue1, offset: 0, count: this.state.pageSize * this.state.currentPage }, false);
+    };
+
+    getFuzzySearch = (currentPage) => (event) => {
+        const { inputValue1 } = this.state;
+        if (!this.checkSearch(inputValue1)) {
+            return;
+        }
+        this.setState({
+            inputValue2: '',
+            queryType: 1,
+        });
+        HttpRequest.asyncGet2(this.getFuzzySearchCB, '/edb/poc/search', { value: inputValue1, offset: 0, count: this.state.pageSize * this.state.currentPage }, false);
     };
 
     getExactSearch = () => {
@@ -335,8 +445,9 @@ class VulnerMethodManageInfoView extends React.Component {
         }
         this.setState({
             inputValue1: '',
+            queryType: 2,
         });
-        HttpRequest.asyncGet2(this.getExactSearchCB, '/edb/poc/fetch', { edb_id: inputValue2 });
+        HttpRequest.asyncGet2(this.getExactSearchCB, '/edb/poc/fetch', { edb_id: inputValue2 }, false);
     };
 
     render() {
@@ -348,16 +459,15 @@ class VulnerMethodManageInfoView extends React.Component {
             <div>
                 <Skeleton loading={userStore.isAdminUser} active avatar>
                     <Row>
-                        <Col span={4}><Typography variant="h6">漏洞利用方法管理</Typography></Col>
+                        <Col span={8}><Typography variant="h6">漏洞利用方法管理</Typography></Col>
                         <Col span={8} align="left">
-                            <Input className={classes.antInput} size="large" value={this.state.inputValue1} onChange={this.handleGetInputValue1} placeholder="漏洞名称" />
-                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.getFuzzySearch} ><Icon type="file-search" />模糊查询</Button>
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue1} onChange={this.handleGetInputValue1.bind(this)} placeholder="漏洞名称" />
+                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.getFuzzySearch(1).bind(this)} ><Icon type="file-search" />模糊查询</Button>
                         </Col>
-                        <Col span={8} align="left">
-                            <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2} placeholder="漏洞编号" />
+                        <Col span={8} align="right">
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" />
                             <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch} ><Icon type="search" />精确查询</Button>
                         </Col>
-                        <Col span={4} align="right"><Button type="primary" size="large" onClick={this.handleNewVulner.bind(this)}><Icon type="plus-circle-o" />新建漏洞利用方法</Button></Col>
                     </Row>
                     <Table
                         id="vulnerListTable"

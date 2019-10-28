@@ -6,15 +6,23 @@
 // 4: 终端漏洞利用工具
 const SYSTEM_TYPE = 4;
 
-const PROTOCOL = 'http';
-//const BASE_URL = '://192.168.1.70:8090/'; // TQ 直连虚拟机
-//const BASE_URL = '://192.168.1.60:8090/'; // TQ 本机
-//const BASE_URL = '://192.168.207.138:8090/'; // WYT 虚拟机
-//const BASE_URL = '://172.16.113.48:8090/'; // TQ wifi虚拟机
+const PROTOCOL = 'https';
+// 主服务端口：原始端口 8090
+const MAIN_S_PORT = '8090';
+// Agent服务端口：原始端口 8191
+const AGENT_S_PORT = '8191';
+// 漏洞库服务端口：原始端口 10091
+const EDB_PORT = '10091'
 
-const BASE_URL = '://localhost:8090/'; // 本地
-export const BASE_URL2 = '://localhost:8000'; // 本地
-// const BASE_URL = '://172.16.60.5:8090/'; // 信通所云服务器
+// 本地： localhost
+// WYT 虚拟机： 192.168.182.88
+// TQ 直连虚拟机： 192.168.1.70
+// TQ 本机： 192.168.1.60
+// TQ wifi虚拟机： 172.16.113.67
+// 信通所云服务器： 172.16.60.5
+const BASE_URL = '://localhost:' + MAIN_S_PORT + '/';
+
+export const BASE_URL2 = '://172.16.113.67:' + EDB_PORT;
 
 export function GetSystemType() {
     return SYSTEM_TYPE;
@@ -40,6 +48,10 @@ export function GetBackEndRootUrl() {
 
 export function GetBackEndRootUrl2(baseUrl) {
     return PROTOCOL + baseUrl;
+}
+
+export function GetAgentRootUrl(agentIp) {
+    return PROTOCOL + '://' + agentIp + ':' + AGENT_S_PORT;
 }
 
 export function GetWebSocketUrl() {

@@ -50,13 +50,6 @@ class VulnerParamsConfig extends React.Component {
         }
     }
 
-    componentWillMount() {
-        if ((this.props.vulnerStore.vulnerAction === actionType.ACTION_NEW) ||
-            (this.props.vulnerStore.vulnerAction === actionType.ACTION_EDIT)) {
-            this.checkVulnerName();
-        }
-    }
-
     handleCancel = (e) => {
         let actionCB = this.props.actioncb;
         // 调用父组件传入的回调函数，第一个参数 false 表示本组件的参数设置被取消 cancel
@@ -77,8 +70,8 @@ class VulnerParamsConfig extends React.Component {
 
         if (data.code === errorCode.ERROR_OK) {
             message.info(successInfo);
-            // TODO 等待接口实现后调试
             this.props.vulnerStore.setParam("edb_id", data.payload.edb_id);
+            this.props.vulnerStore.setParam("date_published", data.payload.date_published);
             // 调用父组件传入的回调函数，第一个参数 true 表示本组件的参数设置已确认，且记录已在后台创建或更新
             actionCB(true, {});
         } else {
@@ -89,7 +82,7 @@ class VulnerParamsConfig extends React.Component {
     }
 
     handleOk = (e) => {
-        const { edb_id, title, author, type, platform, } = this.props.vulnerStore.vulnerItem;
+        const { edb_id, title, author, type, platform, customized} = this.props.vulnerStore.vulnerItem;
         const { userUuid } = this.props.userStore.loginUser;
         if (!this.checkData()) {
             return false;
@@ -97,14 +90,14 @@ class VulnerParamsConfig extends React.Component {
         if (this.props.vulnerStore.vulnerAction === actionType.ACTION_NEW) {
             HttpRequest.asyncPost2(this.requestVulnerCB('new'), '/edb/add',
                 {
-                    title, author, type, platform,
+                    title, author, type, platform, customized,
                 },
                 false
             );
         } else if (this.props.vulnerStore.vulnerAction === actionType.ACTION_EDIT) {
             HttpRequest.asyncPost2(this.requestVulnerCB('update'), '/edb/update',
                 {
-                    edb_id, title, author, type, platform,
+                    edb_id, title, author, type, platform, customized,
                 },
                 false
             );
@@ -167,24 +160,6 @@ class VulnerParamsConfig extends React.Component {
             return false;
         }
         return true;
-    }
-
-    checkVulnerNameCB = (data) => {
-        if (data.payload.exist !== 0) {
-            vulnerNamealert = '漏洞名称已存在，请使用其它名称';
-        } else {
-            vulnerNamealert = '漏洞名称可用';
-        }
-        this.setState({ vulnerNamealert: data.payload.exist !== 0 });
-    }
-
-    checkVulnerName = () => {
-        const { title, edb_id } = this.props.vulnerStore.vulnerItem;
-        let params = {};
-        params.title = title;
-        if (this.props.vulnerStore.vulnerAction === actionType.ACTION_EDIT)
-            params.edb_id = edb_id;
-        HttpRequest.asyncGet2(this.checkVulnerNameCB, '/edb/add', params);
     }
 
     handleVulnerTitleChange = (event) => {

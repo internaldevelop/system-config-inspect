@@ -15,6 +15,7 @@ import { isValidAccount } from '../../utils/ObjUtils';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
 import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
+import { GetAgentRootUrl } from '../../global/environment'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -206,7 +207,7 @@ class AssetOverView extends React.Component {
 
         // 获取新选择资产的系统信息
         this.setState({ loading: true });
-        let assetIp = "http://" + assets[curSelectId].ip + ":8191";
+        let assetIp = GetAgentRootUrl(assets[curSelectId].ip);
         let params = { types: 'System,CPU,Mem,Net Config,Port' };
         HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(curSelectId), assetIp, '/asset-info/acquire', params);
     }

@@ -123,7 +123,7 @@ class UserCard extends React.Component {
             return (
                 <a onClick={this.activateUser(1).bind(this)}>激活</a>
             );
-        } else if (userInfo.status === 1 && this.props.manage === 1) {
+        } else if (userInfo.status === 1 && userInfo.user_group !== 99 && this.props.manage === 1) {
             return (
                 <a onClick={this.activateUser(0).bind(this)}>回收</a>
             );

@@ -13,6 +13,7 @@ import { actionType } from '../../global/enumeration/ActionType';
 import { osType } from '../../global/enumeration/OsType';
 import { errorCode } from '../../global/error';
 import { eng2chn } from '../../utils/StringUtils'
+import { GetAgentRootUrl } from '../../global/environment'
 
 const { Text } = Typography;
 
@@ -245,7 +246,7 @@ class AssetParamsConfig extends React.Component {
     getAssetInfo = (event) => {
         let hostIp = document.getElementById('host-ip').value;
         if (this.checkAssetIp()) {
-            hostIp = "http://" + hostIp + ":8191";
+            hostIp = GetAgentRootUrl(hostIp);
             let params = {types: "System"};
             HttpRequest.asyncGetSpecificUrl(this.getAssetInfoCB, hostIp, '/asset-info/acquire', params);
         }

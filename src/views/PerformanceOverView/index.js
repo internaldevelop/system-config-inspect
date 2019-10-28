@@ -15,7 +15,7 @@ import { isValidAccount } from '../../utils/ObjUtils';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
 import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
-import { GetBackEndRootUrl } from '../../global/environment'
+import { GetBackEndRootUrl, GetAgentRootUrl } from '../../global/environment'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -215,7 +215,7 @@ class PerformanceOverView extends React.Component {
 
         // 获取新选择资产的系统信息
         this.setState({ loading: true });
-        let assetIp = "http://" + assets[curSelectId].ip + ":8191";
+        let assetIp = GetAgentRootUrl(assets[curSelectId].ip);
         let params = { types: 'System,CPU,Mem,Net Config,Port,FST' };
         HttpRequest.asyncGetSpecificUrl(this.acquireAssetInfoCB(curSelectId), assetIp, '/asset-info/acquire', params);
     }
@@ -228,9 +228,19 @@ class PerformanceOverView extends React.Component {
         this.formRef = formRef;
     };
 
+    saveCB = (data) => {
+        message.info("生成报告成功！");
+    }
+
+    // 生成报告
+    saveReport = () => {
+        const { assets, selectedAssetId } = this.state;
+        HttpRequest.asyncGet(this.saveCB, '/assets-network/save-report',  { asset_uuid: assets[selectedAssetId].uuid });
+    }
+
     // 导出报告
     exportReport = () => {
-        const { assets, selectedAssetId} = this.state;
+        const { assets, selectedAssetId } = this.state;
         window.location.href = GetBackEndRootUrl() + '/assets-network/export?asset_uuid=' + assets[selectedAssetId].uuid;
     }
 
@@ -315,7 +325,7 @@ class PerformanceOverView extends React.Component {
                                         <TabPane tab="网络" key="4">
                                             <Row>
                                                 <Col>
-                                                <NetWorkStatus asset_uuid={assetUuid}></NetWorkStatus>
+                                                    <NetWorkStatus asset_uuid={assetUuid}></NetWorkStatus>
                                                 </Col>
                                             </Row>
                                         </TabPane>

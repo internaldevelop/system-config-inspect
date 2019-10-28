@@ -29,6 +29,9 @@ class VulnerMethodStore {
   @action setParam = (name, data) => {
     this.vulnerMethodItem[name] = data;
   }
+  @action setPOCParam = (name, data) => {
+    this.vulnerMethodItem.poc[name] = data;
+  }
 }
 
 export default new VulnerMethodStore()

@@ -21,6 +21,7 @@ let capacity_select = '';
 let pingIP = '';
 let targetURL = '';
 let timer3S = undefined;    // 3秒的定时器
+let selectedNetworkType = -1;
 
 @inject('assetInfoStore')
 @observer
@@ -112,6 +113,9 @@ class NetWorkStatus extends Component {
         } else {
             success = false;
         }
+        if (!success) {
+            document.getElementById('url_result').value = "访问失败";
+        }
         this.setState({ loading: false });
     }
 
@@ -161,11 +165,19 @@ class NetWorkStatus extends Component {
         }
         this.setState({ loading: false });
         if (!success) {
-            message.info('目标节点缺少环境或者没有上线，请重新选择');
+            //message.info('目标节点缺少环境或者没有上线，请重新选择');
+            if (selectedNetworkType === 1) {
+                document.getElementById('delay_result').value = '目标节点缺少环境或者没有上线，请重新选择';
+            } else if (selectedNetworkType === 2) {
+                document.getElementById('capacity_result').value = '目标节点缺少环境或者没有上线，请重新选择';
+            } else if (selectedNetworkType === 3) {
+                document.getElementById('communicate_result').value = '目标节点缺少环境或者没有上线，请重新选择';
+            }
         }
     }
 
     getNetWorkResult = (networkType) => (event) => {
+        selectedNetworkType = networkType;
         let success = true;
         this.props.form.validateFields((err, values) => {
             if (err !== null) {

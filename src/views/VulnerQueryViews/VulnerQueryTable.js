@@ -73,7 +73,7 @@ class VulnerQueryTable extends React.Component {
 
     // componentWillReceiveProps周期是存在期用改变的props
     componentWillReceiveProps(nextProps) {
-        this.getVulnerResults(nextProps.field, nextProps.value);  // 刷新页面
+        this.getVulnerResults(this.state.currentPage, this.state.pageSize, nextProps.field, nextProps.value);  // 刷新页面
     }
 
     generateResultList(result) {
@@ -113,7 +113,7 @@ class VulnerQueryTable extends React.Component {
         this.setState({
             resultRecordData: [],
         });
-        HttpRequest.asyncGet2(this.getResultsCB, '/edb/search', { field: field, value: value, offset: 0, count: pageSize * currentPage });
+        HttpRequest.asyncGet2(this.getResultsCB, '/edb/filter', { field: field, value: value, offset: 0, count: pageSize * currentPage });
     }
 
     /** 处理页面变化（页面跳转/切换/每页记录数变化） */
@@ -136,16 +136,22 @@ class VulnerQueryTable extends React.Component {
     }
 
     getVulnerProContentCB = (data) => {
+        let aliases = '';
+        let content = '';
         if (data.payload !== undefined) {
+            if (data.payload.poc !== undefined && data.payload.poc !== null) {
+                aliases = data.payload.poc.aliases;
+                content = data.payload.poc.content;
+            }
             Modal.info({
-                title: '文件名： ' + data.payload.aliases,
+                title: '文件名： ' + aliases,
                 keyboard: true,         // 是否支持键盘 esc 关闭
                 destroyOnClose: true,   // 关闭时销毁 Modal 里的子元素
                 closable: false,         // 是否显示右上角的关闭按钮
                 width: 800,
                 content: (
                     <div>
-                        {data.payload.content}
+                        {content}
                     </div>
                 ),
                 onOk() {

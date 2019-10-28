@@ -190,7 +190,7 @@ class SystemLogsView extends React.Component {
     render() {
         const userStore = this.props.userStore;
         return (
-            <Skeleton loading={userStore.isAuditUser} active avatar paragraph={{ rows: 12 }}>
+            <Skeleton loading={!userStore.isAuditUser} active avatar paragraph={{ rows: 12 }}>
                 <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
                     <Card title={'操作日志'} style={{ width: '100%', height: '100%' }}
                     >

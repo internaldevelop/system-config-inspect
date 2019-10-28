@@ -7,7 +7,7 @@ import { userType } from '../../global/enumeration/UserType'
 // import pink from '@material-ui/core/colors/pink';
 // import blue from '@material-ui/core/colors/blue';
 
-import { Skeleton, List, Avatar, Row, Col, Button, Icon } from 'antd';
+import { Skeleton, List, Avatar, Row, Col, Button, Popconfirm, Icon } from 'antd';
 
 import UserCard from './UserCard'
 import HttpRequest from '../../utils/HttpRequest';
@@ -56,6 +56,15 @@ class UsersManageView extends React.Component {
         });
     }
 
+    deleteUserCB = (data) => {
+        this.getUsers();
+    }
+
+    onDelete = (event, index) => {
+        const { users } = this.state;
+        HttpRequest.asyncPost(this.deleteUserCB, '/users/remove', { uuid: users[index].uuid });
+    }
+
     generateUserList(users) {
         const listData = [];
         if ((typeof users === "undefined") || (users.length === 0)) {
@@ -70,6 +79,7 @@ class UsersManageView extends React.Component {
                 avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
                 description: '在线，有效期截止至2020年12月1日',
                 content: '账号：' + users[i].account + '地址：' + users[i].address + '电话：' + users[i].phone,
+                user_group: users[i].user_group,
             })
         }
         return listData;
@@ -91,6 +101,7 @@ class UsersManageView extends React.Component {
     userListBox() {
         const { classes } = this.props;
         const { selectedAccID, usersList } = this.state;
+        const userStore = this.props.userStore;
         return (
             <List
                 itemLayout="vertical"
@@ -119,6 +130,11 @@ class UsersManageView extends React.Component {
                             <Col span={16}>{item.content}</Col>
                             <Col span={4} offset={4}>
                                 <Button onClick={event => this.onClick(event, item.index)}>详情<Icon type="right" /></Button>
+                                <Popconfirm title="确定要删除该用户吗吗？" onConfirm={event => this.onDelete(event, item.index)} okText="确定" cancelText="取消">
+                                {item.user_group !== 99 && <Button>删除</Button>}
+                            </Popconfirm>
+
+                                
                             </Col>
                         </Row>
                     </List.Item>

@@ -18,15 +18,15 @@ export const columns = [
     render: content => <EllipsisText content={content} width={250} />,
   },
   {
-    title: '利用方法文件名', width: 250, dataIndex: 'fileName',
+    title: 'POC', width: 250, dataIndex: 'poc.aliases',
     sorter: (a, b) => a.fileName.localeCompare(b.fileName, "zh"),
     render: content => <EllipsisText content={content} width={250} />,
   },
-  {
-    title: '利用方法文件类型', width: 250, dataIndex: 'fileType',
-    sorter: (a, b) => a.fileType.localeCompare(b.fileType, "zh"),
-    render: content => <EllipsisText content={content} width={250} />,
-  },
+  // {
+  //   title: '利用方法文件类型', width: 250, dataIndex: 'poc.content_type',
+  //   sorter: (a, b) => a.fileType.localeCompare(b.fileType, "zh"),
+  //   render: content => <EllipsisText content={content} width={250} />,
+  // },
   {
     title: '',
     fixed: 'right',
