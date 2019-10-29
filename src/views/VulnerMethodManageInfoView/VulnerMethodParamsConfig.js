@@ -181,7 +181,7 @@ class VulnerMethodParamsConfig extends React.Component {
                         </Col> */}
                     </Row>
                     <Row>
-                        <TextArea required rows={10} fullWidth id="content"  placeholder="文件内容" defaultValue={poc.content}
+                        <TextArea required rows={10} fullWidth id="content" placeholder="文件内容*" defaultValue={poc.content}
                             variant="outlined" margin="normal" onChange={this.handleContentChange}
                         />
                     </Row>

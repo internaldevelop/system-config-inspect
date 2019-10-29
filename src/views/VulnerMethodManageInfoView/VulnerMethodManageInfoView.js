@@ -97,7 +97,7 @@ class VulnerMethodManageInfoView extends React.Component {
                 <span>{text}</span>
                 {!this.isNewStatus(index) && this.isCustomizedData(index) && <Button className={classes.actionButton} type="primary" size="small" onClick={this.handleEditVulner(index).bind(this)}>编辑</Button>}
                 {!this.isNewStatus(index) && !this.isCustomizedData(index) && <Button className={classes.actionButton} type="primary" size="small" onClick={this.checkPoc(index).bind(this)}>查看</Button>}
-                {this.isNewStatus(index) && <Button type="primary" size="small" onClick={this.handleNewVulner(index).bind(this)}>新建POC</Button>}
+                {this.isNewStatus(index) && this.isCustomizedData(index) && <Button type="primary" size="small" onClick={this.handleNewVulner(index).bind(this)}>新建POC</Button>}
             </div>
             )
         }
@@ -224,7 +224,7 @@ class VulnerMethodManageInfoView extends React.Component {
         } else if (queryType === 2) {
             this.getExactSearch();
         } else {
-            HttpRequest.asyncGet2(this.getResultsCB, '/edb/poc/search', { value: 'oracle', offset: 0, count: pageSize * currentPage }, false);
+            HttpRequest.asyncGet2(this.getResultsCB, '/edb/poc/search', { value: '', offset: 0, count: pageSize * currentPage }, false);
         }
     }
 
@@ -346,6 +346,18 @@ class VulnerMethodManageInfoView extends React.Component {
         console.log(key);
     }
 
+    handleFuzzyKeyPressed = (event) => {
+        if (event.which === 13) {
+            this.fuzzySearch(1);
+        }
+    }
+
+    handleExactKeyPressed = (event) => {
+        if (event.which === 13) {
+            this.exactSearch();
+        }
+    }
+
     handleGetInputValue1 = (event) => {
         if (event.target.value === '' && (this.state.inputValue2 === '' || this.state.inputValue2 === undefined)) {
             this.getVulnerResults(this.state.currentPage, this.state.pageSize, 0);
@@ -426,19 +438,11 @@ class VulnerMethodManageInfoView extends React.Component {
         HttpRequest.asyncGet2(this.getFuzzySearchCB, '/edb/poc/search', { value: inputValue1, offset: 0, count: this.state.pageSize * this.state.currentPage }, false);
     };
 
-    getFuzzySearch = (currentPage) => (event) => {
-        const { inputValue1 } = this.state;
-        if (!this.checkSearch(inputValue1)) {
-            return;
-        }
-        this.setState({
-            inputValue2: '',
-            queryType: 1,
-        });
-        HttpRequest.asyncGet2(this.getFuzzySearchCB, '/edb/poc/search', { value: inputValue1, offset: 0, count: this.state.pageSize * this.state.currentPage }, false);
+    getExactSearch = () => (event) => {
+        this.exactSearch();
     };
 
-    getExactSearch = () => {
+    exactSearch = () => {
         const { inputValue2 } = this.state;
         if (!this.checkSearch(inputValue2)) {
             return;
@@ -461,11 +465,11 @@ class VulnerMethodManageInfoView extends React.Component {
                     <Row>
                         <Col span={8}><Typography variant="h6">漏洞利用方法管理</Typography></Col>
                         <Col span={8} align="left">
-                            <Input className={classes.antInput} size="large" value={this.state.inputValue1} onChange={this.handleGetInputValue1.bind(this)} placeholder="漏洞名称" />
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue1} onChange={this.handleGetInputValue1.bind(this)} placeholder="漏洞名称" onKeyPress={this.handleFuzzyKeyPressed.bind(this)} />
                             <Button className={classes.iconButton} type="primary" size="large" onClick={this.getFuzzySearch(1).bind(this)} ><Icon type="file-search" />模糊查询</Button>
                         </Col>
                         <Col span={8} align="right">
-                            <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" />
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" onKeyPress={this.handleExactKeyPressed.bind(this)} />
                             <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch} ><Icon type="search" />精确查询</Button>
                         </Col>
                     </Row>

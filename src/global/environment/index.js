@@ -6,7 +6,7 @@
 // 4: 终端漏洞利用工具
 const SYSTEM_TYPE = 4;
 
-const PROTOCOL = 'https';
+const PROTOCOL = 'http';
 // 主服务端口：原始端口 8090
 const MAIN_S_PORT = '8090';
 // Agent服务端口：原始端口 8191

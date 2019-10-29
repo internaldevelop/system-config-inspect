@@ -157,9 +157,9 @@ class VulnerManageInfoView extends React.Component {
     getVulnerResults = (currentPage, pageSize, queryType) => {
         //let startSet = (currentPage - 1) * pageSize;
         if (queryType === 1) {
-            this.getFuzzySearch(currentPage);
+            this.fuzzySearch(currentPage);
         } else if (queryType === 2) {
-            this.getExactSearch();
+            this.exactSearch();
         } else {
             HttpRequest.asyncGet2(this.getResultsCB, '/edb/query', { offset: 0, count: pageSize * currentPage }, false);
         }
@@ -267,6 +267,18 @@ class VulnerManageInfoView extends React.Component {
         console.log(key);
     }
 
+    handleFuzzyKeyPressed = (event) => {
+        if (event.which === 13) {
+            this.fuzzySearch(1);
+        }
+    }
+
+    handleExactKeyPressed = (event) => {
+        if (event.which === 13) {
+            this.exactSearch();
+        }
+    }
+
     handleGetInputValue1 = (event) => {
         if (event.target.value === '' && (this.state.inputValue2 === '' || this.state.inputValue2 === undefined)) {
             this.getVulnerResults(this.state.currentPage, this.state.pageSize, 0);
@@ -332,6 +344,10 @@ class VulnerManageInfoView extends React.Component {
     }
 
     getFuzzySearch = (currentPage) => (event) => {
+        this.fuzzySearch(currentPage);
+    };
+
+    fuzzySearch = (currentPage) => {
         const { inputValue1 } = this.state;
         if (!this.checkSearch(inputValue1)) {
             return;
@@ -341,9 +357,13 @@ class VulnerManageInfoView extends React.Component {
             queryType: 1,
         });
         HttpRequest.asyncGet2(this.getFuzzySearchCB, '/edb/search', { field: 'db', value: inputValue1, offset: 0, count: this.state.pageSize * currentPage }, false);
+    }
+
+    getExactSearch = () => (event) => {
+        this.fuzzySearch();
     };
 
-    getExactSearch = () => {
+    exactSearch = () => {
         const { inputValue2 } = this.state;
         if (!this.checkSearch(inputValue2)) {
             return;
@@ -366,11 +386,11 @@ class VulnerManageInfoView extends React.Component {
                     <Row>
                         <Col span={4}><Typography variant="h6">漏洞库信息管理</Typography></Col>
                         <Col span={7} align="left">
-                            <Input className={classes.antInput} size="large" value={this.state.inputValue1} onChange={this.handleGetInputValue1.bind(this)} placeholder="漏洞名称" />
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue1} onChange={this.handleGetInputValue1.bind(this)} placeholder="漏洞名称" onKeyPress={this.handleFuzzyKeyPressed.bind(this)} />
                             <Button className={classes.iconButton} type="primary" size="large" onClick={this.getFuzzySearch(1).bind(this)} ><Icon type="file-search" />模糊查询</Button>
                         </Col>
                         <Col span={7} align="left">
-                            <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" />
+                            <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" onKeyPress={this.handleExactKeyPressed.bind(this)} />
                             <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch} ><Icon type="search" />精确查询</Button>
                         </Col>
                         <Col span={4} align="right"><Button type="primary" size="large" onClick={this.handleNewVulner.bind(this)}><Icon type="plus-circle-o" />新建漏洞信息</Button></Col>

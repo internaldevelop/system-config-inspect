@@ -308,7 +308,7 @@ class LogIn extends React.Component {
                     </Typography>
                         <form onSubmit={this.handleSubmit.bind(this)} className={classes.form}>
                             <FormControl margin="normal" required fullWidth>
-                                <InputLabel htmlFor="email">用户名</InputLabel>
+                                <InputLabel htmlFor="email">账号</InputLabel>
                                 <Input id="email" name="email" autoComplete="email" autoFocus value={this.state.account} onChange={this.handleAccountChange.bind(this)} />
                             </FormControl>
                             <FormControl margin="normal" required fullWidth>

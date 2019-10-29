@@ -19,6 +19,8 @@ import Paper from '@material-ui/core/Paper';
 import LoginBGImage from '../../resources/image/login_bg.jpg'
 import HttpRequest from '../../utils/HttpRequest';
 import { errorCode } from '../../global/error';
+import { isContainSpecialCharacter } from '../../utils/ObjUtils'
+import { message } from 'antd';
 
 const styles = theme => ({
   main: {
@@ -112,10 +114,51 @@ class SignUp extends React.Component {
     const { account, userName, password } = this.state;
     event.preventDefault();
     if ((account.length === 0) || (userName.length === 0) || (password.length === 0)) {
+      message.info('账号、姓名或者密码不能为空，请重新输入');
       return;
     }
-
+    if (!this.checkData()) {
+      return;
+  }
     HttpRequest.asyncPost(this.addUserCB, '/users/add', { account: account, name: userName, password, user_group: 1 }, false);
+  }
+
+  checkData() {
+    const { account, userName, password } = this.state;
+    if (account === null || account === '') {
+        message.info('账号不能为空，请重新输入');
+        this.setState ({account: ''});
+        return false;
+    } else if (account.length > 20) {
+        message.info('账号长度不能超过20，请重新输入');
+        this.setState ({account: ''});
+        return false;
+    } else if (isContainSpecialCharacter(account)) {
+        message.info('账号含有特殊字符，请重新输入');
+        this.setState ({account: ''});
+        return false;
+    } else if (userName === null || userName === '' || userName === ' ') {
+          message.info('姓名不能为空，请重新输入');
+          this.setState ({userName: ''});
+          return false;
+      } else if (userName.length > 20) {
+          message.info('姓名长度不能超过20，请重新输入');
+          this.setState ({userName: ''});
+          return false;
+      } else if (isContainSpecialCharacter(userName)) {
+          message.info('姓名含有特殊字符，请重新输入');
+          this.setState ({userName: ''});
+          return false;
+        } else if (password === null || password === '' || password === ' ') {
+          message.info('密码不能为空，请重新输入');
+          this.setState ({password: ''});
+          return false;
+      } else if (password.length > 20) {
+          message.info('密码长度不能超过20，请重新输入');
+          this.setState ({password: ''});
+          return false;
+      }
+    return true;
   }
 
   handleAccountChange = event => {

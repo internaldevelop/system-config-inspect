@@ -97,6 +97,7 @@ class UserCard extends React.Component {
     }
 
     changeUserGroupCB = (data) => {
+        this.fetchUser();
     }
 
     handleUserGroupChange = (value) => {
