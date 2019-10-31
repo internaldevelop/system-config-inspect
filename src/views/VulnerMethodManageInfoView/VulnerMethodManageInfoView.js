@@ -87,7 +87,7 @@ class VulnerMethodManageInfoView extends React.Component {
                 <Popconfirm title="确定要删除该条POC吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
                     <Button className={classes.actionButton} disabled={!this.isCustomizedData(index)} type="danger" size="small">删除</Button>
                 </Popconfirm>
-                <Button className={classes.actionButton} type="primary" size="small" onClick={this.exportReport(index).bind(this)}>导出</Button>
+                <Button className={classes.actionButton} disabled={this.isNewStatus(index)} type="primary" size="small" onClick={this.exportReport(index).bind(this)}>导出</Button>
             </div>
         )
 

@@ -44,7 +44,7 @@ class VulnerMethodParamsConfig extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            
+
         }
     }
 
@@ -73,6 +73,17 @@ class VulnerMethodParamsConfig extends React.Component {
             actionCB(true, {});
         } else {
             message.error(eng2chn(data.error));
+            //TODO, 测试中为了增加错误日志功能
+            let title = '新建POC';
+            let content = '新建POC失败，' + eng2chn(data.error);
+            if (this.props.vulnerStore.vulnerAction === actionType.ACTION_EDIT) {
+                title = '更新POC';
+                content = '更新POC失败，' + eng2chn(data.error);
+            }
+            HttpRequest.asyncPost(this.addSystemLogsCB, '/system-logs/add', {
+                title, content, type: 3,//SYS_ERROR = 3
+            },
+                false);
             // 后台创建记录失败，则用参数 false 通知父组件不更新页面
             actionCB(false, {});
         }
@@ -115,22 +126,22 @@ class VulnerMethodParamsConfig extends React.Component {
             message.info('文件名称长度不能超过20，请重新输入');
             document.getElementById('fileName').value = '';
             return false;
-        // } else if (isContainSpecialCharacter(fileName)) {
-        //     message.info('文件名称含有特殊字符，请重新输入');
-        //     document.getElementById('fileName').value = '';
-        //     return false;
-        // } else if (fileType === null || fileType === ' ' || fileType === '') {
-        //     message.info('文件类型不能为空，请重新输入');
-        //     document.getElementById('fileType').value = '';
-        //     return false;
-        // } else if (fileType.length > 20) {
-        //     message.info('文件类型长度不能超过20，请重新输入');
-        //     document.getElementById('fileType').value = '';
-        //     return false;
-        // } else if (isContainSpecialCharacter(fileType)) {
-        //     message.info('文件类型含有特殊字符，请重新输入');
-        //     document.getElementById('fileType').value = '';
-        //     return false;
+            // } else if (isContainSpecialCharacter(fileName)) {
+            //     message.info('文件名称含有特殊字符，请重新输入');
+            //     document.getElementById('fileName').value = '';
+            //     return false;
+            // } else if (fileType === null || fileType === ' ' || fileType === '') {
+            //     message.info('文件类型不能为空，请重新输入');
+            //     document.getElementById('fileType').value = '';
+            //     return false;
+            // } else if (fileType.length > 20) {
+            //     message.info('文件类型长度不能超过20，请重新输入');
+            //     document.getElementById('fileType').value = '';
+            //     return false;
+            // } else if (isContainSpecialCharacter(fileType)) {
+            //     message.info('文件类型含有特殊字符，请重新输入');
+            //     document.getElementById('fileType').value = '';
+            //     return false;
         } else if (content === null || content === '' || content === ' ') {
             message.info('内容不能为空，请重新输入');
             document.getElementById('content').value = '';
@@ -166,9 +177,9 @@ class VulnerMethodParamsConfig extends React.Component {
             >
                 <form>
                     <Row>
-                    <TextField required fullWidth id="fileName" label="文件名" defaultValue={poc.aliases}
-                                variant="outlined" margin="normal" onChange={this.handleFileNameChange}
-                            />
+                        <TextField required fullWidth id="fileName" label="文件名" defaultValue={poc.aliases}
+                            variant="outlined" margin="normal" onChange={this.handleFileNameChange}
+                        />
                         {/* <Col span={11}>
                             <TextField required fullWidth id="fileName" label="文件名" defaultValue={poc.aliases}
                                 variant="outlined" margin="normal" onChange={this.handleFileNameChange}

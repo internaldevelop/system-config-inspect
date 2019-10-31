@@ -76,9 +76,24 @@ class VulnerParamsConfig extends React.Component {
             actionCB(true, {});
         } else {
             message.error(eng2chn(data.error));
+            //TODO, 测试中为了增加错误日志功能
+            let title = '新建漏洞';
+            let content = '新建漏洞失败，' + eng2chn(data.error);
+            if (this.props.vulnerStore.vulnerAction === actionType.ACTION_EDIT) {
+                title = '更新漏洞';
+                content = '更新漏洞失败，' + eng2chn(data.error);
+            }
+            HttpRequest.asyncPost(this.addSystemLogsCB, '/system-logs/add', {
+                title, content, type: 3,//SYS_ERROR = 3
+            },
+            false);
             // 后台创建记录失败，则用参数 false 通知父组件不更新页面
             actionCB(false, {});
         }
+    }
+
+    addSystemLogsCB = (data) => {
+
     }
 
     handleOk = (e) => {

@@ -130,7 +130,7 @@ class UsersManageView extends React.Component {
                             <Col span={16}>{item.content}</Col>
                             <Col span={4} offset={4}>
                                 <Button onClick={event => this.onClick(event, item.index)}>详情<Icon type="right" /></Button>
-                                <Popconfirm title="确定要删除该用户吗吗？" onConfirm={event => this.onDelete(event, item.index)} okText="确定" cancelText="取消">
+                                <Popconfirm title="确定要删除该用户吗？" onConfirm={event => this.onDelete(event, item.index)} okText="确定" cancelText="取消">
                                 {item.user_group !== 99 && <Button>删除</Button>}
                             </Popconfirm>
 

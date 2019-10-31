@@ -55,6 +55,7 @@ class SystemLogsView extends React.Component {
             // antd 表格的 key 属性复用 index
             // 表格中索引列（后台接口返回数据中没有此属性）
             item.index = index + 1;
+            item.key = index + 1;
             item.level = this.getLogLevelMeaning(item.type);
             return item;
         });
@@ -66,11 +67,12 @@ class SystemLogsView extends React.Component {
     }
 
     logTypeArray() {
-        return ["未知", "成功", "失败", "系统错误", "信息", "异常", "警告",];
+        //TODO, 测试中要求错误日志，这里把失败类型改成错误类型
+        return ["未知", "成功", "错误", "系统错误", "信息", "异常", "告警",];
     }
 
     logLevelArray() {
-        return ["信息", "告警", "严重"];
+        return ["普通", "异常", "严重"];
     }
 
     getLogTypeMeaning(type) {
@@ -81,7 +83,7 @@ class SystemLogsView extends React.Component {
         let typeName = this.logTypeArray()[type];
         if (typeName === "成功" || typeName === "信息") {
             return this.logLevelArray()[0];
-        } else if (typeName === "警告" || typeName === "未知" || typeName === "异常") {
+        } else if (typeName === "告警" || typeName === "未知" || typeName === "异常") {
             return this.logLevelArray()[1];
         } else {
             return this.logLevelArray()[2];
@@ -115,7 +117,14 @@ class SystemLogsView extends React.Component {
         const { resultData } = this.state;
         const tableColumns = [
             {
-                title: '序号', dataIndex: 'index', key: 'index', width: 50,
+                title: '序号', dataIndex: 'index', key: 'key', width: 50,
+            },
+            {
+                title: '级别', dataIndex: 'level', width: 80,
+                // 添加过滤器用于审计
+                filters: this.getLevelColumnFilters(resultData, "type"),
+                filterMultiple: true,
+                onFilter: (value, record) => this.getLogLevelMeaning(record.type).indexOf(value) === 0,
             },
             {
                 title: '类型', dataIndex: 'type', width: 80,
@@ -139,29 +148,26 @@ class SystemLogsView extends React.Component {
             {
                 title: '用户名', dataIndex: 'create_user_name', width: 100,
                 // 添加过滤器用于审计
-                filters: GetTableColumnFilters(resultData, "create_user_name"),
-                filterMultiple: true,
-                onFilter: (value, record) => record.create_user_name.indexOf(value) === 0,
+                // filters: GetTableColumnFilters(resultData, "create_user_name"),
+                // filterMultiple: true,
+                // onFilter: (value, record) => record.create_user_name.indexOf(value) === 0,
             },
             {
                 title: '用户账号', dataIndex: 'create_user_account', width: 100,
                 // 添加过滤器用于审计
-                filters: GetTableColumnFilters(resultData, "create_user_account"),
-                filterMultiple: true,
-                onFilter: (value, record) => record.create_user_account.indexOf(value) === 0,
+                // filters: GetTableColumnFilters(resultData, "create_user_account"),
+                // filterMultiple: true,
+                // onFilter: (value, record) => record.create_user_account.indexOf(value) === 0,
             },
             {
                 title: '时间', dataIndex: 'create_time', width: 130,
             },
-            {
-                title: '级别', dataIndex: 'level', width: 80,
-                // 添加过滤器用于审计
-                // filters: this.getLevelColumnFilters(resultData, "type"),
-                // filterMultiple: true,
-                // onFilter: (value, record) => this.getLogLevelMeaning(record.type).indexOf(value) === 0,
-            },
         ];
         return tableColumns;
+    }
+
+    onChange = () =>{
+
     }
 
     getTableProps() {
@@ -173,6 +179,7 @@ class SystemLogsView extends React.Component {
             columns: this.getTableColumns(),
             rowKey: record => record.uuid,
             dataSource: resultData,
+            onChange: this.onChange,
             // scroll: { x: scrollWidth, y: newScrollHeight },
             scroll: { y: newScrollHeight },
             bordered: true,
@@ -190,7 +197,7 @@ class SystemLogsView extends React.Component {
     render() {
         const userStore = this.props.userStore;
         return (
-            <Skeleton loading={!userStore.isAuditUser} active avatar paragraph={{ rows: 12 }}>
+            <Skeleton loading={userStore.isAdminUser} active avatar paragraph={{ rows: 12 }}>
                 <div style={{ minWidth: GetMainViewMinWidth(), minHeight: GetMainViewMinHeight() }}>
                     <Card title={'操作日志'} style={{ width: '100%', height: '100%' }}
                     >
