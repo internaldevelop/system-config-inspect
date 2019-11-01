@@ -85,7 +85,7 @@ class VulnerMethodManageInfoView extends React.Component {
         columns[columns.length - 1].render = (text, record, index) => (
             <div>
                 <Popconfirm title="确定要删除该条POC吗？" onConfirm={this.handleDel(index).bind(this)} okText="确定" cancelText="取消">
-                    <Button className={classes.actionButton} disabled={!this.isCustomizedData(index)} type="danger" size="small">删除</Button>
+                    <Button className={classes.actionButton} disabled={this.isNewStatus(index) || !this.isCustomizedData(index)} type="danger" size="small">删除</Button>
                 </Popconfirm>
                 <Button className={classes.actionButton} disabled={this.isNewStatus(index)} type="primary" size="small" onClick={this.exportReport(index).bind(this)}>导出</Button>
             </div>
@@ -229,10 +229,9 @@ class VulnerMethodManageInfoView extends React.Component {
     }
 
     deleteVulnerCB = (dataIndex) => (data) => {
-        const { vulners } = this.state;
-        // rowIndex 为行索引，第二个参数 1 为一次去除几行
-        vulners.splice(dataIndex, 1);
-        this.setState({ vulners });
+        // 删除poc不影响当前table的行数
+        //vulners.splice(dataIndex, 1);
+        this.getVulnerResults(this.state.currentPage, this.state.pageSize, this.state.queryType);
     }
 
     /**
@@ -301,7 +300,7 @@ class VulnerMethodManageInfoView extends React.Component {
         vulnerMethodStore.setVulnerMethodAction(actionType.ACTION_NEW);
         vulnerMethodStore.setVulnerMethodProcName(('新建漏洞利用方法'));
         let vulnerMethodItem = {
-            poc: {'aliases': '新建漏洞利用方法', content_type: '', content: ''},
+            poc: {'aliases': '', content_type: '', content: ''},//新建漏洞利用方法
             customized: 1,
             edb_id: vulners[dataIndex].edb_id,
         };
@@ -470,7 +469,7 @@ class VulnerMethodManageInfoView extends React.Component {
                         </Col>
                         <Col span={8} align="right">
                             <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" onKeyPress={this.handleExactKeyPressed.bind(this)} />
-                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch} ><Icon type="search" />精确查询</Button>
+                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch().bind(this)} ><Icon type="search" />精确查询</Button>
                         </Col>
                     </Row>
                     <Table

@@ -29,8 +29,11 @@ const EDB_PORT = '12003'
 // TQ 本机： 192.168.1.60
 // TQ wifi虚拟机： 172.16.113.67
 // 信通所云服务器： 172.16.60.5
-const BASE_URL = '://ytwei.club:' + MAIN_S_PORT + '/';
+// 域名： ytwei.club
+// const BASE_URL = '://172.16.113.67:' + MAIN_S_PORT + '/';
+// export const BASE_URL2 = '://172.16.113.67:' + EDB_PORT;
 
+const BASE_URL = '://ytwei.club:' + MAIN_S_PORT + '/';
 export const BASE_URL2 = '://ytwei.club:' + EDB_PORT;
 
 export function GetSystemType() {

@@ -67,8 +67,8 @@ class SystemLogsView extends React.Component {
     }
 
     logTypeArray() {
-        //TODO, 测试中要求错误日志，这里把失败类型改成错误类型
-        return ["未知", "成功", "错误", "系统错误", "信息", "异常", "告警",];
+        //TODO, 测试中要求运行日志，登录日志，错误日志，这里把失败类型改成错误类型，未知改成登录，成功，信息以及异常都算运行日志
+        return ["登录", "成功", "错误", "系统错误", "信息", "异常", "告警",];
     }
 
     logLevelArray() {
@@ -76,14 +76,23 @@ class SystemLogsView extends React.Component {
     }
 
     getLogTypeMeaning(type) {
-        return this.logTypeArray()[type];
+        if (type === 0) {
+            return "登录";
+        } else if (type === 1 || type === 4 ) {
+            return "运行";
+        } else if (type === 5 || type === 6) {
+            return "告警";
+        } else {
+            return "错误";
+        }
+        //return this.logTypeArray()[type];
     }
 
     getLogLevelMeaning(type) {
         let typeName = this.logTypeArray()[type];
-        if (typeName === "成功" || typeName === "信息") {
+        if (typeName === "成功" || typeName === "信息" || typeName === "登录") {
             return this.logLevelArray()[0];
-        } else if (typeName === "告警" || typeName === "未知" || typeName === "异常") {
+        } else if (typeName === "告警" || typeName === "异常") {
             return this.logLevelArray()[1];
         } else {
             return this.logLevelArray()[2];

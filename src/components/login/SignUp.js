@@ -217,7 +217,7 @@ class SignUp extends React.Component {
             }
             <Typography variant="body2" align="center">
               {'已有账号？  '}
-              <Link href="/#/login" align="center" underline="always">
+              <Link href="./#/login" align="center" underline="always">
                 返回登录
               </Link>
             </Typography>

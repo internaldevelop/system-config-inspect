@@ -223,7 +223,7 @@ class VulnerManageInfoView extends React.Component {
         vulnerStore.setVulnerAction(actionType.ACTION_NEW);
         vulnerStore.setVulnerProcName(('新建漏洞'));
         let vulnerItem = {
-            title: '新建漏洞',
+            title: '',//新建漏洞
             customized: 1,
         };
         vulnerStore.initVulnerItem(vulnerItem);
@@ -360,7 +360,7 @@ class VulnerManageInfoView extends React.Component {
     }
 
     getExactSearch = () => (event) => {
-        this.fuzzySearch();
+        this.exactSearch();
     };
 
     exactSearch = () => {
@@ -391,7 +391,7 @@ class VulnerManageInfoView extends React.Component {
                         </Col>
                         <Col span={7} align="left">
                             <Input className={classes.antInput} size="large" value={this.state.inputValue2} onChange={this.handleGetInputValue2.bind(this)} placeholder="漏洞编号" onKeyPress={this.handleExactKeyPressed.bind(this)} />
-                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch} ><Icon type="search" />精确查询</Button>
+                            <Button className={classes.iconButton} type="primary" size="large" onClick={this.getExactSearch().bind(this)} ><Icon type="search" />精确查询</Button>
                         </Col>
                         <Col span={4} align="right"><Button type="primary" size="large" onClick={this.handleNewVulner.bind(this)}><Icon type="plus-circle-o" />新建漏洞信息</Button></Col>
                         <Col span={2} align="right">

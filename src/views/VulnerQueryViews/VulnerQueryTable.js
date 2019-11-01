@@ -97,7 +97,11 @@ class VulnerQueryTable extends React.Component {
     }
 
     getResultsCB = (data) => {
-        if ((typeof data === "undefined") || (data.payload.items.length === 0)) {
+        if ((typeof data === "undefined") || data.payload === null ||
+            data.payload === undefined || 
+            data.payload.items === null ||
+            data.payload.items === undefined ||
+            (data.payload.items.length === 0)) {
             return [];
         }
         let currentPage = (data.payload.items.length % 10 == 0) ? (data.payload.items.length / 10) : (data.payload.items.length / 10 + 1);
@@ -187,7 +191,7 @@ class VulnerQueryTable extends React.Component {
                     showSizeChanger: true,
                     onChange(current, pageSize) {  //点击改变页数的选项时调用函数，current:将要跳转的页数
                         self.handlePageChange(current, pageSize);
-                        
+
                     },
                     onShowSizeChange(current, pageSize) {  //当几条一页的值改变后调用函数，current：改变显示条数时当前数据所在页；pageSize:改变后的一页显示条数
                         self.handlePageChange(current, pageSize);

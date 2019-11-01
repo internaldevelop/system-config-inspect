@@ -344,7 +344,7 @@ class LogIn extends React.Component {
                             }
                             <Typography variant="body2" align="center">
                                 {'没有账号？  '}
-                                <Link href="/#/signup" align="center" underline="always">
+                                <Link href="./#/signup" align="center" underline="always">
                                     点击这里注册
                             </Link>
                             </Typography>
