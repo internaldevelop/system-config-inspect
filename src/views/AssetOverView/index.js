@@ -96,7 +96,8 @@ class AssetOverView extends React.Component {
             // payload
             let payload = message.payload;
             // 不是当前选择的资产信息忽略
-            if (payload['asset_uuid'] !== assets[selectedAssetId].uuid) {
+            if (assets[selectedAssetId] === null 
+                || payload['asset_uuid'] !== assets[selectedAssetId].uuid) {
                 return;
             }
 

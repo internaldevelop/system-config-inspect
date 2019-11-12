@@ -7,34 +7,34 @@
 const SYSTEM_TYPE = 4;
 
 
-var PROTOCOL = 'https';
-// 主服务端口：ng映射端口 12001
-const MAIN_S_PORT = '12001';
-// Agent服务端口：ng映射端口 12002
-const AGENT_S_PORT = '12002';
-// 漏洞库服务端口：ng映射端口 12003
-const EDB_PORT = '12003'
+// var PROTOCOL = 'https';
+// // 主服务端口：ng映射端口 12001
+// const MAIN_S_PORT = '12001';
+// // Agent服务端口：ng映射端口 12002
+// const AGENT_S_PORT = '12002';
+// // 漏洞库服务端口：ng映射端口 12003
+// const EDB_PORT = '12003'
 
-// var PROTOCOL = 'http';
-// // 主服务端口：原始端口 8090
-// const MAIN_S_PORT = '8090';
-// // Agent服务端口：原始端口 8191
-// const AGENT_S_PORT = '8191';
-// // 漏洞库服务端口：原始端口 10091
-// const EDB_PORT = '10091'
+var PROTOCOL = 'http';
+// 主服务端口：原始端口 8090
+const MAIN_S_PORT = '8090';
+// Agent服务端口：原始端口 8191
+const AGENT_S_PORT = '8191';
+// 漏洞库服务端口：原始端口 10091
+const EDB_PORT = '10091'
 
 // 本地： localhost
 // WYT 虚拟机： 192.168.182.88
 // TQ 直连虚拟机： 192.168.1.70
 // TQ 本机： 192.168.1.60
-// TQ wifi虚拟机： 172.16.113.67
+// TQ wifi虚拟机： 172.16.113.39
 // 信通所云服务器： 172.16.60.5
 // 域名： ytwei.club
-// const BASE_URL = '://172.16.113.67:' + MAIN_S_PORT + '/';
-// export const BASE_URL2 = '://172.16.113.67:' + EDB_PORT;
+const BASE_URL = '://172.16.113.39:' + MAIN_S_PORT + '/';
+export const BASE_URL2 = '://172.16.113.39:' + EDB_PORT;
 
-const BASE_URL = '://ytwei.club:' + MAIN_S_PORT + '/';
-export const BASE_URL2 = '://ytwei.club:' + EDB_PORT;
+// const BASE_URL = '://ytwei.club:' + MAIN_S_PORT + '/';
+// export const BASE_URL2 = '://ytwei.club:' + EDB_PORT;
 
 export function GetSystemType() {
     return SYSTEM_TYPE;
