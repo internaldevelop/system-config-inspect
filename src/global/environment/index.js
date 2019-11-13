@@ -8,13 +8,13 @@
 // // 漏洞库服务端口：ng映射端口 12003
 // const EDB_PORT = '12003'
 
-var PROTOCOL = 'http';
+// var PROTOCOL = 'http';
 // 主服务端口：原始端口 8090
-const MAIN_S_PORT = '8090';
+// const MAIN_S_PORT = '8090';
 // Agent服务端口：原始端口 8191
-const AGENT_S_PORT = '8191';
+// const AGENT_S_PORT = '8191';
 // 漏洞库服务端口：原始端口 10091
-const EDB_PORT = '10091'
+// const EDB_PORT = '10091'
 
 // 本地： localhost
 // WYT 虚拟机： 192.168.182.88
@@ -23,8 +23,8 @@ const EDB_PORT = '10091'
 // TQ wifi虚拟机： 172.16.113.39
 // 信通所云服务器： 172.16.60.5
 // 域名： ytwei.club
-const BASE_URL = '://192.168.182.88:' + MAIN_S_PORT + '/';
-export const BASE_URL2 = '://192.168.182.88:' + EDB_PORT;
+// const BASE_URL = '://192.168.182.88:' + MAIN_S_PORT + '/';
+// export const BASE_URL2 = '://192.168.182.88:' + EDB_PORT;
 
 // const BASE_URL = '://ytwei.club:' + MAIN_S_PORT + '/';
 // export const BASE_URL2 = '://ytwei.club:' + EDB_PORT;
@@ -32,6 +32,7 @@ export const BASE_URL2 = '://192.168.182.88:' + EDB_PORT;
 export function LoadEnvironConfig() {
     // 默认环境参数
     global.myEnvironConfig = {
+        "viewMinWidth": 1100,
         "systemType": 1,
         "systemName": [
             "主站 & 终端系统自动化配置核查工具",
@@ -80,26 +81,31 @@ function _getWsProtocol() {
 
 export function GetMainServerRootUrl() {
     let protocol = _getHttpProtocol();
-    return protocol + BASE_URL + 'api';
+    let url = global.myEnvironConfig.mainServerUrl;
+    let port = global.myEnvironConfig.mainServerPort;
+    return protocol + '://' + url + ':' + port + '/api';
 }
 
 export function GetEdbServerRootUrl() {
-    return PROTOCOL + BASE_URL2;
+    let protocol = _getHttpProtocol();
+    let url = global.myEnvironConfig.edbServerUrl;
+    let port = global.myEnvironConfig.edbServerPort;
+    return protocol + '://' + url + ':' + port;
 }
 
 export function GetAgentRootUrl(agentIp) {
-    return PROTOCOL + '://' + agentIp + ':' + AGENT_S_PORT;
+    let protocol = _getHttpProtocol();
+    let port = global.myEnvironConfig.agentServerPort;
+    return protocol + '://' + agentIp + ':' + port;
 }
 
 export function GetWebSocketUrl() {
-    return 'ws' + BASE_URL + 'websocket/';
-}
-
-export function IsSimulateMode() {
-    // return true;
-    return false;
+    let protocol = _getWsProtocol();
+    let url = global.myEnvironConfig.mainServerUrl;
+    let port = global.myEnvironConfig.mainServerPort;
+    return protocol + '://' + url + ':' + port + '/websocket/';
 }
 
 export function GetViewMinWidth() {
-    return 1100;
+    return global.myEnvironConfig.viewMinWidth;
 }
