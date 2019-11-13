@@ -4,7 +4,7 @@ import { message } from 'antd'
 import axios from 'axios';
 import Qs from 'qs';
 import { errorCode } from '../global/error'
-import { GetBackEndRootUrl, GetBackEndRootUrl2, BASE_URL2 } from '../global/environment'
+import { GetMainServerRootUrl, GetEdbServerRootUrl } from '../global/environment'
 import { eng2chn } from '../utils/StringUtils'
 
 
@@ -21,7 +21,7 @@ class HttpRequest {
         // 配合后端实现固定的 session id
         axios.defaults.withCredentials=true;
 
-        axios.get(GetBackEndRootUrl() + path, { params: params })
+        axios.get(GetMainServerRootUrl() + path, { params: params })
             .then((response) => response.data)
             .then((data) => {
                 console.log('axios asyncGet data, return:');
@@ -64,7 +64,7 @@ class HttpRequest {
         // 配合后端实现固定的 session id
         axios.defaults.withCredentials=true;
 
-        axios.get(GetBackEndRootUrl2(BASE_URL2) + path, { params: params })
+        axios.get(GetEdbServerRootUrl() + path, { params: params })
             .then((response) => response.data)
             .then((data) => {
                 console.log('axios asyncGet data, return:');
@@ -107,7 +107,7 @@ class HttpRequest {
         // 配合后端实现固定的 session id
         axios.defaults.withCredentials=true;
 
-        axios.post(GetBackEndRootUrl2(BASE_URL2) + path, Qs.stringify(params))
+        axios.post(GetEdbServerRootUrl() + path, Qs.stringify(params))
             .then((response) => response.data)
             .then((data) => {
                 console.log('axios asyncPost data, return:');
@@ -139,7 +139,7 @@ class HttpRequest {
         // 配合后端实现固定的 session id
         axios.defaults.withCredentials=true;
 
-        axios.post(GetBackEndRootUrl() + path, Qs.stringify(params))
+        axios.post(GetMainServerRootUrl() + path, Qs.stringify(params))
             .then((response) => response.data)
             .then((data) => {
                 console.log('axios asyncPost data, return:');

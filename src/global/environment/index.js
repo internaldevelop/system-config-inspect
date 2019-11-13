@@ -1,12 +1,5 @@
 
 
-// 1: 主站系统自动化配置核查工具
-// 2: 终端系统自动化配置检测工具
-// 3: 主站性能测试工具
-// 4: 终端漏洞利用工具
-const SYSTEM_TYPE = 4;
-
-
 // var PROTOCOL = 'https';
 // // 主服务端口：ng映射端口 12001
 // const MAIN_S_PORT = '12001';
@@ -30,36 +23,68 @@ const EDB_PORT = '10091'
 // TQ wifi虚拟机： 172.16.113.39
 // 信通所云服务器： 172.16.60.5
 // 域名： ytwei.club
-const BASE_URL = '://172.16.113.39:' + MAIN_S_PORT + '/';
-export const BASE_URL2 = '://172.16.113.39:' + EDB_PORT;
+const BASE_URL = '://192.168.182.88:' + MAIN_S_PORT + '/';
+export const BASE_URL2 = '://192.168.182.88:' + EDB_PORT;
 
 // const BASE_URL = '://ytwei.club:' + MAIN_S_PORT + '/';
 // export const BASE_URL2 = '://ytwei.club:' + EDB_PORT;
 
+export function LoadEnvironConfig() {
+    // 默认环境参数
+    global.myEnvironConfig = {
+        "systemType": 1,
+        "systemName": [
+            "主站 & 终端系统自动化配置核查工具",
+            "主站系统自动化配置核查工具",
+            "终端系统自动化配置检测工具",
+            "主站性能测试工具",
+            "终端漏洞利用工具"
+        ],
+        "ssl": false,
+        "mainServerPort": "8090",
+        "agentServerPort": "8191",
+        "edbServerPort": "10091",
+        "mainServerUrl": "192.168.182.88",
+        "edbServerUrl": "192.168.182.88"
+    };
+
+    // 读取环境参数配置文件
+    fetch("./environ_config.json")
+        .then(res => res.json())
+        .then(json => {
+            global.myEnvironConfig = json;
+            console.log(json);
+        })
+}
+
 export function GetSystemType() {
-    return SYSTEM_TYPE;
+    return global.myEnvironConfig.systemType;
 }
 
 export function GetSystemName() {
-    if (SYSTEM_TYPE === 1) {
-        return "主站系统自动化配置核查工具";
-    } else if (SYSTEM_TYPE === 2) {
-        return "终端系统自动化配置检测工具";
-    } else if (SYSTEM_TYPE === 3) {
-        return "主站性能测试工具";
-    } else if (SYSTEM_TYPE === 4) {
-        return "终端漏洞利用工具";
-    } else {
-        return "主站 & 终端系统自动化配置核查工具";
-    }
+    let systemType = GetSystemType();
+    return global.myEnvironConfig.systemName[systemType];
 }
 
-export function GetBackEndRootUrl() {
-    return PROTOCOL + BASE_URL + 'api';
+function _sslProtocol() {
+    return global.myEnvironConfig.ssl;
 }
 
-export function GetBackEndRootUrl2(baseUrl) {
-    return PROTOCOL + baseUrl;
+function _getHttpProtocol() {
+    return _sslProtocol() ? 'https' : 'http';
+}
+
+function _getWsProtocol() {
+    return _sslProtocol() ? 'wss' : 'ws';
+}
+
+export function GetMainServerRootUrl() {
+    let protocol = _getHttpProtocol();
+    return protocol + BASE_URL + 'api';
+}
+
+export function GetEdbServerRootUrl() {
+    return PROTOCOL + BASE_URL2;
 }
 
 export function GetAgentRootUrl(agentIp) {

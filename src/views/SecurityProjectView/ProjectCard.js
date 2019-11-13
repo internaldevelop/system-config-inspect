@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Progress, Card, Form, Icon, Button, Row, Col, Modal, Popconfirm } from 'antd';
 import { inject } from 'mobx-react'
-import { GetBackEndRootUrl } from '../../global/environment'
+import { GetMainServerRootUrl } from '../../global/environment'
 import { taskRunStatus } from '../../global/enumeration/TaskRunStatus'
 import TaskExecResultsView from '../SecurityStatistics/TaskExecResultsView'
 import TaskParamsConfig from '../TaskManageView/TaskParamsConfig'
@@ -47,7 +47,7 @@ class ProjectCard extends React.Component {
         const projectItem = this.props.projectStore.projectItem;
         const inputValue = status.name;
         const selectValue = projectItem.output_mode_name;
-        window.location.href = GetBackEndRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
+        window.location.href = GetMainServerRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
     }
 
     isShownExportReport = (status) => {

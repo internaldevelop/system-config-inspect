@@ -6,7 +6,7 @@ import { Card, Row, Col, Divider, message } from 'antd'
 
 import SystemImage from '../../resources/image/shield-ok-icon.png'
 // import { GetSystemInfo } from '../../global/data/system'
-import { GetBackEndRootUrl, IsSimulateMode } from '../../global/environment'
+import { GetMainServerRootUrl, IsSimulateMode } from '../../global/environment'
 import { errorCode } from '../../global/error'
 import { Button } from '@material-ui/core';
 import HttpRequest from '../../utils/HttpRequest';

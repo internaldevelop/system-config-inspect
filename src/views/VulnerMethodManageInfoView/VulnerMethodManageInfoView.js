@@ -11,7 +11,7 @@ import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
 import { isContainSpecialCharacter } from '../../utils/ObjUtils'
-import { GetBackEndRootUrl2, BASE_URL2 } from '../../global/environment'
+import { GetEdbServerRootUrl } from '../../global/environment'
 import { errorCode } from '../../global/error'
 
 const TabPane = Tabs.TabPane;
@@ -274,7 +274,7 @@ class VulnerMethodManageInfoView extends React.Component {
         let dataIndex = this.transferDataIndex(rowIndex);
         const vulnerMethodItem = this.state.vulners[dataIndex];
         if (vulnerMethodItem.poc.aliases !== null && vulnerMethodItem.poc.aliases !== undefined) {
-            window.location.href = GetBackEndRootUrl2(BASE_URL2) + '/edb/poc/download?edb_id=' + this.state.vulners[dataIndex].edb_id;
+            window.location.href = GetEdbServerRootUrl() + '/edb/poc/download?edb_id=' + this.state.vulners[dataIndex].edb_id;
         } else {
             message.info('没有查询到相应的利用方法文件。');
         }

@@ -4,6 +4,7 @@ import { HashRouter, Route, Switch } from 'react-router-dom'
 import PrivateRoute from './AppRouter/PrivateRoute'
 import LoginPage from '../components/login/LoginPage'
 import Signup from '../components/login/SignUp';
+import { LoadEnvironConfig } from "../global/environment"
 import SystemEntry from './SystemEntry'
 
 import EventEmitter from 'events';
@@ -29,6 +30,10 @@ class App extends Component {
   //   let newData = arrData.map((value) => value.key + ": " + value.value);
 
   // }
+  componentWillMount = () => {
+    LoadEnvironConfig();
+  }
+
   componentDidMount() {
     global.myEventEmitter = new EventEmitter();
   }

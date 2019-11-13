@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import HttpRequest from '../../utils/HttpRequest';
-import { GetBackEndRootUrl } from '../../global/environment'
+import { GetMainServerRootUrl } from '../../global/environment'
 import { observer, inject } from 'mobx-react'
 import { userType } from '../../global/enumeration/UserType'
 import { TrimStr } from '../../utils/StringUtils'
@@ -91,7 +91,7 @@ class InspectResultView extends React.Component {
     // 导出
     exportTasksResults = () => {
         const { inputValue, selectValue } = this.state;
-        window.location.href = GetBackEndRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
+        window.location.href = GetMainServerRootUrl() + '/tasks/results/export?taskNameIpType=' + inputValue + '&type=' + selectValue;
     }
 
     callback = (key) => {

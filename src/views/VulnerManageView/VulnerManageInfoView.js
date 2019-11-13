@@ -11,7 +11,7 @@ import { DeepClone, DeepCopy } from '../../utils/ObjUtils'
 import { GetMainViewHeight } from '../../utils/PageUtils'
 import HttpRequest from '../../utils/HttpRequest';
 import { isContainSpecialCharacter } from '../../utils/ObjUtils'
-import { GetBackEndRootUrl2, BASE_URL2 } from '../../global/environment'
+import { GetEdbServerRootUrl } from '../../global/environment'
 import { errorCode } from '../../global/error'
 import { values } from 'mobx';
 
@@ -203,7 +203,7 @@ class VulnerManageInfoView extends React.Component {
         for(let item of vulners) {
             idList = idList + item.edb_id + ',';
         }
-        window.location.href = GetBackEndRootUrl2(BASE_URL2) + '/edb/exportxls?id_list=' + idList;
+        window.location.href = GetEdbServerRootUrl() + '/edb/exportxls?id_list=' + idList;
     }
 
     /** 处理编辑操作 */

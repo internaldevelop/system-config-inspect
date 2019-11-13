@@ -15,7 +15,7 @@ import { isValidAccount } from '../../utils/ObjUtils';
 import { OpenSocket, CloseSocket } from '../../utils/WebSocket';
 import { errorCode } from '../../global/error';
 import { sockMsgType } from '../../global/enumeration/SockMsgType'
-import { GetBackEndRootUrl, GetAgentRootUrl } from '../../global/environment'
+import { GetMainServerRootUrl, GetAgentRootUrl } from '../../global/environment'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -241,7 +241,7 @@ class PerformanceOverView extends React.Component {
     // 导出报告
     exportReport = () => {
         const { assets, selectedAssetId } = this.state;
-        window.location.href = GetBackEndRootUrl() + '/assets-network/export?asset_uuid=' + assets[selectedAssetId].uuid;
+        window.location.href = GetMainServerRootUrl() + '/assets-network/export?asset_uuid=' + assets[selectedAssetId].uuid;
     }
 
     getAssetSelectList = () => {
